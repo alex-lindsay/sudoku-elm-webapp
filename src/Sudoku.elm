@@ -38,9 +38,7 @@ newCell =
 
 
 newBoard : Array (Array Cell)
-newBoard =
-    Array.fromList <|
-        List.map (\_ -> List.repeat 9 newCell) (List.range 1 9)
+newBoard = Array.repeat 9 (Array.repeat 9 newCell)
 
 
 init : Model
@@ -62,19 +60,6 @@ view model =
         , button [ onClick (SetGameState SetKnown) ] [ text "Known" ]
         , button [ onClick (SetGameState SetGuess) ] [ text "Guess" ]
         , button [ onClick (SetGameState SetMarks) ] [ text "Marks" ]
-        , Html.table []
-            (List.map
-                (\row ->
-                    Html.tr []
-                        (List.map
-                            (\cell ->
-                                Html.td [] [ text <| String.fromInt <| cell.value ]
-                            )
-                            row
-                        )
-                )
-                (Array.toList model.cells)
-            )
         ]
    
 
