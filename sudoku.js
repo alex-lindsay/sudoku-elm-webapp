@@ -5233,6 +5233,105 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
+var $elm$core$Array$indexedMap = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var initialBuilder = {
+			nodeList: _List_Nil,
+			nodeListSize: 0,
+			tail: A3(
+				$elm$core$Elm$JsArray$indexedMap,
+				func,
+				$elm$core$Array$tailIndex(len),
+				tail)
+		};
+		var helper = F2(
+			function (node, builder) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
+				} else {
+					var leaf = node.a;
+					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
+					var mappedLeaf = $elm$core$Array$Leaf(
+						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
+					return {
+						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
+						nodeListSize: builder.nodeListSize + 1,
+						tail: builder.tail
+					};
+				}
+			});
+		return A2(
+			$elm$core$Array$builderToArray,
+			true,
+			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var $author$project$Sudoku$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5246,6 +5345,48 @@ var $author$project$Sudoku$update = F2(
 				return _Utils_update(
 					model,
 					{activeNumber: activeNumber});
+			case 'SetCellValue':
+				var _v1 = msg.a;
+				var rowNum = _v1.a;
+				var colNum = _v1.b;
+				var cell = A2(
+					$elm$core$Maybe$andThen,
+					$elm$core$Array$get(colNum),
+					A2($elm$core$Array$get, rowNum, model.cells));
+				var updatedCell = function () {
+					var _v2 = _Utils_Tuple3(model.gameState, model.activeNumber, cell);
+					if (((_v2.a.$ === 'SetKnown') && (_v2.b.$ === 'Just')) && (_v2.c.$ === 'Just')) {
+						var _v3 = _v2.a;
+						var number = _v2.b.a;
+						var actualCell = _v2.c.a;
+						return _Utils_update(
+							actualCell,
+							{
+								value: (!number) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(number)
+							});
+					} else {
+						return A2($elm$core$Maybe$withDefault, $author$project$Sudoku$newCell, cell);
+					}
+				}();
+				return _Utils_update(
+					model,
+					{
+						cells: A2(
+							$elm$core$Array$indexedMap,
+							F2(
+								function (r, row) {
+									return (!_Utils_eq(r, rowNum)) ? row : A2(
+										$elm$core$Array$indexedMap,
+										F2(
+											function (c, col) {
+												return (!_Utils_eq(c, colNum)) ? col : updatedCell;
+											}),
+										row);
+								}),
+							model.cells),
+						selectedCell: $elm$core$Maybe$Just(
+							_Utils_Tuple2(rowNum, colNum))
+					});
 			default:
 				return $author$project$Sudoku$init;
 		}
@@ -5253,6 +5394,9 @@ var $author$project$Sudoku$update = F2(
 var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
+};
+var $author$project$Sudoku$SetCellValue = function (a) {
+	return {$: 'SetCellValue', a: a};
 };
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
@@ -5295,50 +5439,9 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
-var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
 };
-var $elm$core$Array$indexedMap = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var initialBuilder = {
-			nodeList: _List_Nil,
-			nodeListSize: 0,
-			tail: A3(
-				$elm$core$Elm$JsArray$indexedMap,
-				func,
-				$elm$core$Array$tailIndex(len),
-				tail)
-		};
-		var helper = F2(
-			function (node, builder) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
-				} else {
-					var leaf = node.a;
-					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
-					var mappedLeaf = $elm$core$Array$Leaf(
-						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
-					return {
-						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
-						nodeListSize: builder.nodeListSize + 1,
-						tail: builder.tail
-					};
-				}
-			});
-		return A2(
-			$elm$core$Array$builderToArray,
-			true,
-			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5358,15 +5461,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Sudoku$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5527,8 +5621,19 @@ var $author$project$Sudoku$view = function (model) {
 																		_Utils_Tuple2('col', true),
 																		_Utils_Tuple2(
 																		'col' + $elm$core$String$fromInt(colIndex),
-																		true)
-																	]))
+																		true),
+																		_Utils_Tuple2(
+																		'active-cell',
+																		_Utils_eq(
+																			_Utils_Tuple2(rowIndex, colIndex),
+																			A2(
+																				$elm$core$Maybe$withDefault,
+																				_Utils_Tuple2(-1, -1),
+																				model.selectedCell)))
+																	])),
+																$elm$html$Html$Events$onClick(
+																$author$project$Sudoku$SetCellValue(
+																	_Utils_Tuple2(rowIndex, colIndex)))
 															]),
 														_List_fromArray(
 															[

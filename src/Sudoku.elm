@@ -5,6 +5,7 @@ import Browser
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
+import Debug exposing (log, toString)
 
 
 type GameState
@@ -16,6 +17,7 @@ type GameState
 type Msg
     = SetGameState GameState
     | SetActiveNumber (Maybe Int)
+    | SetCellValue ( Int, Int )
     | GenerateBoard
 
 
@@ -31,7 +33,7 @@ type alias Model =
     { gameState : GameState
     , activeNumber : Maybe Int
     , cells : Array (Array Cell)
-    , selectedCell : Maybe (Int, Int)
+    , selectedCell : Maybe ( Int, Int )
     }
 
 
@@ -66,6 +68,50 @@ update msg model =
 
         SetActiveNumber activeNumber ->
             { model | activeNumber = activeNumber }
+
+        SetCellValue ( rowNum, colNum ) ->
+            let
+                cell =
+                    Array.get rowNum model.cells |> Maybe.andThen (Array.get colNum)
+
+                -- Only update the cell value if the game state is SetKnown
+                -- and there is an active number
+                updatedCell =
+                    case ( model.gameState, model.activeNumber, cell ) of
+                        ( SetKnown, Just number, Just actualCell ) ->
+                            { actualCell
+                                | value =
+                                    if number == 0 then
+                                        Nothing
+
+                                    else
+                                        Just number
+                            }
+
+                        _ ->
+                            cell |> Maybe.withDefault newCell
+            in
+            { model
+                | cells =
+                    model.cells
+                        |> Array.indexedMap
+                            (\r row ->
+                                if r /= rowNum then
+                                    row
+
+                                else
+                                    row
+                                        |> Array.indexedMap
+                                            (\c col ->
+                                                if c /= colNum then
+                                                    col
+
+                                                else
+                                                    updatedCell
+                                            )
+                            ),
+                    selectedCell = Just (rowNum, colNum)
+            }
 
         GenerateBoard ->
             init
@@ -113,7 +159,13 @@ view model =
                             (Array.toList
                                 (Array.indexedMap
                                     (\colIndex col ->
-                                        div [ classList [ ( "col", True ), ( "col" ++ String.fromInt colIndex, True ) ] ]
+                                        div [ 
+                                            classList [ 
+                                                ( "col", True )
+                                                , ( "col" ++ String.fromInt colIndex, True )
+                                                , ("active-cell", ((rowIndex, colIndex) == (model.selectedCell |> Maybe.withDefault (-1,-1)))) 
+                                                ]
+                                            , onClick (SetCellValue (rowIndex, colIndex)) ]
                                             [ div [ class "value" ]
                                                 [ if Maybe.withDefault 0 col.value /= 0 then
                                                     text <| String.fromInt (Maybe.withDefault 0 col.value)
