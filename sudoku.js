@@ -5387,27 +5387,6 @@ var $author$project$Sudoku$update = F2(
 						selectedCell: $elm$core$Maybe$Just(
 							_Utils_Tuple2(rowNum, colNum))
 					});
-			case 'ClearActiveCell':
-				var _v4 = _Utils_Tuple2(model.gameState, model.selectedCell);
-				if (_v4.b.$ === 'Just') {
-					switch (_v4.a.$) {
-						case 'SetKnown':
-							var _v5 = _v4.a;
-							var cell = _v4.b.a;
-							return model;
-						case 'SetGuess':
-							var _v6 = _v4.a;
-							var cell = _v4.b.a;
-							return model;
-						default:
-							var _v7 = _v4.a;
-							var cell = _v4.b.a;
-							return model;
-					}
-				} else {
-					var _v8 = _v4.b;
-					return model;
-				}
 			default:
 				return $author$project$Sudoku$init;
 		}

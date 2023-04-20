@@ -5,7 +5,7 @@ import Browser
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import Debug exposing (log, toString)
+-- import Debug exposing (log, toString)
 import List exposing (append)
 
 
@@ -19,7 +19,6 @@ type Msg
     = SetGameState GameState
     | SetActiveNumber (Maybe Int)
     | SetCellValue ( Int, Int )
-    | ClearActiveCell
     | GenerateBoard
 
 
@@ -97,7 +96,7 @@ init =
 updateCell : Model -> (Int, Int) -> Maybe Int -> Model
 updateCell model (rowNum, colNum) value = 
     case value of
-        Just val ->
+        Just _ ->
             let
                 cell =
                     Array.get rowNum model.cells |> Maybe.andThen (Array.get colNum)
@@ -197,17 +196,6 @@ update msg model =
                             ),
                     selectedCell = Just (rowNum, colNum)
             }
-
-        ClearActiveCell ->
-            case (model.gameState, model.selectedCell) of
-                (SetKnown, Just cell) ->
-                    model
-                (SetGuess, Just cell) ->
-                    model
-                (SetMarks, Just cell) ->
-                    model
-                (_, Nothing) ->
-                    model
 
         GenerateBoard ->
             init
