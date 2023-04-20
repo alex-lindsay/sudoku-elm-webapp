@@ -6,6 +6,7 @@ import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Debug exposing (log, toString)
+import List exposing (append)
 
 
 type GameState
@@ -18,6 +19,7 @@ type Msg
     = SetGameState GameState
     | SetActiveNumber (Maybe Int)
     | SetCellValue ( Int, Int )
+    | ClearActiveCell
     | GenerateBoard
 
 
@@ -51,6 +53,39 @@ newBoard =
     Array.repeat 9 (Array.repeat 9 newCell)
 
 
+isGuessDisabled : Model -> Bool
+isGuessDisabled model =
+    case model.selectedCell of
+        Just (r, c) ->
+            case Array.get r model.cells of
+                Just row ->
+                    case Array.get c row of
+                        Just cell ->
+                            cell.isVisible && cell.value /= Nothing
+                        Nothing ->
+                            True
+                Nothing ->
+                    True
+        Nothing ->
+            False
+
+
+isMarksDisabled : Model -> Bool
+isMarksDisabled model =
+    case model.selectedCell of
+        Just (r, c) ->
+            case Array.get r model.cells of
+                Just row ->
+                    case Array.get c row of
+                        Just cell ->
+                            cell.isVisible && cell.value /= Nothing
+                        Nothing ->
+                            True
+                Nothing ->
+                    True
+        Nothing ->
+            False
+
 init : Model
 init =
     { gameState = SetKnown
@@ -58,6 +93,56 @@ init =
     , cells = newBoard
     , selectedCell = Nothing
     }
+
+updateCell : Model -> (Int, Int) -> Maybe Int -> Model
+updateCell model (rowNum, colNum) value = 
+    case value of
+        Just val ->
+            let
+                cell =
+                    Array.get rowNum model.cells |> Maybe.andThen (Array.get colNum)
+
+                -- Only update the cell value if the game state is SetKnown
+                -- and there is an active number
+                updatedCell =
+                    case ( model.gameState, model.activeNumber, cell ) of
+                        ( SetKnown, Just number, Just actualCell ) ->
+                            { actualCell
+                                | value =
+                                    if number == 0 then
+                                        Nothing
+
+                                    else
+                                        Just number
+                            }
+
+                        _ ->
+                            cell |> Maybe.withDefault newCell
+            in
+            { model
+                | cells =
+                    model.cells
+                        |> Array.indexedMap
+                            (\r row ->
+                                if r /= rowNum then
+                                    row
+
+                                else
+                                    row
+                                        |> Array.indexedMap
+                                            (\c col ->
+                                                if c /= colNum then
+                                                    col
+
+                                                else
+                                                    updatedCell
+                                            )
+                            ),
+                    selectedCell = Just (rowNum, colNum)
+            }
+
+        _ ->
+            model
 
 
 update : Msg -> Model -> Model
@@ -113,6 +198,17 @@ update msg model =
                     selectedCell = Just (rowNum, colNum)
             }
 
+        ClearActiveCell ->
+            case (model.gameState, model.selectedCell) of
+                (SetKnown, Just cell) ->
+                    model
+                (SetGuess, Just cell) ->
+                    model
+                (SetMarks, Just cell) ->
+                    model
+                (_, Nothing) ->
+                    model
+
         GenerateBoard ->
             init
 
@@ -129,18 +225,18 @@ view model =
                     ]
                     [ text "Known" ]
                 , button
-                    [ classList [ ( "active-mode", model.gameState == SetGuess ) ]
+                    [ classList [ ( "active-mode", model.gameState == SetGuess ), ( "disabled", isGuessDisabled model ) ]
                     , onClick (SetGameState SetGuess)
                     ]
                     [ text "Guess" ]
                 , button
-                    [ classList [ ( "active-mode", model.gameState == SetMarks ) ]
+                    [ classList [ ( "active-mode", model.gameState == SetMarks ), ( "disabled", isMarksDisabled model ) ]
                     , onClick (SetGameState SetMarks)
                     ]
                     [ text "Marks" ]
                 ]
             , div [ class "number-buttons" ]
-                (List.map
+                (append (List.map
                     (\n ->
                         button
                             [ classList [ ( "active-number", model.activeNumber == Just n ) ]
@@ -150,6 +246,12 @@ view model =
                     )
                     (List.range 1 9)
                 )
+                [button
+                            [ classList [ ( "active-number", model.activeNumber == Just 0 ) ]
+                            , onClick (SetActiveNumber (Just 0))
+                            ]
+                            [ text "X" ]
+                ])
             ]
         , div [ class "board-container" ]
             (Array.toList

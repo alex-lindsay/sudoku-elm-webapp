@@ -5387,6 +5387,27 @@ var $author$project$Sudoku$update = F2(
 						selectedCell: $elm$core$Maybe$Just(
 							_Utils_Tuple2(rowNum, colNum))
 					});
+			case 'ClearActiveCell':
+				var _v4 = _Utils_Tuple2(model.gameState, model.selectedCell);
+				if (_v4.b.$ === 'Just') {
+					switch (_v4.a.$) {
+						case 'SetKnown':
+							var _v5 = _v4.a;
+							var cell = _v4.b.a;
+							return model;
+						case 'SetGuess':
+							var _v6 = _v4.a;
+							var cell = _v4.b.a;
+							return model;
+						default:
+							var _v7 = _v4.a;
+							var cell = _v4.b.a;
+							return model;
+					}
+				} else {
+					var _v8 = _v4.b;
+					return model;
+				}
 			default:
 				return $author$project$Sudoku$init;
 		}
@@ -5403,6 +5424,14 @@ var $author$project$Sudoku$SetGameState = function (a) {
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5439,6 +5468,52 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Sudoku$isGuessDisabled = function (model) {
+	var _v0 = model.selectedCell;
+	if (_v0.$ === 'Just') {
+		var _v1 = _v0.a;
+		var r = _v1.a;
+		var c = _v1.b;
+		var _v2 = A2($elm$core$Array$get, r, model.cells);
+		if (_v2.$ === 'Just') {
+			var row = _v2.a;
+			var _v3 = A2($elm$core$Array$get, c, row);
+			if (_v3.$ === 'Just') {
+				var cell = _v3.a;
+				return cell.isVisible && (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing));
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	} else {
+		return false;
+	}
+};
+var $author$project$Sudoku$isMarksDisabled = function (model) {
+	var _v0 = model.selectedCell;
+	if (_v0.$ === 'Just') {
+		var _v1 = _v0.a;
+		var r = _v1.a;
+		var c = _v1.b;
+		var _v2 = A2($elm$core$Array$get, r, model.cells);
+		if (_v2.$ === 'Just') {
+			var row = _v2.a;
+			var _v3 = A2($elm$core$Array$get, c, row);
+			if (_v3.$ === 'Just') {
+				var cell = _v3.a;
+				return cell.isVisible && (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing));
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	} else {
+		return false;
+	}
+};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -5520,7 +5595,10 @@ var $author$project$Sudoku$view = function (model) {
 											[
 												_Utils_Tuple2(
 												'active-mode',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess))
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess)),
+												_Utils_Tuple2(
+												'disabled',
+												$author$project$Sudoku$isGuessDisabled(model))
 											])),
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess))
@@ -5538,7 +5616,10 @@ var $author$project$Sudoku$view = function (model) {
 											[
 												_Utils_Tuple2(
 												'active-mode',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks))
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks)),
+												_Utils_Tuple2(
+												'disabled',
+												$author$project$Sudoku$isMarksDisabled(model))
 											])),
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks))
@@ -5555,9 +5636,37 @@ var $author$project$Sudoku$view = function (model) {
 								$elm$html$Html$Attributes$class('number-buttons')
 							]),
 						A2(
-							$elm$core$List$map,
-							function (n) {
-								return A2(
+							$elm$core$List$append,
+							A2(
+								$elm$core$List$map,
+								function (n) {
+									return A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active-number',
+														_Utils_eq(
+															model.activeNumber,
+															$elm$core$Maybe$Just(n)))
+													])),
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetActiveNumber(
+													$elm$core$Maybe$Just(n)))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text(
+												$elm$core$String$fromInt(n))
+											]));
+								},
+								A2($elm$core$List$range, 1, 9)),
+							_List_fromArray(
+								[
+									A2(
 									$elm$html$Html$button,
 									_List_fromArray(
 										[
@@ -5568,19 +5677,17 @@ var $author$project$Sudoku$view = function (model) {
 													'active-number',
 													_Utils_eq(
 														model.activeNumber,
-														$elm$core$Maybe$Just(n)))
+														$elm$core$Maybe$Just(0)))
 												])),
 											$elm$html$Html$Events$onClick(
 											$author$project$Sudoku$SetActiveNumber(
-												$elm$core$Maybe$Just(n)))
+												$elm$core$Maybe$Just(0)))
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text(
-											$elm$core$String$fromInt(n))
-										]));
-							},
-							A2($elm$core$List$range, 1, 9)))
+											$elm$html$Html$text('X')
+										]))
+								])))
 					])),
 				A2(
 				$elm$html$Html$div,
