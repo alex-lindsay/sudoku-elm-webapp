@@ -1,11 +1,12 @@
 module Sudoku exposing (..)
 
+-- import Debug exposing (log, toString)
+
 import Array exposing (Array)
 import Browser
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, classList)
+import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
--- import Debug exposing (log, toString)
 import List exposing (append)
 
 
@@ -52,38 +53,46 @@ newBoard =
     Array.repeat 9 (Array.repeat 9 newCell)
 
 
+cellAtRowCol : Model -> Maybe ( Int, Int ) -> Maybe Cell
+cellAtRowCol model cell =
+    case cell of
+        Just ( rowNum, colNum ) ->
+            let
+                maybeRow =
+                    Array.get rowNum model.cells
+            in
+            case maybeRow of
+                Just row ->
+                    Array.get colNum row
+
+                Nothing ->
+                    Nothing
+
+        Nothing ->
+            Nothing
+
+
+currentSelectedCell : Model -> Cell
+currentSelectedCell model =
+    let
+        result =
+            Maybe.withDefault newCell (cellAtRowCol model model.selectedCell)
+
+        _ =
+            Debug.log "currentSelectedCell (row col) result" ( model.selectedCell, result )
+    in
+    result
+
+
 isGuessDisabled : Model -> Bool
 isGuessDisabled model =
-    case model.selectedCell of
-        Just (r, c) ->
-            case Array.get r model.cells of
-                Just row ->
-                    case Array.get c row of
-                        Just cell ->
-                            cell.isVisible && cell.value /= Nothing
-                        Nothing ->
-                            True
-                Nothing ->
-                    True
-        Nothing ->
-            False
+    (currentSelectedCell model).isVisible
 
 
 isMarksDisabled : Model -> Bool
 isMarksDisabled model =
-    case model.selectedCell of
-        Just (r, c) ->
-            case Array.get r model.cells of
-                Just row ->
-                    case Array.get c row of
-                        Just cell ->
-                            cell.isVisible && cell.value /= Nothing
-                        Nothing ->
-                            True
-                Nothing ->
-                    True
-        Nothing ->
-            False
+    (currentSelectedCell model).isVisible
+
 
 init : Model
 init =
@@ -93,8 +102,9 @@ init =
     , selectedCell = Nothing
     }
 
-updateCell : Model -> (Int, Int) -> Maybe Int -> Model
-updateCell model (rowNum, colNum) value = 
+
+updateCell : Model -> ( Int, Int ) -> Maybe Int -> Model
+updateCell model ( rowNum, colNum ) value =
     case value of
         Just _ ->
             let
@@ -113,6 +123,7 @@ updateCell model (rowNum, colNum) value =
 
                                     else
                                         Just number
+                                , isVisible = number /= 0
                             }
 
                         _ ->
@@ -136,8 +147,8 @@ updateCell model (rowNum, colNum) value =
                                                 else
                                                     updatedCell
                                             )
-                            ),
-                    selectedCell = Just (rowNum, colNum)
+                            )
+                , selectedCell = Just ( rowNum, colNum )
             }
 
         _ ->
@@ -170,6 +181,17 @@ update msg model =
 
                                     else
                                         Just number
+                                , isVisible = number /= 0
+                            }
+
+                        ( SetGuess, Just number, Just actualCell ) ->
+                            { actualCell
+                                | guess =
+                                    if number == 0 then
+                                        Nothing
+
+                                    else
+                                        Just number
                             }
 
                         _ ->
@@ -193,8 +215,8 @@ update msg model =
                                                 else
                                                     updatedCell
                                             )
-                            ),
-                    selectedCell = Just (rowNum, colNum)
+                            )
+                , selectedCell = Just ( rowNum, colNum )
             }
 
         GenerateBoard ->
@@ -213,33 +235,37 @@ view model =
                     ]
                     [ text "Known" ]
                 , button
-                    [ classList [ ( "active-mode", model.gameState == SetGuess ), ( "disabled", isGuessDisabled model ) ]
+                    [ classList [ ( "active-mode", model.gameState == SetGuess ) ]
+                    , disabled (isGuessDisabled model)
                     , onClick (SetGameState SetGuess)
                     ]
                     [ text "Guess" ]
                 , button
-                    [ classList [ ( "active-mode", model.gameState == SetMarks ), ( "disabled", isMarksDisabled model ) ]
+                    [ classList [ ( "active-mode", model.gameState == SetMarks ) ]
+                    , disabled (isGuessDisabled model)
                     , onClick (SetGameState SetMarks)
                     ]
                     [ text "Marks" ]
                 ]
             , div [ class "number-buttons" ]
-                (append (List.map
-                    (\n ->
-                        button
-                            [ classList [ ( "active-number", model.activeNumber == Just n ) ]
-                            , onClick (SetActiveNumber (Just n))
-                            ]
-                            [ text <| String.fromInt n ]
+                (append
+                    (List.map
+                        (\n ->
+                            button
+                                [ classList [ ( "active-number", model.activeNumber == Just n ) ]
+                                , onClick (SetActiveNumber (Just n))
+                                ]
+                                [ text <| String.fromInt n ]
+                        )
+                        (List.range 1 9)
                     )
-                    (List.range 1 9)
+                    [ button
+                        [ classList [ ( "active-number", model.activeNumber == Just 0 ) ]
+                        , onClick (SetActiveNumber (Just 0))
+                        ]
+                        [ text "X" ]
+                    ]
                 )
-                [button
-                            [ classList [ ( "active-number", model.activeNumber == Just 0 ) ]
-                            , onClick (SetActiveNumber (Just 0))
-                            ]
-                            [ text "X" ]
-                ])
             ]
         , div [ class "board-container" ]
             (Array.toList
@@ -249,13 +275,14 @@ view model =
                             (Array.toList
                                 (Array.indexedMap
                                     (\colIndex col ->
-                                        div [ 
-                                            classList [ 
-                                                ( "col", True )
+                                        div
+                                            [ classList
+                                                [ ( "col", True )
                                                 , ( "col" ++ String.fromInt colIndex, True )
-                                                , ("active-cell", ((rowIndex, colIndex) == (model.selectedCell |> Maybe.withDefault (-1,-1)))) 
+                                                , ( "active-cell", ( rowIndex, colIndex ) == (model.selectedCell |> Maybe.withDefault ( -1, -1 )) )
                                                 ]
-                                            , onClick (SetCellValue (rowIndex, colIndex)) ]
+                                            , onClick (SetCellValue ( rowIndex, colIndex ))
+                                            ]
                                             [ div [ class "value" ]
                                                 [ if Maybe.withDefault 0 col.value /= 0 then
                                                     text <| String.fromInt (Maybe.withDefault 0 col.value)

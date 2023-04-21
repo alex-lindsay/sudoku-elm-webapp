@@ -5355,18 +5355,37 @@ var $author$project$Sudoku$update = F2(
 					A2($elm$core$Array$get, rowNum, model.cells));
 				var updatedCell = function () {
 					var _v2 = _Utils_Tuple3(model.gameState, model.activeNumber, cell);
-					if (((_v2.a.$ === 'SetKnown') && (_v2.b.$ === 'Just')) && (_v2.c.$ === 'Just')) {
-						var _v3 = _v2.a;
-						var number = _v2.b.a;
-						var actualCell = _v2.c.a;
-						return _Utils_update(
-							actualCell,
-							{
-								value: (!number) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(number)
-							});
-					} else {
-						return A2($elm$core$Maybe$withDefault, $author$project$Sudoku$newCell, cell);
+					_v2$2:
+					while (true) {
+						if ((_v2.b.$ === 'Just') && (_v2.c.$ === 'Just')) {
+							switch (_v2.a.$) {
+								case 'SetKnown':
+									var _v3 = _v2.a;
+									var number = _v2.b.a;
+									var actualCell = _v2.c.a;
+									return _Utils_update(
+										actualCell,
+										{
+											isVisible: !(!number),
+											value: (!number) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(number)
+										});
+								case 'SetGuess':
+									var _v4 = _v2.a;
+									var number = _v2.b.a;
+									var actualCell = _v2.c.a;
+									return _Utils_update(
+										actualCell,
+										{
+											guess: (!number) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(number)
+										});
+								default:
+									break _v2$2;
+							}
+						} else {
+							break _v2$2;
+						}
 					}
+					return A2($elm$core$Maybe$withDefault, $author$project$Sudoku$newCell, cell);
 				}();
 				return _Utils_update(
 					model,
@@ -5446,52 +5465,47 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$Sudoku$isGuessDisabled = function (model) {
-	var _v0 = model.selectedCell;
-	if (_v0.$ === 'Just') {
-		var _v1 = _v0.a;
-		var r = _v1.a;
-		var c = _v1.b;
-		var _v2 = A2($elm$core$Array$get, r, model.cells);
-		if (_v2.$ === 'Just') {
-			var row = _v2.a;
-			var _v3 = A2($elm$core$Array$get, c, row);
-			if (_v3.$ === 'Just') {
-				var cell = _v3.a;
-				return cell.isVisible && (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing));
+var $author$project$Sudoku$cellAtRowCol = F2(
+	function (model, cell) {
+		if (cell.$ === 'Just') {
+			var _v1 = cell.a;
+			var rowNum = _v1.a;
+			var colNum = _v1.b;
+			var maybeRow = A2($elm$core$Array$get, rowNum, model.cells);
+			if (maybeRow.$ === 'Just') {
+				var row = maybeRow.a;
+				return A2($elm$core$Array$get, colNum, row);
 			} else {
-				return true;
+				return $elm$core$Maybe$Nothing;
 			}
 		} else {
-			return true;
+			return $elm$core$Maybe$Nothing;
 		}
-	} else {
-		return false;
-	}
+	});
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Sudoku$currentSelectedCell = function (model) {
+	var result = A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$Sudoku$newCell,
+		A2($author$project$Sudoku$cellAtRowCol, model, model.selectedCell));
+	var _v0 = A2(
+		$elm$core$Debug$log,
+		'currentSelectedCell (row col) result',
+		_Utils_Tuple2(model.selectedCell, result));
+	return result;
 };
-var $author$project$Sudoku$isMarksDisabled = function (model) {
-	var _v0 = model.selectedCell;
-	if (_v0.$ === 'Just') {
-		var _v1 = _v0.a;
-		var r = _v1.a;
-		var c = _v1.b;
-		var _v2 = A2($elm$core$Array$get, r, model.cells);
-		if (_v2.$ === 'Just') {
-			var row = _v2.a;
-			var _v3 = A2($elm$core$Array$get, c, row);
-			if (_v3.$ === 'Just') {
-				var cell = _v3.a;
-				return cell.isVisible && (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing));
-			} else {
-				return true;
-			}
-		} else {
-			return true;
-		}
-	} else {
-		return false;
-	}
+var $author$project$Sudoku$isGuessDisabled = function (model) {
+	return $author$project$Sudoku$currentSelectedCell(model).isVisible;
 };
 var $elm$core$Basics$negate = function (n) {
 	return -n;
@@ -5574,11 +5588,10 @@ var $author$project$Sudoku$view = function (model) {
 											[
 												_Utils_Tuple2(
 												'active-mode',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess)),
-												_Utils_Tuple2(
-												'disabled',
-												$author$project$Sudoku$isGuessDisabled(model))
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess))
 											])),
+										$elm$html$Html$Attributes$disabled(
+										$author$project$Sudoku$isGuessDisabled(model)),
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess))
 									]),
@@ -5595,11 +5608,10 @@ var $author$project$Sudoku$view = function (model) {
 											[
 												_Utils_Tuple2(
 												'active-mode',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks)),
-												_Utils_Tuple2(
-												'disabled',
-												$author$project$Sudoku$isMarksDisabled(model))
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks))
 											])),
+										$elm$html$Html$Attributes$disabled(
+										$author$project$Sudoku$isGuessDisabled(model)),
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks))
 									]),
