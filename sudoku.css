@@ -46,6 +46,14 @@ body {
     font-size: 200%;
 }
 
+.guess {
+    flex: auto;
+    text-align: center;
+    font-size: 200%;
+    color:blue;
+    background-color: azure;
+}
+
 .active-cell {
     background-color: lightyellow;
 }

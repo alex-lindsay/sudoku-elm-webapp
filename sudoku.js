@@ -5733,21 +5733,56 @@ var $author$project$Sudoku$view = function (model) {
 																$author$project$Sudoku$SetCellValue(
 																	_Utils_Tuple2(rowIndex, colIndex)))
 															]),
-														_List_fromArray(
-															[
-																A2(
-																$elm$html$Html$div,
-																_List_fromArray(
-																	[
-																		$elm$html$Html$Attributes$class('value')
-																	]),
-																_List_fromArray(
-																	[
-																		(!(!A2($elm$core$Maybe$withDefault, 0, col.value))) ? $elm$html$Html$text(
-																		$elm$core$String$fromInt(
-																			A2($elm$core$Maybe$withDefault, 0, col.value))) : $elm$html$Html$text('')
-																	]))
-															]));
+														function () {
+															var _v0 = _Utils_Tuple2(col.value, col.guess);
+															_v0$2:
+															while (true) {
+																if (_v0.a.$ === 'Just') {
+																	if (_v0.b.$ === 'Nothing') {
+																		var n = _v0.a.a;
+																		var _v1 = _v0.b;
+																		return _List_fromArray(
+																			[
+																				A2(
+																				$elm$html$Html$div,
+																				_List_fromArray(
+																					[
+																						$elm$html$Html$Attributes$class('value')
+																					]),
+																				_List_fromArray(
+																					[
+																						$elm$html$Html$text(
+																						$elm$core$String$fromInt(n))
+																					]))
+																			]);
+																	} else {
+																		break _v0$2;
+																	}
+																} else {
+																	if (_v0.b.$ === 'Just') {
+																		var _v2 = _v0.a;
+																		var n = _v0.b.a;
+																		return _List_fromArray(
+																			[
+																				A2(
+																				$elm$html$Html$div,
+																				_List_fromArray(
+																					[
+																						$elm$html$Html$Attributes$class('guess')
+																					]),
+																				_List_fromArray(
+																					[
+																						$elm$html$Html$text(
+																						$elm$core$String$fromInt(n))
+																					]))
+																			]);
+																	} else {
+																		break _v0$2;
+																	}
+																}
+															}
+															return _List_Nil;
+														}());
 												}),
 											row)));
 							}),

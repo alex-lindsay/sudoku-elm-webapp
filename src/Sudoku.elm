@@ -283,14 +283,20 @@ view model =
                                                 ]
                                             , onClick (SetCellValue ( rowIndex, colIndex ))
                                             ]
-                                            [ div [ class "value" ]
-                                                [ if Maybe.withDefault 0 col.value /= 0 then
-                                                    text <| String.fromInt (Maybe.withDefault 0 col.value)
+                                            (case ( col.value, col.guess ) of
+                                                ( Just n, Nothing ) ->
+                                                    [ div [ class "value" ]
+                                                        [ text <| String.fromInt n ]
+                                                    ]
 
-                                                  else
-                                                    text ""
-                                                ]
-                                            ]
+                                                ( Nothing, Just n ) ->
+                                                    [ div [ class "guess" ]
+                                                        [ text <| String.fromInt n ]
+                                                    ]
+
+                                                _ ->
+                                                    []
+                                            )
                                     )
                                     row
                                 )
