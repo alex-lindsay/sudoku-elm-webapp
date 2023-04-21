@@ -51,6 +51,10 @@ body {
     text-align: center;
     font-size: 200%;
     color:blue;
+    background-color: transparent;
+}
+
+div:has(> .guess) {
     background-color: azure;
 }
 
