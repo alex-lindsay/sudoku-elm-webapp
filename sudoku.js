@@ -5465,6 +5465,7 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5484,7 +5485,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$viewCellAt = F2(
 	function (model, _v0) {
 		var row = _v0.a;
@@ -5573,6 +5573,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 	});
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
+	var _v1 = A2($elm$core$Debug$log, 'model', model);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(

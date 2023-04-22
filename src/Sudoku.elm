@@ -153,6 +153,10 @@ viewCellAt model ( row, col ) =
 
 view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
+    let
+        _ =
+            Debug.log "model" model
+    in
     div [ class "sudoku-game-container" ]
         [ div [ class "sudoku-game" ]
             [ h1 [] [ text "Sudoku" ]
