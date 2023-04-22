@@ -1,63 +1,56 @@
 body {
     padding: 0;
     margin: 0;
+    font-family: 'Roboto', sans-serif;
 }
 
-.game-mode,
-.board-container,
-.number-buttons {
+h1 {
+    margin: 1rem;
+}
+
+.sudoku-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #f5f5f5;
+}
+
+.sudoku-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border: 1px solid #666;
+    margin: 1rem;
+    padding: 1rem;
+}
+
+.game-state-buttons,
+.number-buttons,
+.generator-buttons,
+.board-container {
     margin: 5px;
 }
 
-.game-mode button {
-    margin-right: 5px;
+.game-state-buttons button,
+.number-buttons button,
+.generator-buttons button {
+    margin: 5px;
 }
 
-.number-buttons button {
-    margin-right: 5px;
-}
-
-.active-mode,
-.active-number {
-    background-color: lightblue;
-}
-
-.row {
-    clear: both;
-}
-
-.col {
-    width: 3em;
-    height: 3em;
-}
-
-.col {
+.cell {
     display: flex;
-    justify-content: center;
     align-items: center;
-    float: left;
-    border: 1px solid black;
-    margin: 1px;
-}
-
-.value {
-    flex: auto;
-    text-align: center;
-    font-size: 200%;
-}
-
-.guess {
-    flex: auto;
-    text-align: center;
-    font-size: 200%;
-    color:blue;
-    background-color: transparent;
-}
-
-div:has(> .guess) {
-    background-color: azure;
-}
-
-.active-cell {
-    background-color: lightyellow;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #666;
+    background-color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000;
 }

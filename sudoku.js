@@ -5429,7 +5429,42 @@ var $author$project$Sudoku$SetGameState = function (a) {
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5449,15 +5484,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$viewCellAt = F2(
 	function (model, _v0) {
@@ -5533,199 +5559,251 @@ var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('sudoku-game-container')
+			]),
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('sudoku-game')
+					]),
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$h1,
+						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Set Known')
+								$elm$html$Html$text('Sudoku')
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess))
+								$elm$html$Html$Attributes$class('game-state-buttons')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Set Guess')
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
+										$elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'active',
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetKnown))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Set Known')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess)),
+										$elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'active',
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Set Guess')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks)),
+										$elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'active',
+												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Set Marks')
+									]))
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks))
+								$elm$html$Html$Attributes$class('number-buttons')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Set Marks')
-							]))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(1)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('1')
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(1)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('1')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(2)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('2')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(3)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('3')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(4)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('4')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(5)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('5')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(6)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('6')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(7)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('7')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(8)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('8')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber(
+											$elm$core$Maybe$Just(9)))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('9')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Clear')
+									]))
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(2)))
+								$elm$html$Html$Attributes$class('generator-buttons')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('2')
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Generate Board')
+									]))
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(3)))
+								$elm$html$Html$Attributes$class('board-container')
 							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('3')
-							])),
 						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(4)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('4')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(5)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('5')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(6)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('6')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(7)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('7')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(8)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('8')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber(
-									$elm$core$Maybe$Just(9)))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('9')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Clear')
-							]))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Generate Board')
-							]))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				A2(
-					$elm$core$List$map,
-					$author$project$Sudoku$viewCellAt(model),
-					A2(
-						$elm$core$List$map,
-						$author$project$Sudoku$indexToPosition,
-						A2($elm$core$List$range, 0, 80))))
+							$elm$core$List$map,
+							$author$project$Sudoku$viewCellAt(model),
+							A2(
+								$elm$core$List$map,
+								$author$project$Sudoku$indexToPosition,
+								A2($elm$core$List$range, 0, 80))))
+					]))
 			]));
 };
 var $author$project$Sudoku$main = $elm$browser$Browser$sandbox(

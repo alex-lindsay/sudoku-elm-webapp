@@ -4,7 +4,7 @@ module Sudoku exposing (..)
 
 import Array exposing (Array)
 import Browser
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
 import List exposing (append, range)
@@ -129,56 +129,71 @@ viewCellAt model ( row, col ) =
                 |> Array.get index
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
-        div [ class "cell" ]
-            [ case cell.value of
-                Just value ->
-                    div [ class "cell__value" ]
-                        [ text (String.fromInt value) ]
+    div [ class "cell" ]
+        [ case cell.value of
+            Just value ->
+                div [ class "cell__value" ]
+                    [ text (String.fromInt value) ]
 
-                Nothing ->
-                    div [] []
-            , case cell.guess of
-                Just guess ->
-                    div [ class "cell__guess" ]
-                        [ text (String.fromInt guess) ]
+            Nothing ->
+                div [] []
+        , case cell.guess of
+            Just guess ->
+                div [ class "cell__guess" ]
+                    [ text (String.fromInt guess) ]
 
-                Nothing ->
-                    div [] []
-            , div [ class "cell__marks" ]
-                [ text (Debug.log "marks" "") ]
+            Nothing ->
+                div [] []
+        , div [ class "cell__marks" ]
+            [ text (Debug.log "marks" "") ]
 
-            -- [ text (String.fromInt cell.marks) ]
-            ]
+        -- [ text (String.fromInt cell.marks) ]
+        ]
 
 
 view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
-    div [class "sudoku-game"]
-        [ div [class "game-state"]
-            [ button [ onClick (SetGameState SetKnown) ] [ text "Set Known" ]
-            , button [ onClick (SetGameState SetGuess) ] [ text "Set Guess" ]
-            , button [ onClick (SetGameState SetMarks) ] [ text "Set Marks" ]
+    div [ class "sudoku-game-container" ]
+        [ div [ class "sudoku-game" ]
+            [ h1 [] [ text "Sudoku" ]
+            , div [ class "game-state-buttons" ]
+                [ button
+                    [ onClick (SetGameState SetKnown)
+                    , classList [ ( "active", model.gameState == SetKnown ) ]
+                    ]
+                    [ text "Set Known" ]
+                , button
+                    [ onClick (SetGameState SetGuess)
+                    , classList [ ( "active", model.gameState == SetGuess ) ]
+                    ]
+                    [ text "Set Guess" ]
+                , button
+                    [ onClick (SetGameState SetMarks)
+                    , classList [ ( "active", model.gameState == SetMarks ) ]
+                    ]
+                    [ text "Set Marks" ]
+                ]
+            , div [ class "number-buttons"]
+                [ button [ onClick (SetActiveNumber (Just 1)) ] [ text "1" ]
+                , button [ onClick (SetActiveNumber (Just 2)) ] [ text "2" ]
+                , button [ onClick (SetActiveNumber (Just 3)) ] [ text "3" ]
+                , button [ onClick (SetActiveNumber (Just 4)) ] [ text "4" ]
+                , button [ onClick (SetActiveNumber (Just 5)) ] [ text "5" ]
+                , button [ onClick (SetActiveNumber (Just 6)) ] [ text "6" ]
+                , button [ onClick (SetActiveNumber (Just 7)) ] [ text "7" ]
+                , button [ onClick (SetActiveNumber (Just 8)) ] [ text "8" ]
+                , button [ onClick (SetActiveNumber (Just 9)) ] [ text "9" ]
+                , button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ]
+                ]
+            , div [ class "generator-buttons"]
+                [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
+                ]
+            , div [ class "board-container" ]
+                (List.range 0 80
+                    |> List.map indexToPosition
+                    |> List.map (viewCellAt model)
+                )
             ]
-        , div []
-            [ button [ onClick (SetActiveNumber (Just 1)) ] [ text "1" ]
-            , button [ onClick (SetActiveNumber (Just 2)) ] [ text "2" ]
-            , button [ onClick (SetActiveNumber (Just 3)) ] [ text "3" ]
-            , button [ onClick (SetActiveNumber (Just 4)) ] [ text "4" ]
-            , button [ onClick (SetActiveNumber (Just 5)) ] [ text "5" ]
-            , button [ onClick (SetActiveNumber (Just 6)) ] [ text "6" ]
-            , button [ onClick (SetActiveNumber (Just 7)) ] [ text "7" ]
-            , button [ onClick (SetActiveNumber (Just 8)) ] [ text "8" ]
-            , button [ onClick (SetActiveNumber (Just 9)) ] [ text "9" ]
-            , button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ]
-            ]
-        , div []
-            [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
-            ]
-        , div []
-            (List.range 0 80
-                |> List.map indexToPosition
-                |> List.map (viewCellAt model)
-            )
         ]
 
 
