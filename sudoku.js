@@ -5430,7 +5430,6 @@ var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5450,6 +5449,86 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Sudoku$viewCellAt = F2(
+	function (model, _v0) {
+		var row = _v0.a;
+		var col = _v0.b;
+		var index = $author$project$Sudoku$positionToIndex(
+			_Utils_Tuple2(row, col));
+		var cell = A2(
+			$elm$core$Maybe$withDefault,
+			$author$project$Sudoku$newCellAt(
+				_Utils_Tuple2(row, col)),
+			A2($elm$core$Array$get, index, model.cells));
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('cell')
+				]),
+			_List_fromArray(
+				[
+					function () {
+					var _v1 = cell.value;
+					if (_v1.$ === 'Just') {
+						var value = _v1.a;
+						return A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('cell__value')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									$elm$core$String$fromInt(value))
+								]));
+					} else {
+						return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+					}
+				}(),
+					function () {
+					var _v2 = cell.guess;
+					if (_v2.$ === 'Just') {
+						var guess = _v2.a;
+						return A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('cell__guess')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									$elm$core$String$fromInt(guess))
+								]));
+					} else {
+						return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+					}
+				}(),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('cell__marks')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							A2($elm$core$Debug$log, 'marks', ''))
+						]))
+				]));
+	});
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
 	return A2(
@@ -5640,11 +5719,13 @@ var $author$project$Sudoku$view = function (_v0) {
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						A2($elm$core$Debug$log, 'Add Cells', ''))
-					]))
+				A2(
+					$elm$core$List$map,
+					$author$project$Sudoku$viewCellAt(model),
+					A2(
+						$elm$core$List$map,
+						$author$project$Sudoku$indexToPosition,
+						A2($elm$core$List$range, 0, 80))))
 			]));
 };
 var $author$project$Sudoku$main = $elm$browser$Browser$sandbox(

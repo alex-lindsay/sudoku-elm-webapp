@@ -7,7 +7,7 @@ import Browser
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
-import List exposing (append)
+import List exposing (append, range)
 
 
 type GameState
@@ -47,7 +47,8 @@ type alias Model =
 
 indexToPosition : Int -> Position
 indexToPosition index =
-    ( (index // 9) + 1, (modBy 9 index) + 1 )
+    ( (index // 9) + 1, modBy 9 index + 1 )
+
 
 positionToIndex : Position -> Int
 positionToIndex ( row, col ) =
@@ -77,7 +78,7 @@ init =
 
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-update msg (model, _) =
+update msg ( model, _ ) =
     case msg of
         SetGameState gameState ->
             ( { model | gameState = gameState }, Cmd.none )
@@ -128,30 +129,32 @@ viewCellAt model ( row, col ) =
                 |> Array.get index
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
-    div [ onClick (SetCellValue ( row, col )) ]
-        [ div [ class "cell" ]
-            [ case cell.value of 
+        div [ class "cell" ]
+            [ case cell.value of
                 Just value ->
                     div [ class "cell__value" ]
                         [ text (String.fromInt value) ]
-                Nothing -> div [] []
-            
-            , case cell.guess of 
+
+                Nothing ->
+                    div [] []
+            , case cell.guess of
                 Just guess ->
                     div [ class "cell__guess" ]
                         [ text (String.fromInt guess) ]
-                Nothing -> div [] []
-            ]
+
+                Nothing ->
+                    div [] []
             , div [ class "cell__marks" ]
                 [ text (Debug.log "marks" "") ]
-                -- [ text (String.fromInt cell.marks) ]
-        ]
+
+            -- [ text (String.fromInt cell.marks) ]
+            ]
 
 
-view : (Model, Cmd Msg) -> Html Msg
-view (model, _) =
-    div []
-        [ div []
+view : ( Model, Cmd Msg ) -> Html Msg
+view ( model, _ ) =
+    div [class "sudoku-game"]
+        [ div [class "game-state"]
             [ button [ onClick (SetGameState SetKnown) ] [ text "Set Known" ]
             , button [ onClick (SetGameState SetGuess) ] [ text "Set Guess" ]
             , button [ onClick (SetGameState SetMarks) ] [ text "Set Marks" ]
@@ -172,10 +175,13 @@ view (model, _) =
             [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
             ]
         , div []
-            [ text (Debug.log "Add Cells" "") ]
+            (List.range 0 80
+                |> List.map indexToPosition
+                |> List.map (viewCellAt model)
+            )
         ]
 
 
-main : Program () (Model, Cmd Msg) Msg
+main : Program () ( Model, Cmd Msg ) Msg
 main =
     Browser.sandbox { init = init, update = update, view = view }
