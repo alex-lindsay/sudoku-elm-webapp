@@ -16,6 +16,10 @@ type GameState
     | SetMarks
 
 
+type alias Position =
+    ( Int, Int )
+
+
 type Msg
     = SetGameState GameState
     | SetActiveNumber (Maybe Int)
@@ -24,7 +28,9 @@ type Msg
 
 
 type alias Cell =
-    { value : Maybe Int
+    { row : Int
+    , col : Int
+    , value : Maybe Int
     , isVisible : Bool
     , guess : Maybe Int
     , marks : List Int
@@ -34,280 +40,142 @@ type alias Cell =
 type alias Model =
     { gameState : GameState
     , activeNumber : Maybe Int
-    , cells : Array (Array Cell)
-    , selectedCell : Maybe ( Int, Int )
+    , cells : Array Cell
+    , selectedCell : Maybe Position
     }
 
 
-newCell : Cell
-newCell =
-    { value = Nothing
+indexToPosition : Int -> Position
+indexToPosition index =
+    ( (index // 9) + 1, (modBy index 9) + 1 )
+
+positionToIndex : Position -> Int
+positionToIndex ( row, col ) =
+    (row - 1) * 9 + (col - 1)
+
+
+newCellAt : Position -> Cell
+newCellAt ( row, col ) =
+    { row = row
+    , col = col
+    , value = Nothing
     , isVisible = False
     , guess = Nothing
     , marks = []
     }
 
 
-newBoard : Array (Array Cell)
-newBoard =
-    Array.repeat 9 (Array.repeat 9 newCell)
-
-
-cellAtRowCol : Model -> Maybe ( Int, Int ) -> Maybe Cell
-cellAtRowCol model cell =
-    case cell of
-        Just ( rowNum, colNum ) ->
-            let
-                maybeRow =
-                    Array.get rowNum model.cells
-            in
-            case maybeRow of
-                Just row ->
-                    Array.get colNum row
-
-                Nothing ->
-                    Nothing
-
-        Nothing ->
-            Nothing
-
-
-currentSelectedCell : Model -> Cell
-currentSelectedCell model =
-    let
-        result =
-            Maybe.withDefault newCell (cellAtRowCol model model.selectedCell)
-
-        _ =
-            Debug.log "currentSelectedCell (row col) result" ( model.selectedCell, result )
-    in
-    result
-
-
-isGuessDisabled : Model -> Bool
-isGuessDisabled model =
-    (currentSelectedCell model).isVisible
-
-
-isMarksDisabled : Model -> Bool
-isMarksDisabled model =
-    (currentSelectedCell model).isVisible
-
-
-init : Model
+init : ( Model, Cmd Msg )
 init =
-    { gameState = SetKnown
-    , activeNumber = Nothing
-    , cells = newBoard
-    , selectedCell = Nothing
-    }
+    ( { gameState = SetKnown
+      , activeNumber = Nothing
+      , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
+      , selectedCell = Nothing
+      }
+    , Cmd.none
+    )
 
 
-updateCell : Model -> ( Int, Int ) -> Maybe Int -> Model
-updateCell model ( rowNum, colNum ) value =
-    case value of
-        Just _ ->
-            let
-                cell =
-                    Array.get rowNum model.cells |> Maybe.andThen (Array.get colNum)
-
-                -- Only update the cell value if the game state is SetKnown
-                -- and there is an active number
-                updatedCell =
-                    case ( model.gameState, model.activeNumber, cell ) of
-                        ( SetKnown, Just number, Just actualCell ) ->
-                            { actualCell
-                                | value =
-                                    if number == 0 then
-                                        Nothing
-
-                                    else
-                                        Just number
-                                , isVisible = number /= 0
-                            }
-
-                        _ ->
-                            cell |> Maybe.withDefault newCell
-            in
-            { model
-                | cells =
-                    model.cells
-                        |> Array.indexedMap
-                            (\r row ->
-                                if r /= rowNum then
-                                    row
-
-                                else
-                                    row
-                                        |> Array.indexedMap
-                                            (\c col ->
-                                                if c /= colNum then
-                                                    col
-
-                                                else
-                                                    updatedCell
-                                            )
-                            )
-                , selectedCell = Just ( rowNum, colNum )
-            }
-
-        _ ->
-            model
-
-
-update : Msg -> Model -> Model
-update msg model =
+update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+update msg (model, _) =
     case msg of
         SetGameState gameState ->
-            { model | gameState = gameState }
+            ( { model | gameState = gameState }, Cmd.none )
 
         SetActiveNumber activeNumber ->
-            { model | activeNumber = activeNumber }
+            ( { model | activeNumber = activeNumber }, Cmd.none )
 
-        SetCellValue ( rowNum, colNum ) ->
+        SetCellValue ( row, col ) ->
             let
+                index =
+                    positionToIndex ( row, col )
+
                 cell =
-                    Array.get rowNum model.cells |> Maybe.andThen (Array.get colNum)
-
-                -- Only update the cell value if the game state is SetKnown
-                -- and there is an active number
-                updatedCell =
-                    case ( model.gameState, model.activeNumber, cell ) of
-                        ( SetKnown, Just number, Just actualCell ) ->
-                            { actualCell
-                                | value =
-                                    if number == 0 then
-                                        Nothing
-
-                                    else
-                                        Just number
-                                , isVisible = number /= 0
-                            }
-
-                        ( SetGuess, Just number, Just actualCell ) ->
-                            { actualCell
-                                | guess =
-                                    if number == 0 then
-                                        Nothing
-
-                                    else
-                                        Just number
-                            }
-
-                        _ ->
-                            cell |> Maybe.withDefault newCell
-            in
-            { model
-                | cells =
                     model.cells
-                        |> Array.indexedMap
-                            (\r row ->
-                                if r /= rowNum then
-                                    row
+                        |> Array.get index
+                        |> Maybe.withDefault (newCellAt ( row, col ))
 
-                                else
-                                    row
-                                        |> Array.indexedMap
-                                            (\c col ->
-                                                if c /= colNum then
-                                                    col
+                newCell =
+                    case model.gameState of
+                        SetKnown ->
+                            { cell | value = model.activeNumber }
 
-                                                else
-                                                    updatedCell
-                                            )
-                            )
-                , selectedCell = Just ( rowNum, colNum )
-            }
+                        SetGuess ->
+                            { cell | guess = model.activeNumber }
+
+                        SetMarks ->
+                            case model.activeNumber of
+                                Just number ->
+                                    { cell | marks = append cell.marks [ number ] }
+
+                                Nothing ->
+                                    cell
+            in
+            ( { model | cells = Array.set index newCell model.cells }, Cmd.none )
 
         GenerateBoard ->
-            init
+            ( model, Cmd.none )
 
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ div [ class "game-controls" ]
-            [ div [ class "game-mode" ]
-                [ button [ onClick GenerateBoard ] [ text "New game" ]
-                , button
-                    [ classList [ ( "active-mode", model.gameState == SetKnown ) ]
-                    , onClick (SetGameState SetKnown)
-                    ]
-                    [ text "Known" ]
-                , button
-                    [ classList [ ( "active-mode", model.gameState == SetGuess ) ]
-                    , disabled (isGuessDisabled model)
-                    , onClick (SetGameState SetGuess)
-                    ]
-                    [ text "Guess" ]
-                , button
-                    [ classList [ ( "active-mode", model.gameState == SetMarks ) ]
-                    , disabled (isGuessDisabled model)
-                    , onClick (SetGameState SetMarks)
-                    ]
-                    [ text "Marks" ]
-                ]
-            , div [ class "number-buttons" ]
-                (append
-                    (List.map
-                        (\n ->
-                            button
-                                [ classList [ ( "active-number", model.activeNumber == Just n ) ]
-                                , onClick (SetActiveNumber (Just n))
-                                ]
-                                [ text <| String.fromInt n ]
-                        )
-                        (List.range 1 9)
-                    )
-                    [ button
-                        [ classList [ ( "active-number", model.activeNumber == Just 0 ) ]
-                        , onClick (SetActiveNumber (Just 0))
-                        ]
-                        [ text "X" ]
-                    ]
-                )
+viewCellAt : Model -> Position -> Html Msg
+viewCellAt model ( row, col ) =
+    let
+        index =
+            positionToIndex ( row, col )
+
+        cell =
+            model.cells
+                |> Array.get index
+                |> Maybe.withDefault (newCellAt ( row, col ))
+    in
+    div [ onClick (SetCellValue ( row, col )) ]
+        [ div [ class "cell" ]
+            [ case cell.value of 
+                Just value ->
+                    div [ class "cell__value" ]
+                        [ text (String.fromInt value) ]
+                Nothing -> div [] []
+            
+            , case cell.guess of 
+                Just guess ->
+                    div [ class "cell__guess" ]
+                        [ text (String.fromInt guess) ]
+                Nothing -> div [] []
             ]
-        , div [ class "board-container" ]
-            (Array.toList
-                (Array.indexedMap
-                    (\rowIndex row ->
-                        div [ classList [ ( "row", True ), ( "row" ++ String.fromInt rowIndex, True ) ] ]
-                            (Array.toList
-                                (Array.indexedMap
-                                    (\colIndex col ->
-                                        div
-                                            [ classList
-                                                [ ( "col", True )
-                                                , ( "col" ++ String.fromInt colIndex, True )
-                                                , ( "active-cell", ( rowIndex, colIndex ) == (model.selectedCell |> Maybe.withDefault ( -1, -1 )) )
-                                                ]
-                                            , onClick (SetCellValue ( rowIndex, colIndex ))
-                                            ]
-                                            (case ( col.value, col.guess ) of
-                                                ( Just n, Nothing ) ->
-                                                    [ div [ class "value" ]
-                                                        [ text <| String.fromInt n ]
-                                                    ]
-
-                                                ( Nothing, Just n ) ->
-                                                    [ div [ class "guess" ]
-                                                        [ text <| String.fromInt n ]
-                                                    ]
-
-                                                _ ->
-                                                    []
-                                            )
-                                    )
-                                    row
-                                )
-                            )
-                    )
-                    model.cells
-                )
-            )
+            , div [ class "cell__marks" ]
+                [ text (Debug.todo "marks") ]
+                -- [ text (String.fromInt cell.marks) ]
         ]
 
 
-main : Program () Model Msg
+view : (Model, Cmd Msg) -> Html Msg
+view (model, _) =
+    div []
+        [ div []
+            [ button [ onClick (SetGameState SetKnown) ] [ text "Set Known" ]
+            , button [ onClick (SetGameState SetGuess) ] [ text "Set Guess" ]
+            , button [ onClick (SetGameState SetMarks) ] [ text "Set Marks" ]
+            ]
+        , div []
+            [ button [ onClick (SetActiveNumber (Just 1)) ] [ text "1" ]
+            , button [ onClick (SetActiveNumber (Just 2)) ] [ text "2" ]
+            , button [ onClick (SetActiveNumber (Just 3)) ] [ text "3" ]
+            , button [ onClick (SetActiveNumber (Just 4)) ] [ text "4" ]
+            , button [ onClick (SetActiveNumber (Just 5)) ] [ text "5" ]
+            , button [ onClick (SetActiveNumber (Just 6)) ] [ text "6" ]
+            , button [ onClick (SetActiveNumber (Just 7)) ] [ text "7" ]
+            , button [ onClick (SetActiveNumber (Just 8)) ] [ text "8" ]
+            , button [ onClick (SetActiveNumber (Just 9)) ] [ text "9" ]
+            , button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ]
+            ]
+        , div []
+            [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
+            ]
+        , div []
+            [ text (Debug.todo "Add Cells") ]
+        ]
+
+
+main : Program () (Model, Cmd Msg) Msg
 main =
     Browser.sandbox { init = init, update = update, view = view }
