@@ -43,7 +43,7 @@ h1 {
 }
 
 .cell {
-    display: flex;
+    float: left;
     align-items: center;
     justify-content: center;
     width: 40px;
@@ -53,4 +53,16 @@ h1 {
     font-size: 1.5rem;
     font-weight: 700;
     color: #000;
+}
+
+.col1 {
+    clear: both;
+}
+
+.col4, .col7 {
+    margin-left: 5px;
+}
+
+.row4, .row7 {
+    margin-top: 5px;
 }

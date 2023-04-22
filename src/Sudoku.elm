@@ -129,7 +129,7 @@ viewCellAt model ( row, col ) =
                 |> Array.get index
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
-    div [ class "cell" ]
+    div [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ] ]
         [ case cell.value of
             Just value ->
                 div [ class "cell__value" ]
@@ -173,7 +173,7 @@ view ( model, _ ) =
                     ]
                     [ text "Set Marks" ]
                 ]
-            , div [ class "number-buttons"]
+            , div [ class "number-buttons" ]
                 [ button [ onClick (SetActiveNumber (Just 1)) ] [ text "1" ]
                 , button [ onClick (SetActiveNumber (Just 2)) ] [ text "2" ]
                 , button [ onClick (SetActiveNumber (Just 3)) ] [ text "3" ]
@@ -185,7 +185,7 @@ view ( model, _ ) =
                 , button [ onClick (SetActiveNumber (Just 9)) ] [ text "9" ]
                 , button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ]
                 ]
-            , div [ class "generator-buttons"]
+            , div [ class "generator-buttons" ]
                 [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
                 ]
             , div [ class "board-container" ]

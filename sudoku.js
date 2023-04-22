@@ -5500,7 +5500,23 @@ var $author$project$Sudoku$viewCellAt = F2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('cell')
+					$elm$html$Html$Attributes$classList(
+					_List_fromArray(
+						[
+							_Utils_Tuple2('cell', true),
+							_Utils_Tuple2(
+							'cell--selected',
+							_Utils_eq(
+								model.selectedCell,
+								$elm$core$Maybe$Just(
+									_Utils_Tuple2(row, col)))),
+							_Utils_Tuple2(
+							'row' + $elm$core$String$fromInt(row),
+							true),
+							_Utils_Tuple2(
+							'col' + $elm$core$String$fromInt(col),
+							true)
+						]))
 				]),
 			_List_fromArray(
 				[
