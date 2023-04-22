@@ -4495,7 +4495,7 @@ var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Sudoku$indexToPosition = function (index) {
 	return _Utils_Tuple2(
 		((index / 9) | 0) + 1,
-		A2($elm$core$Basics$modBy, index, 9) + 1);
+		A2($elm$core$Basics$modBy, 9, index) + 1);
 };
 var $elm$core$Array$branchFactor = 32;
 var $elm$core$Array$Array_elm_builtin = F4(
@@ -5430,6 +5430,7 @@ var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5449,7 +5450,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Debug$todo = _Debug_todo;
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
 	return A2(
@@ -5643,12 +5643,7 @@ var $author$project$Sudoku$view = function (_v0) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						_Debug_todo(
-							'Sudoku',
-							{
-								start: {line: 175, column: 21},
-								end: {line: 175, column: 31}
-							})('Add Cells'))
+						A2($elm$core$Debug$log, 'Add Cells', ''))
 					]))
 			]));
 };

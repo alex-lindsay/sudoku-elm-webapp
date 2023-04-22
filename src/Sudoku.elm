@@ -47,7 +47,7 @@ type alias Model =
 
 indexToPosition : Int -> Position
 indexToPosition index =
-    ( (index // 9) + 1, (modBy index 9) + 1 )
+    ( (index // 9) + 1, (modBy 9 index) + 1 )
 
 positionToIndex : Position -> Int
 positionToIndex ( row, col ) =
@@ -143,7 +143,7 @@ viewCellAt model ( row, col ) =
                 Nothing -> div [] []
             ]
             , div [ class "cell__marks" ]
-                [ text (Debug.todo "marks") ]
+                [ text (Debug.log "marks" "") ]
                 -- [ text (String.fromInt cell.marks) ]
         ]
 
@@ -172,7 +172,7 @@ view (model, _) =
             [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
             ]
         , div []
-            [ text (Debug.todo "Add Cells") ]
+            [ text (Debug.log "Add Cells" "") ]
         ]
 
 
