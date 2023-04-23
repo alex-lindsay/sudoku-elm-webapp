@@ -5493,7 +5493,7 @@ var $author$project$Sudoku$update = F2(
 						}),
 					$elm$core$Platform$Cmd$none);
 			default:
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				return $author$project$Sudoku$init;
 		}
 	});
 var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};

@@ -142,7 +142,7 @@ update msg ( model, _ ) =
             ( { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
 
         GenerateBoard ->
-            ( model, Cmd.none )
+            init
 
 
 viewCellAt : Model -> Position -> Html Msg
