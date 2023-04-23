@@ -29,6 +29,22 @@ h1 {
     padding: 1rem;
 }
 
+.status-unknown {
+    background-color: #ddd;
+}
+
+.status-won {
+    background-color: #afa;
+}
+
+.status-lost {
+    background-color: #faa;
+}
+
+.status-error {
+    background-color: #fda;
+}
+
 .game-state-buttons,
 .number-buttons,
 .generator-buttons,

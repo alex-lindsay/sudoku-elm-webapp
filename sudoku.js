@@ -4492,6 +4492,7 @@ var $elm$core$Maybe$Just = function (a) {
 };
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
+var $author$project$Sudoku$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$idiv = _Basics_idiv;
 var $elm$core$Basics$modBy = _Basics_modBy;
@@ -4907,7 +4908,8 @@ var $author$project$Sudoku$init = _Utils_Tuple2(
 					$author$project$Sudoku$indexToPosition(i));
 			}),
 		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
-		selectedCell: $elm$core$Maybe$Nothing
+		selectedCell: $elm$core$Maybe$Nothing,
+		winningStatus: $author$project$Sudoku$Unknown
 	},
 	$elm$core$Platform$Cmd$none);
 var $elm$json$Json$Decode$map = _Json_map1;
@@ -5383,6 +5385,25 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
+var $author$project$Sudoku$hasWinningStatusUnknown = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (cell) {
+			return _Utils_eq(
+				_Utils_Tuple2(cell.value, cell.guess),
+				_Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing));
+		},
+		$elm$core$Array$toList(model.cells));
+};
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Sudoku$updateWinningStatus = function (model) {
+	var _v0 = A2($elm$core$Debug$log, 'updateWinningStatus', model);
+	var _v1 = A2(
+		$elm$core$Debug$log,
+		'hasWinningStatusUnknown',
+		$author$project$Sudoku$hasWinningStatusUnknown(model));
+	return model;
+};
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5484,19 +5505,22 @@ var $author$project$Sudoku$update = F2(
 					}
 				}();
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
-							selectedCell: $elm$core$Maybe$Just(
-								_Utils_Tuple2(row, col))
-						}),
+					$author$project$Sudoku$updateWinningStatus(
+						_Utils_update(
+							model,
+							{
+								cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
+								selectedCell: $elm$core$Maybe$Just(
+									_Utils_Tuple2(row, col))
+							})),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return $author$project$Sudoku$init;
 		}
 	});
+var $author$project$Sudoku$Error = {$: 'Error'};
 var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
+var $author$project$Sudoku$Lost = {$: 'Lost'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
@@ -5505,6 +5529,7 @@ var $author$project$Sudoku$SetGameState = function (a) {
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
+var $author$project$Sudoku$Won = {$: 'Won'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5531,7 +5556,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5671,7 +5695,23 @@ var $author$project$Sudoku$view = function (_v0) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('sudoku-game')
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('sudoku-game', true),
+								_Utils_Tuple2(
+								'status-unknown',
+								_Utils_eq(model.winningStatus, $author$project$Sudoku$Unknown)),
+								_Utils_Tuple2(
+								'status-won',
+								_Utils_eq(model.winningStatus, $author$project$Sudoku$Won)),
+								_Utils_Tuple2(
+								'status-lost',
+								_Utils_eq(model.winningStatus, $author$project$Sudoku$Lost)),
+								_Utils_Tuple2(
+								'status-error',
+								_Utils_eq(model.winningStatus, $author$project$Sudoku$Error))
+							]))
 					]),
 				_List_fromArray(
 					[

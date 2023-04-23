@@ -2,12 +2,12 @@ module Sudoku exposing (..)
 
 -- import Debug exposing (log, toString)
 
-import Array exposing (Array)
+import Array exposing (Array, initialize, toList)
 import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
-import List exposing (append, range)
+import List exposing (append, any)
 import List exposing (map)
 
 
@@ -15,6 +15,13 @@ type GameState
     = SetKnown
     | SetGuess
     | SetMarks
+
+
+type WinningStatus
+    = Won
+    | Lost
+    | Unknown
+    | Error
 
 
 type alias Position =
@@ -43,6 +50,7 @@ type alias Model =
     , activeNumber : Maybe Int
     , cells : Array Cell
     , selectedCell : Maybe Position
+    , winningStatus : WinningStatus
     }
 
 
@@ -71,12 +79,27 @@ init : ( Model, Cmd Msg )
 init =
     ( { gameState = Just SetKnown
       , activeNumber = Just 1
-      , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
+      , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
       , selectedCell = Nothing
+      , winningStatus = Unknown
       }
     , Cmd.none
     )
 
+hasWinningStatusUnknown : Model -> Bool
+hasWinningStatusUnknown model =
+    any (\cell -> (cell.value, cell.guess) == (Nothing, Nothing)) (toList model.cells)
+
+
+updateWinningStatus : Model -> Model
+updateWinningStatus model =
+    let
+        _ =
+            Debug.log "updateWinningStatus" model
+        _ =
+            Debug.log "hasWinningStatusUnknown" (hasWinningStatusUnknown model)
+    in
+    model
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =
@@ -139,7 +162,7 @@ update msg ( model, _ ) =
                         Nothing ->
                             cell
             in
-            ( { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
+            ( updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
 
         GenerateBoard ->
             init
@@ -191,7 +214,12 @@ view ( model, _ ) =
             Debug.log "activeNumber" model.activeNumber
     in
     div [ class "sudoku-game-container" ]
-        [ div [ class "sudoku-game" ]
+        [ div [ classList [ ("sudoku-game", True)
+            , ("status-unknown", model.winningStatus == Unknown) 
+            , ("status-won", model.winningStatus == Won) 
+            , ("status-lost", model.winningStatus == Lost) 
+            , ("status-error", model.winningStatus == Error) 
+            ] ]
             [ h1 [] [ text "Sudoku" ]
             , div [ class "game-state-buttons" ]
                 [ button
