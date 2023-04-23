@@ -86,9 +86,25 @@ init =
     , Cmd.none
     )
 
+
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
     any (\cell -> (cell.value, cell.guess) == (Nothing, Nothing)) (toList model.cells)
+
+
+hasWinningStatusWon : Model -> Bool
+hasWinningStatusWon model =
+    False
+
+
+hasWinningStatusLost : Model -> Bool
+hasWinningStatusLost model =
+    True
+
+
+hasWinningStatusError : Model -> Bool
+hasWinningStatusError model =
+    False
 
 
 updateWinningStatus : Model -> Model
@@ -96,10 +112,15 @@ updateWinningStatus model =
     let
         _ =
             Debug.log "updateWinningStatus" model
-        _ =
-            Debug.log "hasWinningStatusUnknown" (hasWinningStatusUnknown model)
+        statuses =
+            Debug.log "[Won, Lost, Error]" [hasWinningStatusWon model, hasWinningStatusLost model, hasWinningStatusError model]
+        newWinningStatus = case statuses of
+            [_, True, _, _] -> Won
+            [_, _, True, _] -> Lost
+            [_, _, _, True] -> Error
+            _ -> Unknown
     in
-    model
+    { model | winningStatus = newWinningStatus }
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =

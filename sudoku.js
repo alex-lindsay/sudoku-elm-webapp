@@ -5385,24 +5385,65 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
-var $author$project$Sudoku$hasWinningStatusUnknown = function (model) {
-	return A2(
-		$elm$core$List$any,
-		function (cell) {
-			return _Utils_eq(
-				_Utils_Tuple2(cell.value, cell.guess),
-				_Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing));
-		},
-		$elm$core$Array$toList(model.cells));
+var $author$project$Sudoku$Error = {$: 'Error'};
+var $author$project$Sudoku$Lost = {$: 'Lost'};
+var $author$project$Sudoku$Won = {$: 'Won'};
+var $author$project$Sudoku$hasWinningStatusError = function (model) {
+	return false;
+};
+var $author$project$Sudoku$hasWinningStatusLost = function (model) {
+	return true;
+};
+var $author$project$Sudoku$hasWinningStatusWon = function (model) {
+	return false;
 };
 var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$updateWinningStatus = function (model) {
-	var _v0 = A2($elm$core$Debug$log, 'updateWinningStatus', model);
-	var _v1 = A2(
+	var statuses = A2(
 		$elm$core$Debug$log,
-		'hasWinningStatusUnknown',
-		$author$project$Sudoku$hasWinningStatusUnknown(model));
-	return model;
+		'[Won, Lost, Error]',
+		_List_fromArray(
+			[
+				$author$project$Sudoku$hasWinningStatusWon(model),
+				$author$project$Sudoku$hasWinningStatusLost(model),
+				$author$project$Sudoku$hasWinningStatusError(model)
+			]));
+	var newWinningStatus = function () {
+		_v1$3:
+		while (true) {
+			if ((((statuses.b && statuses.b.b) && statuses.b.b.b) && statuses.b.b.b.b) && (!statuses.b.b.b.b.b)) {
+				if (statuses.b.a) {
+					var _v2 = statuses.b;
+					var _v3 = _v2.b;
+					var _v4 = _v3.b;
+					return $author$project$Sudoku$Won;
+				} else {
+					if (statuses.b.b.a) {
+						var _v5 = statuses.b;
+						var _v6 = _v5.b;
+						var _v7 = _v6.b;
+						return $author$project$Sudoku$Lost;
+					} else {
+						if (statuses.b.b.b.a) {
+							var _v8 = statuses.b;
+							var _v9 = _v8.b;
+							var _v10 = _v9.b;
+							return $author$project$Sudoku$Error;
+						} else {
+							break _v1$3;
+						}
+					}
+				}
+			} else {
+				break _v1$3;
+			}
+		}
+		return $author$project$Sudoku$Unknown;
+	}();
+	var _v0 = A2($elm$core$Debug$log, 'updateWinningStatus', model);
+	return _Utils_update(
+		model,
+		{winningStatus: newWinningStatus});
 };
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -5518,9 +5559,7 @@ var $author$project$Sudoku$update = F2(
 				return $author$project$Sudoku$init;
 		}
 	});
-var $author$project$Sudoku$Error = {$: 'Error'};
 var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
-var $author$project$Sudoku$Lost = {$: 'Lost'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
@@ -5529,7 +5568,6 @@ var $author$project$Sudoku$SetGameState = function (a) {
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
-var $author$project$Sudoku$Won = {$: 'Won'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
