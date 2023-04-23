@@ -5293,6 +5293,7 @@ var $elm$core$Array$get = F2(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Sudoku$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
@@ -5393,19 +5394,28 @@ var $author$project$Sudoku$update = F2(
 						switch (_v3.a.$) {
 							case 'SetKnown':
 								var _v4 = _v3.a;
-								return _Utils_update(
+								return (!_Utils_eq(cell.value, model.activeNumber)) ? _Utils_update(
 									cell,
-									{value: model.activeNumber});
+									{value: model.activeNumber}) : _Utils_update(
+									cell,
+									{value: $elm$core$Maybe$Nothing});
 							case 'SetGuess':
 								var _v5 = _v3.a;
-								return _Utils_update(
-									cell,
-									{guess: model.activeNumber});
+								var _v6 = cell.value;
+								if (_v6.$ === 'Nothing') {
+									return (!_Utils_eq(cell.guess, model.activeNumber)) ? _Utils_update(
+										cell,
+										{guess: model.activeNumber}) : _Utils_update(
+										cell,
+										{guess: $elm$core$Maybe$Nothing});
+								} else {
+									return cell;
+								}
 							default:
-								var _v6 = _v3.a;
-								var _v7 = model.activeNumber;
-								if (_v7.$ === 'Just') {
-									var number = _v7.a;
+								var _v7 = _v3.a;
+								var _v8 = model.activeNumber;
+								if (_v8.$ === 'Just') {
+									var number = _v8.a;
 									return _Utils_update(
 										cell,
 										{

@@ -103,10 +103,25 @@ update msg ( model, _ ) =
                 updatedCell =
                     case model.gameState of
                         Just SetKnown ->
-                            { cell | value = model.activeNumber }
+                            if cell.value /= model.activeNumber then
+                                { cell | value = model.activeNumber }
+
+                            else
+                                { cell | value = Nothing }
 
                         Just SetGuess ->
-                            { cell | guess = model.activeNumber }
+                            case cell.value of
+                                Nothing ->
+                                    if cell.guess /= model.activeNumber then
+                                        { cell | guess = model.activeNumber }
+
+                                    else
+                                        { cell | guess = Nothing }
+
+                                -- Don't update the guess if there's a known value for the cell
+                                Just _ ->
+                                    cell
+
 
                         Just SetMarks ->
                             case model.activeNumber of
@@ -119,7 +134,7 @@ update msg ( model, _ ) =
                         Nothing ->
                             cell
             in
-            ( { model | cells = Array.set index updatedCell model.cells, selectedCell = Just (row, col) }, Cmd.none )
+            ( { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
 
         GenerateBoard ->
             ( model, Cmd.none )
@@ -136,8 +151,10 @@ viewCellAt model ( row, col ) =
                 |> Array.get index
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
-    div [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
-        , onClick (SetCellValue ( row, col )) ]
+    div
+        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
+        , onClick (SetCellValue ( row, col ))
+        ]
         [ case cell.value of
             Just value ->
                 div [ class "cell__value" ]
@@ -164,6 +181,7 @@ view ( model, _ ) =
     let
         _ =
             Debug.log "gameState" model.gameState
+
         _ =
             Debug.log "activeNumber" model.activeNumber
     in
