@@ -8,6 +8,7 @@ import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
 import List exposing (append, range)
+import List exposing (map)
 
 
 type GameState
@@ -126,7 +127,11 @@ update msg ( model, _ ) =
                         Just SetMarks ->
                             case model.activeNumber of
                                 Just number ->
-                                    { cell | marks = append cell.marks [ number ] }
+                                    if List.member number cell.marks then
+                                        { cell | marks = List.filter (\mark -> mark /= number) cell.marks }
+
+                                    else
+                                        { cell | marks = append cell.marks [ number ] }
 
                                 Nothing ->
                                     cell
@@ -170,7 +175,7 @@ viewCellAt model ( row, col ) =
             Nothing ->
                 div [] []
         , div [ class "cell__marks" ]
-            [ text "" ]
+            (map (\mark -> div [class ("mark" ++ (String.fromInt mark))] [ text (String.fromInt mark) ]) cell.marks)
 
         -- [ text (String.fromInt cell.marks) ]
         ]

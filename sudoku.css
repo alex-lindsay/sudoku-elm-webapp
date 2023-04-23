@@ -90,3 +90,48 @@ button.active {
     text-align: center;
     padding-top: 0.25em;
 }
+
+.cell__marks {
+    font-size: 0.75rem;
+    color: #070;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.cell__marks > div {
+    position: absolute;
+    margin: 0;
+}
+
+.mark1, .mark2, .mark3 {
+    top: 2px;
+}
+
+.mark4, .mark6 {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mark7, .mark8, .mark9 {
+    bottom: 2px;
+}
+
+.mark1, .mark4, .mark7 {
+    left: 2px;
+}
+
+.mark2, .mark8 {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mark3, .mark6, .mark9 {
+    right: 2px;
+}
+
+.mark5 {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

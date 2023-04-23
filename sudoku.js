@@ -5251,6 +5251,17 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
@@ -5292,6 +5303,36 @@ var $elm$core$Array$get = F2(
 			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Sudoku$positionToIndex = function (_v0) {
@@ -5416,7 +5457,16 @@ var $author$project$Sudoku$update = F2(
 								var _v8 = model.activeNumber;
 								if (_v8.$ === 'Just') {
 									var number = _v8.a;
-									return _Utils_update(
+									return A2($elm$core$List$member, number, cell.marks) ? _Utils_update(
+										cell,
+										{
+											marks: A2(
+												$elm$core$List$filter,
+												function (mark) {
+													return !_Utils_eq(mark, number);
+												},
+												cell.marks)
+										}) : _Utils_update(
 										cell,
 										{
 											marks: A2(
@@ -5465,17 +5515,6 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -5597,10 +5636,23 @@ var $author$project$Sudoku$viewCellAt = F2(
 						[
 							$elm$html$Html$Attributes$class('cell__marks')
 						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('')
-						]))
+					A2(
+						$elm$core$List$map,
+						function (mark) {
+							return A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class(
+										'mark' + $elm$core$String$fromInt(mark))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(
+										$elm$core$String$fromInt(mark))
+									]));
+						},
+						cell.marks))
 				]));
 	});
 var $author$project$Sudoku$view = function (_v0) {
