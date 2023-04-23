@@ -38,7 +38,7 @@ type alias Cell =
 
 
 type alias Model =
-    { gameState : GameState
+    { gameState : Maybe GameState
     , activeNumber : Maybe Int
     , cells : Array Cell
     , selectedCell : Maybe Position
@@ -68,8 +68,8 @@ newCellAt ( row, col ) =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { gameState = SetKnown
-      , activeNumber = Nothing
+    ( { gameState = Just SetKnown
+      , activeNumber = Just 1
       , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
       , selectedCell = Nothing
       }
@@ -81,7 +81,11 @@ update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =
     case msg of
         SetGameState gameState ->
-            ( { model | gameState = gameState }, Cmd.none )
+            if model.gameState == Just gameState then
+                ( { model | gameState = Maybe.Nothing }, Cmd.none )
+
+            else
+                ( { model | gameState = Just gameState }, Cmd.none )
 
         SetActiveNumber activeNumber ->
             ( { model | activeNumber = activeNumber }, Cmd.none )
@@ -96,23 +100,26 @@ update msg ( model, _ ) =
                         |> Array.get index
                         |> Maybe.withDefault (newCellAt ( row, col ))
 
-                newCell =
+                updatedCell =
                     case model.gameState of
-                        SetKnown ->
+                        Just SetKnown ->
                             { cell | value = model.activeNumber }
 
-                        SetGuess ->
+                        Just SetGuess ->
                             { cell | guess = model.activeNumber }
 
-                        SetMarks ->
+                        Just SetMarks ->
                             case model.activeNumber of
                                 Just number ->
                                     { cell | marks = append cell.marks [ number ] }
 
                                 Nothing ->
                                     cell
+
+                        Nothing ->
+                            cell
             in
-            ( { model | cells = Array.set index newCell model.cells }, Cmd.none )
+            ( { model | cells = Array.set index updatedCell model.cells, selectedCell = Just (row, col) }, Cmd.none )
 
         GenerateBoard ->
             ( model, Cmd.none )
@@ -129,7 +136,8 @@ viewCellAt model ( row, col ) =
                 |> Array.get index
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
-    div [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ] ]
+    div [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
+        , onClick (SetCellValue ( row, col )) ]
         [ case cell.value of
             Just value ->
                 div [ class "cell__value" ]
@@ -145,7 +153,7 @@ viewCellAt model ( row, col ) =
             Nothing ->
                 div [] []
         , div [ class "cell__marks" ]
-            [ text (Debug.log "marks" "") ]
+            [ text "" ]
 
         -- [ text (String.fromInt cell.marks) ]
         ]
@@ -155,7 +163,9 @@ view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
     let
         _ =
-            Debug.log "model" model
+            Debug.log "gameState" model.gameState
+        _ =
+            Debug.log "activeNumber" model.activeNumber
     in
     div [ class "sudoku-game-container" ]
         [ div [ class "sudoku-game" ]
@@ -163,32 +173,27 @@ view ( model, _ ) =
             , div [ class "game-state-buttons" ]
                 [ button
                     [ onClick (SetGameState SetKnown)
-                    , classList [ ( "active", model.gameState == SetKnown ) ]
+                    , classList [ ( "active", model.gameState == Just SetKnown ) ]
                     ]
                     [ text "Set Known" ]
                 , button
                     [ onClick (SetGameState SetGuess)
-                    , classList [ ( "active", model.gameState == SetGuess ) ]
+                    , classList [ ( "active", model.gameState == Just SetGuess ) ]
                     ]
                     [ text "Set Guess" ]
                 , button
                     [ onClick (SetGameState SetMarks)
-                    , classList [ ( "active", model.gameState == SetMarks ) ]
+                    , classList [ ( "active", model.gameState == Just SetMarks ) ]
                     ]
                     [ text "Set Marks" ]
                 ]
             , div [ class "number-buttons" ]
-                [ button [ onClick (SetActiveNumber (Just 1)) ] [ text "1" ]
-                , button [ onClick (SetActiveNumber (Just 2)) ] [ text "2" ]
-                , button [ onClick (SetActiveNumber (Just 3)) ] [ text "3" ]
-                , button [ onClick (SetActiveNumber (Just 4)) ] [ text "4" ]
-                , button [ onClick (SetActiveNumber (Just 5)) ] [ text "5" ]
-                , button [ onClick (SetActiveNumber (Just 6)) ] [ text "6" ]
-                , button [ onClick (SetActiveNumber (Just 7)) ] [ text "7" ]
-                , button [ onClick (SetActiveNumber (Just 8)) ] [ text "8" ]
-                , button [ onClick (SetActiveNumber (Just 9)) ] [ text "9" ]
-                , button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ]
-                ]
+                (List.append
+                    (List.range 1 9
+                        |> List.map (\number -> button [ onClick (SetActiveNumber (Just number)), classList [ ( "active", model.activeNumber == Just number ) ] ] [ text (String.fromInt number) ])
+                    )
+                    [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
+                )
             , div [ class "generator-buttons" ]
                 [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
                 ]

@@ -4487,6 +4487,9 @@ var $elm$core$Set$toList = function (_v0) {
 	return $elm$core$Dict$keys(dict);
 };
 var $elm$core$Basics$GT = {$: 'GT'};
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
 var $elm$core$Basics$add = _Basics_add;
@@ -4693,9 +4696,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -4898,7 +4898,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Sudoku$init = _Utils_Tuple2(
 	{
-		activeNumber: $elm$core$Maybe$Nothing,
+		activeNumber: $elm$core$Maybe$Just(1),
 		cells: A2(
 			$elm$core$Array$initialize,
 			81,
@@ -4906,7 +4906,7 @@ var $author$project$Sudoku$init = _Utils_Tuple2(
 				return $author$project$Sudoku$newCellAt(
 					$author$project$Sudoku$indexToPosition(i));
 			}),
-		gameState: $author$project$Sudoku$SetKnown,
+		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
 		selectedCell: $elm$core$Maybe$Nothing
 	},
 	$elm$core$Platform$Cmd$none);
@@ -5356,10 +5356,18 @@ var $author$project$Sudoku$update = F2(
 		switch (msg.$) {
 			case 'SetGameState':
 				var gameState = msg.a;
-				return _Utils_Tuple2(
+				return _Utils_eq(
+					model.gameState,
+					$elm$core$Maybe$Just(gameState)) ? _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{gameState: gameState}),
+						{gameState: $elm$core$Maybe$Nothing}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							gameState: $elm$core$Maybe$Just(gameState)
+						}),
 					$elm$core$Platform$Cmd$none);
 			case 'SetActiveNumber':
 				var activeNumber = msg.a;
@@ -5379,40 +5387,49 @@ var $author$project$Sudoku$update = F2(
 					$author$project$Sudoku$newCellAt(
 						_Utils_Tuple2(row, col)),
 					A2($elm$core$Array$get, index, model.cells));
-				var newCell = function () {
+				var updatedCell = function () {
 					var _v3 = model.gameState;
-					switch (_v3.$) {
-						case 'SetKnown':
-							return _Utils_update(
-								cell,
-								{value: model.activeNumber});
-						case 'SetGuess':
-							return _Utils_update(
-								cell,
-								{guess: model.activeNumber});
-						default:
-							var _v4 = model.activeNumber;
-							if (_v4.$ === 'Just') {
-								var number = _v4.a;
+					if (_v3.$ === 'Just') {
+						switch (_v3.a.$) {
+							case 'SetKnown':
+								var _v4 = _v3.a;
 								return _Utils_update(
 									cell,
-									{
-										marks: A2(
-											$elm$core$List$append,
-											cell.marks,
-											_List_fromArray(
-												[number]))
-									});
-							} else {
-								return cell;
-							}
+									{value: model.activeNumber});
+							case 'SetGuess':
+								var _v5 = _v3.a;
+								return _Utils_update(
+									cell,
+									{guess: model.activeNumber});
+							default:
+								var _v6 = _v3.a;
+								var _v7 = model.activeNumber;
+								if (_v7.$ === 'Just') {
+									var number = _v7.a;
+									return _Utils_update(
+										cell,
+										{
+											marks: A2(
+												$elm$core$List$append,
+												cell.marks,
+												_List_fromArray(
+													[number]))
+										});
+								} else {
+									return cell;
+								}
+						}
+					} else {
+						return cell;
 					}
 				}();
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							cells: A3($elm$core$Array$set, index, newCell, model.cells)
+							cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
+							selectedCell: $elm$core$Maybe$Just(
+								_Utils_Tuple2(row, col))
 						}),
 					$elm$core$Platform$Cmd$none);
 			default:
@@ -5485,6 +5502,9 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Sudoku$SetCellValue = function (a) {
+	return {$: 'SetCellValue', a: a};
+};
 var $author$project$Sudoku$viewCellAt = F2(
 	function (model, _v0) {
 		var row = _v0.a;
@@ -5516,7 +5536,10 @@ var $author$project$Sudoku$viewCellAt = F2(
 							_Utils_Tuple2(
 							'col' + $elm$core$String$fromInt(col),
 							true)
-						]))
+						])),
+					$elm$html$Html$Events$onClick(
+					$author$project$Sudoku$SetCellValue(
+						_Utils_Tuple2(row, col)))
 				]),
 			_List_fromArray(
 				[
@@ -5566,14 +5589,14 @@ var $author$project$Sudoku$viewCellAt = F2(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(
-							A2($elm$core$Debug$log, 'marks', ''))
+							$elm$html$Html$text('')
 						]))
 				]));
 	});
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
-	var _v1 = A2($elm$core$Debug$log, 'model', model);
+	var _v1 = A2($elm$core$Debug$log, 'gameState', model.gameState);
+	var _v2 = A2($elm$core$Debug$log, 'activeNumber', model.activeNumber);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -5616,7 +5639,9 @@ var $author$project$Sudoku$view = function (_v0) {
 											[
 												_Utils_Tuple2(
 												'active',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetKnown))
+												_Utils_eq(
+													model.gameState,
+													$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
 											]))
 									]),
 								_List_fromArray(
@@ -5634,7 +5659,9 @@ var $author$project$Sudoku$view = function (_v0) {
 											[
 												_Utils_Tuple2(
 												'active',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetGuess))
+												_Utils_eq(
+													model.gameState,
+													$elm$core$Maybe$Just($author$project$Sudoku$SetGuess)))
 											]))
 									]),
 								_List_fromArray(
@@ -5652,7 +5679,9 @@ var $author$project$Sudoku$view = function (_v0) {
 											[
 												_Utils_Tuple2(
 												'active',
-												_Utils_eq(model.gameState, $author$project$Sudoku$SetMarks))
+												_Utils_eq(
+													model.gameState,
+													$elm$core$Maybe$Just($author$project$Sudoku$SetMarks)))
 											]))
 									]),
 								_List_fromArray(
@@ -5666,128 +5695,49 @@ var $author$project$Sudoku$view = function (_v0) {
 							[
 								$elm$html$Html$Attributes$class('number-buttons')
 							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(1)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('1')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(2)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('2')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(3)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('3')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(4)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('4')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(5)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('5')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(6)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('6')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(7)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('7')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(8)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('8')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber(
-											$elm$core$Maybe$Just(9)))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('9')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Clear')
-									]))
-							])),
+						A2(
+							$elm$core$List$append,
+							A2(
+								$elm$core$List$map,
+								function (number) {
+									return A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetActiveNumber(
+													$elm$core$Maybe$Just(number))),
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active',
+														_Utils_eq(
+															model.activeNumber,
+															$elm$core$Maybe$Just(number)))
+													]))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text(
+												$elm$core$String$fromInt(number))
+											]));
+								},
+								A2($elm$core$List$range, 1, 9)),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick(
+											$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Clear')
+										]))
+								]))),
 						A2(
 						$elm$html$Html$div,
 						_List_fromArray(

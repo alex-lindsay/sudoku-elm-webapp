@@ -71,3 +71,22 @@ button.active {
 .row4, .row7 {
     margin-top: 5px;
 }
+
+.cell-selected {
+    background-color: #ffe;
+}
+
+.cell__value {
+    text-align: center;
+    padding-top: 0.25em;
+}
+
+.cell:has(> .cell__guess) {
+    background-color: #eef;
+}
+
+.cell__guess {
+    color:#00f;
+    text-align: center;
+    padding-top: 0.25em;
+}
