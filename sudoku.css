@@ -92,6 +92,11 @@ button.active {
     background-color: #ffe;
 }
 
+.cell:has(> .cell__answer) {
+    background-color: #ddd;
+    border: 1px solid #070;
+}
+
 .cell__value {
     text-align: center;
     padding-top: 0.25em;

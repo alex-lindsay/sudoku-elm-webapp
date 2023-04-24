@@ -5,14 +5,16 @@ module Sudoku exposing (..)
 import Array exposing (Array, initialize, toList)
 import Browser
 import Html exposing (Html, button, div, h1, text)
-import Html.Attributes exposing (class, classList, disabled)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import List exposing (append, any)
 import List exposing (map)
+import Set
 
 
 type GameState
-    = SetKnown
+    = SetAnswer
+    | SetKnown
     | SetGuess
     | SetMarks
 
@@ -87,6 +89,11 @@ init =
     )
 
 
+hasNumberRepeated : List Int -> Bool
+hasNumberRepeated numbers =
+    List.length numbers /= List.length (Set.toList (Set.fromList numbers))
+
+
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
     any (\cell -> (cell.value, cell.guess) == (Nothing, Nothing)) (toList model.cells)
@@ -99,7 +106,7 @@ hasWinningStatusWon model =
 
 hasWinningStatusLost : Model -> Bool
 hasWinningStatusLost model =
-    True
+    any (\cell -> cell.value /= cell.guess) (toList model.cells)
 
 
 hasWinningStatusError : Model -> Bool
@@ -147,25 +154,32 @@ update msg ( model, _ ) =
 
                 updatedCell =
                     case model.gameState of
+                        Just SetAnswer ->
+                            if cell.value /= model.activeNumber then
+                                { cell | value = model.activeNumber, isVisible = False }
+
+                            else
+                                { cell | value = Nothing }
+
                         Just SetKnown ->
                             if cell.value /= model.activeNumber then
-                                { cell | value = model.activeNumber }
+                                { cell | value = model.activeNumber, isVisible = True }
 
                             else
                                 { cell | value = Nothing }
 
                         Just SetGuess ->
-                            case cell.value of
-                                Nothing ->
+                            case (cell.value, cell.isVisible) of
+                                -- Don't allow the guess if there's a visible known value for the cell
+                                (Just _, True) ->
+                                    cell
+
+                                _ ->
                                     if cell.guess /= model.activeNumber then
                                         { cell | guess = model.activeNumber }
 
                                     else
                                         { cell | guess = Nothing }
-
-                                -- Don't update the guess if there's a known value for the cell
-                                Just _ ->
-                                    cell
 
 
                         Just SetMarks ->
@@ -204,12 +218,16 @@ viewCellAt model ( row, col ) =
         [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
-        [ case cell.value of
-            Just value ->
+        [ case (cell.value, cell.isVisible) of
+            (Just value, True) ->
                 div [ class "cell__value" ]
                     [ text (String.fromInt value) ]
 
-            Nothing ->
+            (Just _, False) ->
+                div [ class "cell__answer" ]
+                    [ text " " ]
+
+            _ ->
                 div [] []
         , case cell.guess of
             Just guess ->
@@ -248,6 +266,11 @@ view ( model, _ ) =
                     , classList [ ( "active", model.gameState == Just SetKnown ) ]
                     ]
                     [ text "Set Known" ]
+                , button
+                    [ onClick (SetGameState SetAnswer)
+                    , classList [ ( "active", model.gameState == Just SetAnswer ) ]
+                    ]
+                    [ text "Set Answer" ]
                 , button
                     [ onClick (SetGameState SetGuess)
                     , classList [ ( "active", model.gameState == Just SetGuess ) ]
