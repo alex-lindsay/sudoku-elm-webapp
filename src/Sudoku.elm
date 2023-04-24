@@ -7,8 +7,7 @@ import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import List exposing (append, any)
-import List exposing (map)
+import List exposing (any, append, map)
 import Set
 
 
@@ -96,7 +95,7 @@ hasNumberRepeated numbers =
 
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
-    any (\cell -> (cell.value, cell.guess) == (Nothing, Nothing)) (toList model.cells)
+    any (\cell -> ( cell.value, cell.guess ) == ( Nothing, Nothing )) (toList model.cells)
 
 
 hasWinningStatusWon : Model -> Bool
@@ -119,15 +118,26 @@ updateWinningStatus model =
     let
         _ =
             Debug.log "updateWinningStatus" model
+
         statuses =
-            Debug.log "[Won, Lost, Error]" [hasWinningStatusWon model, hasWinningStatusLost model, hasWinningStatusError model]
-        newWinningStatus = case statuses of
-            [_, True, _, _] -> Won
-            [_, _, True, _] -> Lost
-            [_, _, _, True] -> Error
-            _ -> Unknown
+            Debug.log "[Won, Lost, Error]" [ hasWinningStatusWon model, hasWinningStatusLost model, hasWinningStatusError model ]
+
+        newWinningStatus =
+            case statuses of
+                [ _, True, _, _ ] ->
+                    Won
+
+                [ _, _, True, _ ] ->
+                    Lost
+
+                [ _, _, _, True ] ->
+                    Error
+
+                _ ->
+                    Unknown
     in
     { model | winningStatus = newWinningStatus }
+
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =
@@ -169,9 +179,9 @@ update msg ( model, _ ) =
                                 { cell | value = Nothing }
 
                         Just SetGuess ->
-                            case (cell.value, cell.isVisible) of
+                            case ( cell.value, cell.isVisible ) of
                                 -- Don't allow the guess if there's a visible known value for the cell
-                                (Just _, True) ->
+                                ( Just _, True ) ->
                                     cell
 
                                 _ ->
@@ -180,7 +190,6 @@ update msg ( model, _ ) =
 
                                     else
                                         { cell | guess = Nothing }
-
 
                         Just SetMarks ->
                             case model.activeNumber of
@@ -218,12 +227,12 @@ viewCellAt model ( row, col ) =
         [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
-        [ case (cell.value, cell.isVisible) of
-            (Just value, True) ->
+        [ case ( cell.value, cell.isVisible ) of
+            ( Just value, True ) ->
                 div [ class "cell__value" ]
                     [ text (String.fromInt value) ]
 
-            (Just _, False) ->
+            ( Just _, False ) ->
                 div [ class "cell__answer" ]
                     [ text " " ]
 
@@ -237,7 +246,7 @@ viewCellAt model ( row, col ) =
             Nothing ->
                 div [] []
         , div [ class "cell__marks" ]
-            (map (\mark -> div [class ("mark" ++ (String.fromInt mark))] [ text (String.fromInt mark) ]) cell.marks)
+            (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
 
         -- [ text (String.fromInt cell.marks) ]
         ]
@@ -253,12 +262,15 @@ view ( model, _ ) =
             Debug.log "activeNumber" model.activeNumber
     in
     div [ class "sudoku-game-container" ]
-        [ div [ classList [ ("sudoku-game", True)
-            , ("status-unknown", model.winningStatus == Unknown) 
-            , ("status-won", model.winningStatus == Won) 
-            , ("status-lost", model.winningStatus == Lost) 
-            , ("status-error", model.winningStatus == Error) 
-            ] ]
+        [ div
+            [ classList
+                [ ( "sudoku-game", True )
+                , ( "status-unknown", model.winningStatus == Unknown )
+                , ( "status-won", model.winningStatus == Won )
+                , ( "status-lost", model.winningStatus == Lost )
+                , ( "status-error", model.winningStatus == Error )
+                ]
+            ]
             [ h1 [] [ text "Sudoku" ]
             , div [ class "game-state-buttons" ]
                 [ button
