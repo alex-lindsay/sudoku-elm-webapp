@@ -8,6 +8,7 @@ import Html.Events exposing (onClick)
 import List exposing (any, append, map)
 -- import Random exposing (int)
 import Set
+import List exposing (range)
 
 
 type GameState
@@ -87,6 +88,13 @@ init =
     )
 
 
+cellValue : Cell -> Maybe Int
+cellValue cell = cell.value
+
+cellGuess : Cell -> Maybe Int
+cellGuess cell = cell.guess
+
+
 rowCells : Int -> Model -> List Cell
 rowCells rowNumber model =
     List.filter (\cell -> cell.row == rowNumber) (toList model.cells)
@@ -120,6 +128,41 @@ hasNumberRepeated numbers =
     List.length numbers /= List.length (Set.toList (Set.fromList numbers))
 
 
+cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
+cellsHaveNumberRepeated cells getNumber=
+    hasNumberRepeated (List.filterMap getNumber cells)
+
+
+rowHasNumberRepeated : Int -> Model -> Bool
+rowHasNumberRepeated rowNumber model =
+    cellsHaveNumberRepeated (rowCells rowNumber model) cellValue
+
+
+anyRowHasNumberRepeated : Model -> Bool
+anyRowHasNumberRepeated model =
+    any (\rowNumber -> rowHasNumberRepeated rowNumber model) (List.range 1 9)
+
+
+colHasNumberRepeated : Int -> Model -> Bool
+colHasNumberRepeated colNumber model =
+    cellsHaveNumberRepeated (colCells colNumber model) cellValue
+
+
+anyColHasNumberRepeated : Model -> Bool
+anyColHasNumberRepeated model =
+    any (\colNumber -> colHasNumberRepeated colNumber model) (List.range 1 9)
+
+
+blockHasNumberRepeated : Int -> Model -> Bool
+blockHasNumberRepeated blockNumber model =
+    cellsHaveNumberRepeated (blockCells blockNumber model) cellValue
+
+
+anyBlockHasNumberRepeated : Model -> Bool
+anyBlockHasNumberRepeated model =
+    any (\blockNumber -> blockHasNumberRepeated blockNumber model) (List.range 1 9)
+
+
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
     any (\cell -> ( cell.value, cell.guess ) == ( Nothing, Nothing )) (toList model.cells)
@@ -132,12 +175,13 @@ hasWinningStatusWon model =
 
 hasWinningStatusLost : Model -> Bool
 hasWinningStatusLost model =
-    any (\cell -> cell.value /= cell.guess) (toList model.cells)
+    False
+    -- any (\cell -> cell.value /= cell.guess) (toList model.cells)
 
 
 hasWinningStatusError : Model -> Bool
 hasWinningStatusError model =
-    False
+    anyRowHasNumberRepeated model || anyColHasNumberRepeated model || anyBlockHasNumberRepeated model
 
 
 updateWinningStatus : Model -> Model
@@ -148,13 +192,13 @@ updateWinningStatus model =
 
         newWinningStatus =
             case statuses of
-                [ _, True, _, _ ] ->
+                [ True, _, _ ] ->
                     Won
 
-                [ _, _, True, _ ] ->
+                [ _, True, _ ] ->
                     Lost
 
-                [ _, _, _, True ] ->
+                [ _, _, True ] ->
                     Error
 
                 _ ->
@@ -279,13 +323,12 @@ viewCellAt model ( row, col ) =
 view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
     let
-        (r, c, b) = (1, 5, 8)
         _ =
-            Debug.log ("row" ++ (String.fromInt r)) (rowCells r model)
+            Debug.log "model.anyRowHasNumberRepeated" (anyRowHasNumberRepeated model)
         _ =
-            Debug.log ("col" ++ (String.fromInt c)) (colCells c model)
+            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber model) (List.range 1 9))
         _ =
-            Debug.log ("block" ++ (String.fromInt b)) (blockCells b model)
+            Debug.log "model.winningStatus" model.winningStatus
     in
     div [ class "sudoku-game-container" ]
         [ div

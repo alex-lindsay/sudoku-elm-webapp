@@ -5388,16 +5388,244 @@ var $elm$core$Array$set = F3(
 var $author$project$Sudoku$Error = {$: 'Error'};
 var $author$project$Sudoku$Lost = {$: 'Lost'};
 var $author$project$Sudoku$Won = {$: 'Won'};
-var $author$project$Sudoku$hasWinningStatusError = function (model) {
-	return false;
+var $author$project$Sudoku$blockCells = F2(
+	function (blockNumber, model) {
+		var row = ((((blockNumber - 1) / 3) | 0) * 3) + 1;
+		var col = (A2($elm$core$Basics$modBy, 3, blockNumber - 1) * 3) + 1;
+		var blockRows = A2($elm$core$List$range, row, row + 2);
+		var blockCols = A2($elm$core$List$range, col, col + 2);
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return A2($elm$core$List$member, cell.row, blockRows) && A2($elm$core$List$member, cell.col, blockCols);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
+var $author$project$Sudoku$cellValue = function (cell) {
+	return cell.value;
 };
-var $author$project$Sudoku$hasWinningStatusLost = function (model) {
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
+var $elm$core$Dict$Black = {$: 'Black'};
+var $elm$core$Dict$RBNode_elm_builtin = F5(
+	function (a, b, c, d, e) {
+		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
+	});
+var $elm$core$Dict$Red = {$: 'Red'};
+var $elm$core$Dict$balance = F5(
+	function (color, key, value, left, right) {
+		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
+			var _v1 = right.a;
+			var rK = right.b;
+			var rV = right.c;
+			var rLeft = right.d;
+			var rRight = right.e;
+			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+				var _v3 = left.a;
+				var lK = left.b;
+				var lV = left.c;
+				var lLeft = left.d;
+				var lRight = left.e;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Red,
+					key,
+					value,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					color,
+					rK,
+					rV,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, left, rLeft),
+					rRight);
+			}
+		} else {
+			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
+				var _v5 = left.a;
+				var lK = left.b;
+				var lV = left.c;
+				var _v6 = left.d;
+				var _v7 = _v6.a;
+				var llK = _v6.b;
+				var llV = _v6.c;
+				var llLeft = _v6.d;
+				var llRight = _v6.e;
+				var lRight = left.e;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Red,
+					lK,
+					lV,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, lRight, right));
+			} else {
+				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
+			}
+		}
+	});
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$insertHelp = F3(
+	function (key, value, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
+		} else {
+			var nColor = dict.a;
+			var nKey = dict.b;
+			var nValue = dict.c;
+			var nLeft = dict.d;
+			var nRight = dict.e;
+			var _v1 = A2($elm$core$Basics$compare, key, nKey);
+			switch (_v1.$) {
+				case 'LT':
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						A3($elm$core$Dict$insertHelp, key, value, nLeft),
+						nRight);
+				case 'EQ':
+					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
+				default:
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						nLeft,
+						A3($elm$core$Dict$insertHelp, key, value, nRight));
+			}
+		}
+	});
+var $elm$core$Dict$insert = F3(
+	function (key, value, dict) {
+		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
+		} else {
+			var x = _v0;
+			return x;
+		}
+	});
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
+var $elm$core$Set$fromList = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
+};
+var $author$project$Sudoku$hasNumberRepeated = function (numbers) {
+	return !_Utils_eq(
+		$elm$core$List$length(numbers),
+		$elm$core$List$length(
+			$elm$core$Set$toList(
+				$elm$core$Set$fromList(numbers))));
+};
+var $author$project$Sudoku$cellsHaveNumberRepeated = F2(
+	function (cells, getNumber) {
+		return $author$project$Sudoku$hasNumberRepeated(
+			A2($elm$core$List$filterMap, getNumber, cells));
+	});
+var $author$project$Sudoku$blockHasNumberRepeated = F2(
+	function (blockNumber, model) {
+		return A2(
+			$author$project$Sudoku$cellsHaveNumberRepeated,
+			A2($author$project$Sudoku$blockCells, blockNumber, model),
+			$author$project$Sudoku$cellValue);
+	});
+var $author$project$Sudoku$anyBlockHasNumberRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
-		function (cell) {
-			return !_Utils_eq(cell.value, cell.guess);
+		function (blockNumber) {
+			return A2($author$project$Sudoku$blockHasNumberRepeated, blockNumber, model);
 		},
-		$elm$core$Array$toList(model.cells));
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$colCells = F2(
+	function (colNumber, model) {
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return _Utils_eq(cell.col, colNumber);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
+var $author$project$Sudoku$colHasNumberRepeated = F2(
+	function (colNumber, model) {
+		return A2(
+			$author$project$Sudoku$cellsHaveNumberRepeated,
+			A2($author$project$Sudoku$colCells, colNumber, model),
+			$author$project$Sudoku$cellValue);
+	});
+var $author$project$Sudoku$anyColHasNumberRepeated = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (colNumber) {
+			return A2($author$project$Sudoku$colHasNumberRepeated, colNumber, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$rowCells = F2(
+	function (rowNumber, model) {
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return _Utils_eq(cell.row, rowNumber);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
+var $author$project$Sudoku$rowHasNumberRepeated = F2(
+	function (rowNumber, model) {
+		return A2(
+			$author$project$Sudoku$cellsHaveNumberRepeated,
+			A2($author$project$Sudoku$rowCells, rowNumber, model),
+			$author$project$Sudoku$cellValue);
+	});
+var $author$project$Sudoku$anyRowHasNumberRepeated = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (rowNumber) {
+			return A2($author$project$Sudoku$rowHasNumberRepeated, rowNumber, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$hasWinningStatusError = function (model) {
+	return $author$project$Sudoku$anyRowHasNumberRepeated(model) || ($author$project$Sudoku$anyColHasNumberRepeated(model) || $author$project$Sudoku$anyBlockHasNumberRepeated(model));
+};
+var $author$project$Sudoku$hasWinningStatusLost = function (model) {
+	return false;
 };
 var $author$project$Sudoku$hasWinningStatusWon = function (model) {
 	return false;
@@ -5412,23 +5640,20 @@ var $author$project$Sudoku$updateWinningStatus = function (model) {
 	var newWinningStatus = function () {
 		_v0$3:
 		while (true) {
-			if ((((statuses.b && statuses.b.b) && statuses.b.b.b) && statuses.b.b.b.b) && (!statuses.b.b.b.b.b)) {
-				if (statuses.b.a) {
+			if (((statuses.b && statuses.b.b) && statuses.b.b.b) && (!statuses.b.b.b.b)) {
+				if (statuses.a) {
 					var _v1 = statuses.b;
 					var _v2 = _v1.b;
-					var _v3 = _v2.b;
 					return $author$project$Sudoku$Won;
 				} else {
-					if (statuses.b.b.a) {
-						var _v4 = statuses.b;
-						var _v5 = _v4.b;
-						var _v6 = _v5.b;
+					if (statuses.b.a) {
+						var _v3 = statuses.b;
+						var _v4 = _v3.b;
 						return $author$project$Sudoku$Lost;
 					} else {
-						if (statuses.b.b.b.a) {
-							var _v7 = statuses.b;
-							var _v8 = _v7.b;
-							var _v9 = _v8.b;
+						if (statuses.b.b.a) {
+							var _v5 = statuses.b;
+							var _v6 = _v5.b;
 							return $author$project$Sudoku$Error;
 						} else {
 							break _v0$3;
@@ -5576,19 +5801,6 @@ var $author$project$Sudoku$SetGameState = function (a) {
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
-var $author$project$Sudoku$blockCells = F2(
-	function (blockNumber, model) {
-		var row = ((((blockNumber - 1) / 3) | 0) * 3) + 1;
-		var col = (A2($elm$core$Basics$modBy, 3, blockNumber - 1) * 3) + 1;
-		var blockRows = A2($elm$core$List$range, row, row + 2);
-		var blockCols = A2($elm$core$List$range, col, col + 2);
-		return A2(
-			$elm$core$List$filter,
-			function (cell) {
-				return A2($elm$core$List$member, cell.row, blockRows) && A2($elm$core$List$member, cell.col, blockCols);
-			},
-			$elm$core$Array$toList(model.cells));
-	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5613,15 +5825,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
-var $author$project$Sudoku$colCells = F2(
-	function (colNumber, model) {
-		return A2(
-			$elm$core$List$filter,
-			function (cell) {
-				return _Utils_eq(cell.col, colNumber);
-			},
-			$elm$core$Array$toList(model.cells));
-	});
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $elm$core$Debug$log = _Debug_log;
@@ -5642,15 +5845,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Sudoku$rowCells = F2(
-	function (rowNumber, model) {
-		return A2(
-			$elm$core$List$filter,
-			function (cell) {
-				return _Utils_eq(cell.row, rowNumber);
-			},
-			$elm$core$Array$toList(model.cells));
-	});
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Sudoku$SetCellValue = function (a) {
@@ -5772,22 +5966,20 @@ var $author$project$Sudoku$viewCellAt = F2(
 	});
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
-	var _v1 = _Utils_Tuple3(1, 5, 8);
-	var r = _v1.a;
-	var c = _v1.b;
-	var b = _v1.c;
+	var _v1 = A2(
+		$elm$core$Debug$log,
+		'model.anyRowHasNumberRepeated',
+		$author$project$Sudoku$anyRowHasNumberRepeated(model));
 	var _v2 = A2(
 		$elm$core$Debug$log,
-		'row' + $elm$core$String$fromInt(r),
-		A2($author$project$Sudoku$rowCells, r, model));
-	var _v3 = A2(
-		$elm$core$Debug$log,
-		'col' + $elm$core$String$fromInt(c),
-		A2($author$project$Sudoku$colCells, c, model));
-	var _v4 = A2(
-		$elm$core$Debug$log,
-		'block' + $elm$core$String$fromInt(b),
-		A2($author$project$Sudoku$blockCells, b, model));
+		'model.rowHasNumberRepeated',
+		A2(
+			$elm$core$List$map,
+			function (rowNumber) {
+				return A2($author$project$Sudoku$rowHasNumberRepeated, rowNumber, model);
+			},
+			A2($elm$core$List$range, 1, 9)));
+	var _v3 = A2($elm$core$Debug$log, 'model.winningStatus', model.winningStatus);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
