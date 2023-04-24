@@ -4491,7 +4491,7 @@ var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
-var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
+var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
 var $author$project$Sudoku$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4907,7 +4907,7 @@ var $author$project$Sudoku$init = _Utils_Tuple2(
 				return $author$project$Sudoku$newCellAt(
 					$author$project$Sudoku$indexToPosition(i));
 			}),
-		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
+		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetAnswer),
 		selectedCell: $elm$core$Maybe$Nothing,
 		winningStatus: $author$project$Sudoku$Unknown
 	},
@@ -5401,9 +5401,6 @@ var $author$project$Sudoku$blockCells = F2(
 			},
 			$elm$core$Array$toList(model.cells));
 	});
-var $author$project$Sudoku$cellValue = function (cell) {
-	return cell.value;
-};
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
 		var _v0 = f(mx);
@@ -5558,18 +5555,32 @@ var $author$project$Sudoku$cellsHaveNumberRepeated = F2(
 		return $author$project$Sudoku$hasNumberRepeated(
 			A2($elm$core$List$filterMap, getNumber, cells));
 	});
-var $author$project$Sudoku$blockHasNumberRepeated = F2(
-	function (blockNumber, model) {
+var $author$project$Sudoku$blockHasNumberRepeated = F3(
+	function (blockNumber, getNumber, model) {
 		return A2(
 			$author$project$Sudoku$cellsHaveNumberRepeated,
 			A2($author$project$Sudoku$blockCells, blockNumber, model),
-			$author$project$Sudoku$cellValue);
+			getNumber);
 	});
-var $author$project$Sudoku$anyBlockHasNumberRepeated = function (model) {
+var $author$project$Sudoku$cellGuess = function (cell) {
+	return cell.guess;
+};
+var $author$project$Sudoku$anyBlockHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (blockNumber) {
-			return A2($author$project$Sudoku$blockHasNumberRepeated, blockNumber, model);
+			return A3($author$project$Sudoku$blockHasNumberRepeated, blockNumber, $author$project$Sudoku$cellGuess, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$cellValue = function (cell) {
+	return cell.value;
+};
+var $author$project$Sudoku$anyBlockHasValueRepeated = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (blockNumber) {
+			return A3($author$project$Sudoku$blockHasNumberRepeated, blockNumber, $author$project$Sudoku$cellValue, model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -5582,18 +5593,26 @@ var $author$project$Sudoku$colCells = F2(
 			},
 			$elm$core$Array$toList(model.cells));
 	});
-var $author$project$Sudoku$colHasNumberRepeated = F2(
-	function (colNumber, model) {
+var $author$project$Sudoku$colHasNumberRepeated = F3(
+	function (colNumber, getNumber, model) {
 		return A2(
 			$author$project$Sudoku$cellsHaveNumberRepeated,
 			A2($author$project$Sudoku$colCells, colNumber, model),
-			$author$project$Sudoku$cellValue);
+			getNumber);
 	});
-var $author$project$Sudoku$anyColHasNumberRepeated = function (model) {
+var $author$project$Sudoku$anyColHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (colNumber) {
-			return A2($author$project$Sudoku$colHasNumberRepeated, colNumber, model);
+			return A3($author$project$Sudoku$colHasNumberRepeated, colNumber, $author$project$Sudoku$cellGuess, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$anyColHasValueRepeated = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (colNumber) {
+			return A3($author$project$Sudoku$colHasNumberRepeated, colNumber, $author$project$Sudoku$cellValue, model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -5606,23 +5625,31 @@ var $author$project$Sudoku$rowCells = F2(
 			},
 			$elm$core$Array$toList(model.cells));
 	});
-var $author$project$Sudoku$rowHasNumberRepeated = F2(
-	function (rowNumber, model) {
+var $author$project$Sudoku$rowHasNumberRepeated = F3(
+	function (rowNumber, getNumber, model) {
 		return A2(
 			$author$project$Sudoku$cellsHaveNumberRepeated,
 			A2($author$project$Sudoku$rowCells, rowNumber, model),
-			$author$project$Sudoku$cellValue);
+			getNumber);
 	});
-var $author$project$Sudoku$anyRowHasNumberRepeated = function (model) {
+var $author$project$Sudoku$anyRowHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (rowNumber) {
-			return A2($author$project$Sudoku$rowHasNumberRepeated, rowNumber, model);
+			return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellGuess, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$anyRowHasValueRepeated = function (model) {
+	return A2(
+		$elm$core$List$any,
+		function (rowNumber) {
+			return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellValue, model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
 var $author$project$Sudoku$hasWinningStatusError = function (model) {
-	return $author$project$Sudoku$anyRowHasNumberRepeated(model) || ($author$project$Sudoku$anyColHasNumberRepeated(model) || $author$project$Sudoku$anyBlockHasNumberRepeated(model));
+	return $author$project$Sudoku$anyRowHasValueRepeated(model) || ($author$project$Sudoku$anyColHasValueRepeated(model) || ($author$project$Sudoku$anyBlockHasValueRepeated(model) || ($author$project$Sudoku$anyRowHasGuessRepeated(model) || ($author$project$Sudoku$anyColHasGuessRepeated(model) || $author$project$Sudoku$anyBlockHasGuessRepeated(model)))));
 };
 var $author$project$Sudoku$hasWinningStatusLost = function (model) {
 	return false;
@@ -5795,11 +5822,11 @@ var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
-var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
+var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -5968,15 +5995,15 @@ var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
 	var _v1 = A2(
 		$elm$core$Debug$log,
-		'model.anyRowHasNumberRepeated',
-		$author$project$Sudoku$anyRowHasNumberRepeated(model));
+		'model.anyRowHasValueRepeated',
+		$author$project$Sudoku$anyRowHasValueRepeated(model));
 	var _v2 = A2(
 		$elm$core$Debug$log,
 		'model.rowHasNumberRepeated',
 		A2(
 			$elm$core$List$map,
 			function (rowNumber) {
-				return A2($author$project$Sudoku$rowHasNumberRepeated, rowNumber, model);
+				return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellValue, model);
 			},
 			A2($elm$core$List$range, 1, 9)));
 	var _v3 = A2($elm$core$Debug$log, 'model.winningStatus', model.winningStatus);
@@ -6032,26 +6059,6 @@ var $author$project$Sudoku$view = function (_v0) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Known')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
@@ -6066,6 +6073,26 @@ var $author$project$Sudoku$view = function (_v0) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('Set Answer')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
+										$elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'active',
+												_Utils_eq(
+													model.gameState,
+													$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Set Known')
 									])),
 								A2(
 								$elm$html$Html$button,

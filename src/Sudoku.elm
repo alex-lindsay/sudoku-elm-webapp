@@ -78,7 +78,7 @@ newCellAt ( row, col ) =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { gameState = Just SetKnown
+    ( { gameState = Just SetAnswer
       , activeNumber = Just 1
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
       , selectedCell = Nothing
@@ -133,34 +133,49 @@ cellsHaveNumberRepeated cells getNumber=
     hasNumberRepeated (List.filterMap getNumber cells)
 
 
-rowHasNumberRepeated : Int -> Model -> Bool
-rowHasNumberRepeated rowNumber model =
-    cellsHaveNumberRepeated (rowCells rowNumber model) cellValue
+rowHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
+rowHasNumberRepeated rowNumber getNumber model =
+    cellsHaveNumberRepeated (rowCells rowNumber model) getNumber
 
 
-anyRowHasNumberRepeated : Model -> Bool
-anyRowHasNumberRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber model) (List.range 1 9)
+anyRowHasValueRepeated : Model -> Bool
+anyRowHasValueRepeated model =
+    any (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (List.range 1 9)
 
 
-colHasNumberRepeated : Int -> Model -> Bool
-colHasNumberRepeated colNumber model =
-    cellsHaveNumberRepeated (colCells colNumber model) cellValue
+anyRowHasGuessRepeated : Model -> Bool
+anyRowHasGuessRepeated model =
+    any (\rowNumber -> rowHasNumberRepeated rowNumber cellGuess model) (List.range 1 9)
 
 
-anyColHasNumberRepeated : Model -> Bool
-anyColHasNumberRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber model) (List.range 1 9)
+colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
+colHasNumberRepeated colNumber getNumber model =
+    cellsHaveNumberRepeated (colCells colNumber model) getNumber
 
 
-blockHasNumberRepeated : Int -> Model -> Bool
-blockHasNumberRepeated blockNumber model =
-    cellsHaveNumberRepeated (blockCells blockNumber model) cellValue
+anyColHasValueRepeated : Model -> Bool
+anyColHasValueRepeated model =
+    any (\colNumber -> colHasNumberRepeated colNumber cellValue model) (List.range 1 9)
 
 
-anyBlockHasNumberRepeated : Model -> Bool
-anyBlockHasNumberRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber model) (List.range 1 9)
+anyColHasGuessRepeated : Model -> Bool
+anyColHasGuessRepeated model =
+    any (\colNumber -> colHasNumberRepeated colNumber cellGuess model) (List.range 1 9)
+
+
+blockHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
+blockHasNumberRepeated blockNumber getNumber model =
+    cellsHaveNumberRepeated (blockCells blockNumber model) getNumber
+
+
+anyBlockHasValueRepeated : Model -> Bool
+anyBlockHasValueRepeated model =
+    any (\blockNumber -> blockHasNumberRepeated blockNumber cellValue model) (List.range 1 9)
+
+
+anyBlockHasGuessRepeated : Model -> Bool
+anyBlockHasGuessRepeated model =
+    any (\blockNumber -> blockHasNumberRepeated blockNumber cellGuess model) (List.range 1 9)
 
 
 hasWinningStatusUnknown : Model -> Bool
@@ -181,7 +196,7 @@ hasWinningStatusLost model =
 
 hasWinningStatusError : Model -> Bool
 hasWinningStatusError model =
-    anyRowHasNumberRepeated model || anyColHasNumberRepeated model || anyBlockHasNumberRepeated model
+    anyRowHasValueRepeated model || anyColHasValueRepeated model || anyBlockHasValueRepeated model || anyRowHasGuessRepeated model || anyColHasGuessRepeated model || anyBlockHasGuessRepeated model
 
 
 updateWinningStatus : Model -> Model
@@ -324,9 +339,9 @@ view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
     let
         _ =
-            Debug.log "model.anyRowHasNumberRepeated" (anyRowHasNumberRepeated model)
+            Debug.log "model.anyRowHasValueRepeated" (anyRowHasValueRepeated model)
         _ =
-            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber model) (List.range 1 9))
+            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (List.range 1 9))
         _ =
             Debug.log "model.winningStatus" model.winningStatus
     in
@@ -343,15 +358,15 @@ view ( model, _ ) =
             [ h1 [] [ text "Sudoku" ]
             , div [ class "game-state-buttons" ]
                 [ button
-                    [ onClick (SetGameState SetKnown)
-                    , classList [ ( "active", model.gameState == Just SetKnown ) ]
-                    ]
-                    [ text "Set Known" ]
-                , button
                     [ onClick (SetGameState SetAnswer)
                     , classList [ ( "active", model.gameState == Just SetAnswer ) ]
                     ]
                     [ text "Set Answer" ]
+                , button
+                    [ onClick (SetGameState SetKnown)
+                    , classList [ ( "active", model.gameState == Just SetKnown ) ]
+                    ]
+                    [ text "Set Known" ]
                 , button
                     [ onClick (SetGameState SetGuess)
                     , classList [ ( "active", model.gameState == Just SetGuess ) ]

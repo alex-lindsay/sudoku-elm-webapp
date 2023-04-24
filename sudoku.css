@@ -93,7 +93,7 @@ button.active {
 }
 
 .cell:has(> .cell__answer) {
-    background-color: #f0f7f7;
+    background-color: #eff;
 }
 
 .cell__value {
