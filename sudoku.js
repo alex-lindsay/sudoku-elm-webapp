@@ -5402,50 +5402,45 @@ var $author$project$Sudoku$hasWinningStatusLost = function (model) {
 var $author$project$Sudoku$hasWinningStatusWon = function (model) {
 	return false;
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$updateWinningStatus = function (model) {
-	var statuses = A2(
-		$elm$core$Debug$log,
-		'[Won, Lost, Error]',
-		_List_fromArray(
-			[
-				$author$project$Sudoku$hasWinningStatusWon(model),
-				$author$project$Sudoku$hasWinningStatusLost(model),
-				$author$project$Sudoku$hasWinningStatusError(model)
-			]));
+	var statuses = _List_fromArray(
+		[
+			$author$project$Sudoku$hasWinningStatusWon(model),
+			$author$project$Sudoku$hasWinningStatusLost(model),
+			$author$project$Sudoku$hasWinningStatusError(model)
+		]);
 	var newWinningStatus = function () {
-		_v1$3:
+		_v0$3:
 		while (true) {
 			if ((((statuses.b && statuses.b.b) && statuses.b.b.b) && statuses.b.b.b.b) && (!statuses.b.b.b.b.b)) {
 				if (statuses.b.a) {
-					var _v2 = statuses.b;
+					var _v1 = statuses.b;
+					var _v2 = _v1.b;
 					var _v3 = _v2.b;
-					var _v4 = _v3.b;
 					return $author$project$Sudoku$Won;
 				} else {
 					if (statuses.b.b.a) {
-						var _v5 = statuses.b;
+						var _v4 = statuses.b;
+						var _v5 = _v4.b;
 						var _v6 = _v5.b;
-						var _v7 = _v6.b;
 						return $author$project$Sudoku$Lost;
 					} else {
 						if (statuses.b.b.b.a) {
-							var _v8 = statuses.b;
+							var _v7 = statuses.b;
+							var _v8 = _v7.b;
 							var _v9 = _v8.b;
-							var _v10 = _v9.b;
 							return $author$project$Sudoku$Error;
 						} else {
-							break _v1$3;
+							break _v0$3;
 						}
 					}
 				}
 			} else {
-				break _v1$3;
+				break _v0$3;
 			}
 		}
 		return $author$project$Sudoku$Unknown;
 	}();
-	var _v0 = A2($elm$core$Debug$log, 'updateWinningStatus', model);
 	return _Utils_update(
 		model,
 		{winningStatus: newWinningStatus});
@@ -5581,6 +5576,19 @@ var $author$project$Sudoku$SetGameState = function (a) {
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
+var $author$project$Sudoku$blockCells = F2(
+	function (blockNumber, model) {
+		var row = ((((blockNumber - 1) / 3) | 0) * 3) + 1;
+		var col = (A2($elm$core$Basics$modBy, 3, blockNumber - 1) * 3) + 1;
+		var blockRows = A2($elm$core$List$range, row, row + 2);
+		var blockCols = A2($elm$core$List$range, col, col + 2);
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return A2($elm$core$List$member, cell.row, blockRows) && A2($elm$core$List$member, cell.col, blockCols);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5605,8 +5613,18 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
+var $author$project$Sudoku$colCells = F2(
+	function (colNumber, model) {
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return _Utils_eq(cell.col, colNumber);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5624,6 +5642,15 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $author$project$Sudoku$rowCells = F2(
+	function (rowNumber, model) {
+		return A2(
+			$elm$core$List$filter,
+			function (cell) {
+				return _Utils_eq(cell.row, rowNumber);
+			},
+			$elm$core$Array$toList(model.cells));
+	});
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Sudoku$SetCellValue = function (a) {
@@ -5745,8 +5772,22 @@ var $author$project$Sudoku$viewCellAt = F2(
 	});
 var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
-	var _v1 = A2($elm$core$Debug$log, 'gameState', model.gameState);
-	var _v2 = A2($elm$core$Debug$log, 'activeNumber', model.activeNumber);
+	var _v1 = _Utils_Tuple3(1, 5, 8);
+	var r = _v1.a;
+	var c = _v1.b;
+	var b = _v1.c;
+	var _v2 = A2(
+		$elm$core$Debug$log,
+		'row' + $elm$core$String$fromInt(r),
+		A2($author$project$Sudoku$rowCells, r, model));
+	var _v3 = A2(
+		$elm$core$Debug$log,
+		'col' + $elm$core$String$fromInt(c),
+		A2($author$project$Sudoku$colCells, c, model));
+	var _v4 = A2(
+		$elm$core$Debug$log,
+		'block' + $elm$core$String$fromInt(b),
+		A2($author$project$Sudoku$blockCells, b, model));
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(

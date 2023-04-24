@@ -1,13 +1,12 @@
 module Sudoku exposing (..)
 
--- import Debug exposing (log, toString)
-
 import Array exposing (Array, initialize, toList)
 import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import List exposing (any, append, map)
+-- import Random exposing (int)
 import Set
 
 
@@ -88,6 +87,34 @@ init =
     )
 
 
+rowCells : Int -> Model -> List Cell
+rowCells rowNumber model =
+    List.filter (\cell -> cell.row == rowNumber) (toList model.cells)
+
+
+colCells : Int -> Model -> List Cell
+colCells colNumber model =
+    List.filter (\cell -> cell.col == colNumber) (toList model.cells)
+
+
+blockCells : Int -> Model -> List Cell
+blockCells blockNumber model =
+    let
+        row =
+            (((blockNumber - 1) // 3) * 3) + 1
+
+        col =
+            ((modBy 3 (blockNumber - 1)) *3) + 1
+
+        blockRows =
+            List.range row (row + 2)
+
+        blockCols =
+            List.range col (col + 2)
+    in
+    List.filter (\cell -> List.member cell.row blockRows && List.member cell.col blockCols) (toList model.cells)
+
+
 hasNumberRepeated : List Int -> Bool
 hasNumberRepeated numbers =
     List.length numbers /= List.length (Set.toList (Set.fromList numbers))
@@ -116,11 +143,8 @@ hasWinningStatusError model =
 updateWinningStatus : Model -> Model
 updateWinningStatus model =
     let
-        _ =
-            Debug.log "updateWinningStatus" model
-
         statuses =
-            Debug.log "[Won, Lost, Error]" [ hasWinningStatusWon model, hasWinningStatusLost model, hasWinningStatusError model ]
+            [ hasWinningStatusWon model, hasWinningStatusLost model, hasWinningStatusError model ]
 
         newWinningStatus =
             case statuses of
@@ -255,11 +279,13 @@ viewCellAt model ( row, col ) =
 view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
     let
+        (r, c, b) = (1, 5, 8)
         _ =
-            Debug.log "gameState" model.gameState
-
+            Debug.log ("row" ++ (String.fromInt r)) (rowCells r model)
         _ =
-            Debug.log "activeNumber" model.activeNumber
+            Debug.log ("col" ++ (String.fromInt c)) (colCells c model)
+        _ =
+            Debug.log ("block" ++ (String.fromInt b)) (blockCells b model)
     in
     div [ class "sudoku-game-container" ]
         [ div
