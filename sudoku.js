@@ -4496,10 +4496,16 @@ var $author$project$Sudoku$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$idiv = _Basics_idiv;
 var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Basics$and = _Basics_and;
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Basics$lt = _Utils_lt;
+var $author$project$Sudoku$validIndex = function (index) {
+	return (index >= 0) && (index < 81);
+};
 var $author$project$Sudoku$indexToPosition = function (index) {
-	return _Utils_Tuple2(
+	return $author$project$Sudoku$validIndex(index) ? _Utils_Tuple2(
 		((index / 9) | 0) + 1,
-		A2($elm$core$Basics$modBy, 9, index) + 1);
+		A2($elm$core$Basics$modBy, 9, index) + 1) : _Utils_Tuple2(0, 0);
 };
 var $elm$core$Array$branchFactor = 32;
 var $elm$core$Array$Array_elm_builtin = F4(
@@ -4631,7 +4637,6 @@ var $elm$core$Array$builderToArray = F2(
 				builder.tail);
 		}
 	});
-var $elm$core$Basics$lt = _Utils_lt;
 var $elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
 		initializeHelp:
@@ -4671,10 +4676,25 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
-var $author$project$Sudoku$newCellAt = function (_v0) {
+var $author$project$Sudoku$validPosition = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
-	return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
+	return (row >= 1) && ((row <= 9) && ((col >= 1) && (col <= 9)));
+};
+var $author$project$Sudoku$newCellAt = function (_v0) {
+	newCellAt:
+	while (true) {
+		var row = _v0.a;
+		var col = _v0.b;
+		if ($author$project$Sudoku$validPosition(
+			_Utils_Tuple2(row, col))) {
+			return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
+		} else {
+			var $temp$_v0 = _Utils_Tuple2(1, 1);
+			_v0 = $temp$_v0;
+			continue newCellAt;
+		}
+	}
 };
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
@@ -4698,7 +4718,6 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
 var $elm$core$String$all = _String_all;
-var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
 var $elm$json$Json$Encode$encode = _Json_encode;
 var $elm$core$String$fromInt = _String_fromNumber;
@@ -5267,7 +5286,6 @@ var $elm$core$List$filter = F2(
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
 var $elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
@@ -5337,10 +5355,14 @@ var $elm$core$List$member = F2(
 			xs);
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var $author$project$Sudoku$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
-	return ((row - 1) * 9) + (col - 1);
+	return $author$project$Sudoku$validPosition(
+		_Utils_Tuple2(row, col)) ? (((row - 1) * 9) + (col - 1)) : (-1);
 };
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$setHelp = F4(
@@ -5390,14 +5412,10 @@ var $author$project$Sudoku$Lost = {$: 'Lost'};
 var $author$project$Sudoku$Won = {$: 'Won'};
 var $author$project$Sudoku$blockCells = F2(
 	function (blockNumber, model) {
-		var row = ((((blockNumber - 1) / 3) | 0) * 3) + 1;
-		var col = (A2($elm$core$Basics$modBy, 3, blockNumber - 1) * 3) + 1;
-		var blockRows = A2($elm$core$List$range, row, row + 2);
-		var blockCols = A2($elm$core$List$range, col, col + 2);
 		return A2(
 			$elm$core$List$filter,
 			function (cell) {
-				return A2($elm$core$List$member, cell.row, blockRows) && A2($elm$core$List$member, cell.col, blockCols);
+				return _Utils_eq(cell.block, blockNumber);
 			},
 			$elm$core$Array$toList(model.cells));
 	});

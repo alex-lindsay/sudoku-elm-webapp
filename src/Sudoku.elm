@@ -1,12 +1,13 @@
 module Sudoku exposing (..)
 
+-- import Random exposing (int)
+
 import Array exposing (Array, initialize, toList)
 import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import List exposing (any, append, filter, filterMap, length, map, member, range)
--- import Random exposing (int)
 import Set
 
 
@@ -55,26 +56,47 @@ type alias Model =
     }
 
 
+validIndex : Int -> Bool
+validIndex index =
+    (index >= 0) && (index < 81)
+
+
+validPosition : (Int, Int) -> Bool
+validPosition ( row, col ) =
+    (row >= 1) && (row <= 9) && (col >= 1) && (col <= 9)
+
+
 indexToPosition : Int -> Position
 indexToPosition index =
-    ( (index // 9) + 1, modBy 9 index + 1 )
+    if validIndex index then
+        ( (index // 9) + 1, modBy 9 index + 1 )
+
+    else
+        ( 0, 0 )
 
 
 positionToIndex : Position -> Int
 positionToIndex ( row, col ) =
-    (row - 1) * 9 + (col - 1)
+    if validPosition ( row, col ) then
+        (row - 1) * 9 + (col - 1)
+
+    else
+        -1
 
 
 newCellAt : Position -> Cell
 newCellAt ( row, col ) =
-    { row = row
-    , col = col
-    , block = (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
-    , value = Nothing
-    , isVisible = False
-    , guess = Nothing
-    , marks = []
-    }
+    if validPosition (row, col) then
+        { row = row
+        , col = col
+        , block = (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
+        , value = Nothing
+        , isVisible = False
+        , guess = Nothing
+        , marks = []
+        }
+    else
+        newCellAt ( 1, 1 )
 
 
 init : ( Model, Cmd Msg )
@@ -90,10 +112,13 @@ init =
 
 
 cellValue : Cell -> Maybe Int
-cellValue cell = cell.value
+cellValue cell =
+    cell.value
+
 
 cellGuess : Cell -> Maybe Int
-cellGuess cell = cell.guess
+cellGuess cell =
+    cell.guess
 
 
 rowCells : Int -> Model -> List Cell
@@ -117,7 +142,7 @@ hasNumberRepeated numbers =
 
 
 cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
-cellsHaveNumberRepeated cells getNumber=
+cellsHaveNumberRepeated cells getNumber =
     hasNumberRepeated (filterMap getNumber cells)
 
 
@@ -179,7 +204,10 @@ hasWinningStatusWon model =
 hasWinningStatusLost : Model -> Bool
 hasWinningStatusLost model =
     False
-    -- any (\cell -> cell.value /= cell.guess) (toList model.cells)
+
+
+
+-- any (\cell -> cell.value /= cell.guess) (toList model.cells)
 
 
 hasWinningStatusError : Model -> Bool
@@ -295,7 +323,7 @@ viewCellAt model ( row, col ) =
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
     div
-        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) , ( "block" ++ String.fromInt cell.block, True ) ]
+        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ), ( "block" ++ String.fromInt cell.block, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
         [ case ( cell.value, cell.isVisible ) of
@@ -328,8 +356,10 @@ view ( model, _ ) =
     let
         _ =
             Debug.log "model.anyRowHasValueRepeated" (anyRowHasValueRepeated model)
+
         _ =
             Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9))
+
         _ =
             Debug.log "model.winningStatus" model.winningStatus
     in
