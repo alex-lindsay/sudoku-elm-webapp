@@ -5,10 +5,9 @@ import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import List exposing (any, append, map)
+import List exposing (any, append, filter, filterMap, length, map, member, range)
 -- import Random exposing (int)
 import Set
-import List exposing (range)
 
 
 type GameState
@@ -39,6 +38,7 @@ type Msg
 type alias Cell =
     { row : Int
     , col : Int
+    , block : Int
     , value : Maybe Int
     , isVisible : Bool
     , guess : Maybe Int
@@ -69,6 +69,7 @@ newCellAt : Position -> Cell
 newCellAt ( row, col ) =
     { row = row
     , col = col
+    , block = (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
     , value = Nothing
     , isVisible = False
     , guess = Nothing
@@ -97,40 +98,27 @@ cellGuess cell = cell.guess
 
 rowCells : Int -> Model -> List Cell
 rowCells rowNumber model =
-    List.filter (\cell -> cell.row == rowNumber) (toList model.cells)
+    filter (\cell -> cell.row == rowNumber) (toList model.cells)
 
 
 colCells : Int -> Model -> List Cell
 colCells colNumber model =
-    List.filter (\cell -> cell.col == colNumber) (toList model.cells)
+    filter (\cell -> cell.col == colNumber) (toList model.cells)
 
 
 blockCells : Int -> Model -> List Cell
 blockCells blockNumber model =
-    let
-        row =
-            (((blockNumber - 1) // 3) * 3) + 1
-
-        col =
-            ((modBy 3 (blockNumber - 1)) *3) + 1
-
-        blockRows =
-            List.range row (row + 2)
-
-        blockCols =
-            List.range col (col + 2)
-    in
-    List.filter (\cell -> List.member cell.row blockRows && List.member cell.col blockCols) (toList model.cells)
+    filter (\cell -> cell.block == blockNumber) (toList model.cells)
 
 
 hasNumberRepeated : List Int -> Bool
 hasNumberRepeated numbers =
-    List.length numbers /= List.length (Set.toList (Set.fromList numbers))
+    length numbers /= length (Set.toList (Set.fromList numbers))
 
 
 cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
 cellsHaveNumberRepeated cells getNumber=
-    hasNumberRepeated (List.filterMap getNumber cells)
+    hasNumberRepeated (filterMap getNumber cells)
 
 
 rowHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -140,12 +128,12 @@ rowHasNumberRepeated rowNumber getNumber model =
 
 anyRowHasValueRepeated : Model -> Bool
 anyRowHasValueRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (List.range 1 9)
+    any (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9)
 
 
 anyRowHasGuessRepeated : Model -> Bool
 anyRowHasGuessRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber cellGuess model) (List.range 1 9)
+    any (\rowNumber -> rowHasNumberRepeated rowNumber cellGuess model) (range 1 9)
 
 
 colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -155,12 +143,12 @@ colHasNumberRepeated colNumber getNumber model =
 
 anyColHasValueRepeated : Model -> Bool
 anyColHasValueRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber cellValue model) (List.range 1 9)
+    any (\colNumber -> colHasNumberRepeated colNumber cellValue model) (range 1 9)
 
 
 anyColHasGuessRepeated : Model -> Bool
 anyColHasGuessRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber cellGuess model) (List.range 1 9)
+    any (\colNumber -> colHasNumberRepeated colNumber cellGuess model) (range 1 9)
 
 
 blockHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -170,12 +158,12 @@ blockHasNumberRepeated blockNumber getNumber model =
 
 anyBlockHasValueRepeated : Model -> Bool
 anyBlockHasValueRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber cellValue model) (List.range 1 9)
+    any (\blockNumber -> blockHasNumberRepeated blockNumber cellValue model) (range 1 9)
 
 
 anyBlockHasGuessRepeated : Model -> Bool
 anyBlockHasGuessRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber cellGuess model) (List.range 1 9)
+    any (\blockNumber -> blockHasNumberRepeated blockNumber cellGuess model) (range 1 9)
 
 
 hasWinningStatusUnknown : Model -> Bool
@@ -277,8 +265,8 @@ update msg ( model, _ ) =
                         Just SetMarks ->
                             case model.activeNumber of
                                 Just number ->
-                                    if List.member number cell.marks then
-                                        { cell | marks = List.filter (\mark -> mark /= number) cell.marks }
+                                    if member number cell.marks then
+                                        { cell | marks = filter (\mark -> mark /= number) cell.marks }
 
                                     else
                                         { cell | marks = append cell.marks [ number ] }
@@ -307,7 +295,7 @@ viewCellAt model ( row, col ) =
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
     div
-        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) ]
+        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ) , ( "block" ++ String.fromInt cell.block, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
         [ case ( cell.value, cell.isVisible ) of
@@ -341,7 +329,7 @@ view ( model, _ ) =
         _ =
             Debug.log "model.anyRowHasValueRepeated" (anyRowHasValueRepeated model)
         _ =
-            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (List.range 1 9))
+            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9))
         _ =
             Debug.log "model.winningStatus" model.winningStatus
     in
@@ -380,7 +368,7 @@ view ( model, _ ) =
                 ]
             , div [ class "number-buttons" ]
                 (List.append
-                    (List.range 1 9
+                    (range 1 9
                         |> List.map (\number -> button [ onClick (SetActiveNumber (Just number)), classList [ ( "active", model.activeNumber == Just number ) ] ] [ text (String.fromInt number) ])
                     )
                     [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
@@ -389,7 +377,7 @@ view ( model, _ ) =
                 [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
                 ]
             , div [ class "board-container" ]
-                (List.range 0 80
+                (range 0 80
                     |> List.map indexToPosition
                     |> List.map (viewCellAt model)
                 )

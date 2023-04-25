@@ -4674,7 +4674,7 @@ var $elm$core$Array$initialize = F2(
 var $author$project$Sudoku$newCellAt = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
-	return {col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
+	return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
 };
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
@@ -5907,6 +5907,9 @@ var $author$project$Sudoku$viewCellAt = F2(
 							true),
 							_Utils_Tuple2(
 							'col' + $elm$core$String$fromInt(col),
+							true),
+							_Utils_Tuple2(
+							'block' + $elm$core$String$fromInt(cell.block),
 							true)
 						])),
 					$elm$html$Html$Events$onClick(
