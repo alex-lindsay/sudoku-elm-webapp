@@ -32,3 +32,7 @@ What does MVP look like:
 
 Okay. At this point, I have some initial instructions from ChatGPT and some code to start with. So I'm going to set up the elm project, add the code, build it and see what errors I get. We'll then go through some back and forth to get something up and running locally.
 
+# elm-test in the project directory will run the tests
+# elm-coverage in the project directory will check the test coverage
+
+# elm make src/Sudoku.elm --output=sudoku.js && elm-test && rm -rf .coverage/coverage.html && elm-coverage
