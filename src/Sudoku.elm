@@ -2,12 +2,13 @@ module Sudoku exposing (..)
 
 -- import Random exposing (int)
 
-import Array exposing (Array, initialize, toList)
+import Array exposing (Array, fromList, initialize, toList)
+import Array.Extra exposing (map2)
 import Browser
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import List exposing (any, append, filter, filterMap, length, map, member, range)
+import List exposing (all, any, append, filter, filterMap, length, map, member, range)
 import Set
 
 
@@ -61,7 +62,7 @@ validIndex index =
     (index >= 0) && (index < 81)
 
 
-validPosition : (Int, Int) -> Bool
+validPosition : ( Int, Int ) -> Bool
 validPosition ( row, col ) =
     (row >= 1) && (row <= 9) && (col >= 1) && (col <= 9)
 
@@ -86,7 +87,7 @@ positionToIndex ( row, col ) =
 
 newCellAt : Position -> Cell
 newCellAt ( row, col ) =
-    if validPosition (row, col) then
+    if validPosition ( row, col ) then
         { row = row
         , col = col
         , block = (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
@@ -95,6 +96,7 @@ newCellAt ( row, col ) =
         , guess = Nothing
         , marks = []
         }
+
     else
         newCellAt ( 1, 1 )
 
@@ -104,11 +106,38 @@ init =
     ( { gameState = Just SetAnswer
       , activeNumber = Just 1
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
+    --   , cells = winningBoard
       , selectedCell = Nothing
       , winningStatus = Unknown
       }
     , Cmd.none
     )
+
+
+emptyBoard : Array Cell
+emptyBoard = initialize 81 (\i -> newCellAt (indexToPosition i))
+
+
+winningBoard : Array Cell
+winningBoard =
+    let
+        values =
+            fromList [ 1, 2, 3, 9, 7, 8, 5, 6, 4,
+              4, 5, 6, 3, 1, 2, 8, 9, 7,
+              7, 8, 9, 6, 4, 5, 2, 3, 1,
+              3, 1, 2, 8, 9, 7, 4, 5, 6,
+              6, 4, 5, 2, 3, 1, 7, 8, 9,
+              9, 7, 8, 5, 6, 4, 1, 2, 3,
+              2, 3, 1, 7, 8, 9, 6, 4, 5,
+              5, 6, 4, 1, 2, 3, 9, 7, 8,
+              8, 9, 7, 4, 5, 6, 3, 1, 0
+            ]
+    in
+    map2 (\cell v -> {cell | value = 
+    case v of
+        0 -> Nothing
+        n -> Just n
+    }) emptyBoard values
 
 
 cellValue : Cell -> Maybe Int
@@ -119,6 +148,15 @@ cellValue cell =
 cellGuess : Cell -> Maybe Int
 cellGuess cell =
     cell.guess
+
+
+cellGuessOrValue : Cell -> Maybe Int
+cellGuessOrValue cell =
+    if cell.guess /= Nothing then
+        cell.guess
+
+    else
+        cell.value
 
 
 rowCells : Int -> Model -> List Cell
@@ -191,6 +229,41 @@ anyBlockHasGuessRepeated model =
     any (\blockNumber -> blockHasNumberRepeated blockNumber cellGuess model) (range 1 9)
 
 
+cellsAreComplete : List Cell -> (Cell -> Maybe Int) -> Bool
+cellsAreComplete cells getNumber =
+    all (\cell -> getNumber cell /= Nothing) cells && not (cellsHaveNumberRepeated cells getNumber)
+
+
+rowIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
+rowIsComplete rowNumber getNumber model =
+    cellsAreComplete (rowCells rowNumber model) getNumber
+
+
+allRowsAreComplete : Model -> Bool
+allRowsAreComplete model =
+    all (\rowNumber -> rowIsComplete rowNumber cellGuessOrValue model) (range 1 9)
+
+
+colIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
+colIsComplete colNumber getNumber model =
+    cellsAreComplete (rowCells colNumber model) getNumber
+
+
+allColsAreComplete : Model -> Bool
+allColsAreComplete model =
+    all (\colNumber -> colIsComplete colNumber cellGuessOrValue model) (range 1 9)
+
+
+blockIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
+blockIsComplete blockNumber getNumber model =
+    cellsAreComplete (blockCells blockNumber model) getNumber
+
+
+allBlocksAreComplete : Model -> Bool
+allBlocksAreComplete model =
+    all (\blockNumber -> rowIsComplete blockNumber cellGuessOrValue model) (range 1 9)
+
+
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
     any (\cell -> ( cell.value, cell.guess ) == ( Nothing, Nothing )) (toList model.cells)
@@ -198,11 +271,11 @@ hasWinningStatusUnknown model =
 
 hasWinningStatusWon : Model -> Bool
 hasWinningStatusWon model =
-    False
+    allRowsAreComplete model && allColsAreComplete model && allBlocksAreComplete model
 
 
 hasWinningStatusLost : Model -> Bool
-hasWinningStatusLost model =
+hasWinningStatusLost _ =
     False
 
 
@@ -355,7 +428,7 @@ view : ( Model, Cmd Msg ) -> Html Msg
 view ( model, _ ) =
     let
         _ =
-            Debug.log "model.anyRowHasValueRepeated" (anyRowHasValueRepeated model)
+            Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
 
         _ =
             Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9))

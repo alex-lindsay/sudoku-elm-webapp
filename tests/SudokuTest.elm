@@ -1,8 +1,8 @@
 module SudokuTest exposing (..)
 
 import Array exposing (initialize)
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
+import Expect exposing (..)
+-- import Fuzz exposing (Fuzzer, int, list, string)
 import Sudoku exposing (..)
 import Test exposing (..)
 
@@ -113,6 +113,7 @@ initTest =
                 gameState = Just SetAnswer
                 , activeNumber = Just 1
                 , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
+                -- , cells = winningBoard
                 , selectedCell = Nothing
                 , winningStatus = Unknown
                 }

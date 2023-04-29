@@ -4493,209 +4493,6 @@ var $elm$core$Maybe$Just = function (a) {
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
 var $author$project$Sudoku$Unknown = {$: 'Unknown'};
-var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Basics$idiv = _Basics_idiv;
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $elm$core$Basics$and = _Basics_and;
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$Basics$lt = _Utils_lt;
-var $author$project$Sudoku$validIndex = function (index) {
-	return (index >= 0) && (index < 81);
-};
-var $author$project$Sudoku$indexToPosition = function (index) {
-	return $author$project$Sudoku$validIndex(index) ? _Utils_Tuple2(
-		((index / 9) | 0) + 1,
-		A2($elm$core$Basics$modBy, 9, index) + 1) : _Utils_Tuple2(0, 0);
-};
-var $elm$core$Array$branchFactor = 32;
-var $elm$core$Array$Array_elm_builtin = F4(
-	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
-	});
-var $elm$core$Elm$JsArray$empty = _JsArray_empty;
-var $elm$core$Basics$ceiling = _Basics_ceiling;
-var $elm$core$Basics$fdiv = _Basics_fdiv;
-var $elm$core$Basics$logBase = F2(
-	function (base, number) {
-		return _Basics_log(number) / _Basics_log(base);
-	});
-var $elm$core$Basics$toFloat = _Basics_toFloat;
-var $elm$core$Array$shiftStep = $elm$core$Basics$ceiling(
-	A2($elm$core$Basics$logBase, 2, $elm$core$Array$branchFactor));
-var $elm$core$Array$empty = A4($elm$core$Array$Array_elm_builtin, 0, $elm$core$Array$shiftStep, $elm$core$Elm$JsArray$empty, $elm$core$Elm$JsArray$empty);
-var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
-var $elm$core$Basics$False = {$: 'False'};
-var $elm$core$Array$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
-};
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
-var $elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
-var $elm$core$Basics$eq = _Utils_equal;
-var $elm$core$Basics$floor = _Basics_floor;
-var $elm$core$Elm$JsArray$length = _JsArray_length;
-var $elm$core$Basics$gt = _Utils_gt;
-var $elm$core$Basics$max = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) > 0) ? x : y;
-	});
-var $elm$core$Basics$mul = _Basics_mul;
-var $elm$core$List$foldl = F3(
-	function (func, acc, list) {
-		foldl:
-		while (true) {
-			if (!list.b) {
-				return acc;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				var $temp$func = func,
-					$temp$acc = A2(func, x, acc),
-					$temp$list = xs;
-				func = $temp$func;
-				acc = $temp$acc;
-				list = $temp$list;
-				continue foldl;
-			}
-		}
-	});
-var $elm$core$List$reverse = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
-};
-var $elm$core$Basics$sub = _Basics_sub;
-var $elm$core$Array$SubTree = function (a) {
-	return {$: 'SubTree', a: a};
-};
-var $elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
-var $elm$core$Array$compressNodes = F2(
-	function (nodes, acc) {
-		compressNodes:
-		while (true) {
-			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodes);
-			var node = _v0.a;
-			var remainingNodes = _v0.b;
-			var newAcc = A2(
-				$elm$core$List$cons,
-				$elm$core$Array$SubTree(node),
-				acc);
-			if (!remainingNodes.b) {
-				return $elm$core$List$reverse(newAcc);
-			} else {
-				var $temp$nodes = remainingNodes,
-					$temp$acc = newAcc;
-				nodes = $temp$nodes;
-				acc = $temp$acc;
-				continue compressNodes;
-			}
-		}
-	});
-var $elm$core$Tuple$first = function (_v0) {
-	var x = _v0.a;
-	return x;
-};
-var $elm$core$Array$treeFromBuilder = F2(
-	function (nodeList, nodeListSize) {
-		treeFromBuilder:
-		while (true) {
-			var newNodeSize = $elm$core$Basics$ceiling(nodeListSize / $elm$core$Array$branchFactor);
-			if (newNodeSize === 1) {
-				return A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodeList).a;
-			} else {
-				var $temp$nodeList = A2($elm$core$Array$compressNodes, nodeList, _List_Nil),
-					$temp$nodeListSize = newNodeSize;
-				nodeList = $temp$nodeList;
-				nodeListSize = $temp$nodeListSize;
-				continue treeFromBuilder;
-			}
-		}
-	});
-var $elm$core$Array$builderToArray = F2(
-	function (reverseNodeList, builder) {
-		if (!builder.nodeListSize) {
-			return A4(
-				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.tail),
-				$elm$core$Array$shiftStep,
-				$elm$core$Elm$JsArray$empty,
-				builder.tail);
-		} else {
-			var treeLen = builder.nodeListSize * $elm$core$Array$branchFactor;
-			var depth = $elm$core$Basics$floor(
-				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.nodeList) : builder.nodeList;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
-			return A4(
-				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.tail) + treeLen,
-				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
-				tree,
-				builder.tail);
-		}
-	});
-var $elm$core$Array$initializeHelp = F5(
-	function (fn, fromIndex, len, nodeList, tail) {
-		initializeHelp:
-		while (true) {
-			if (fromIndex < 0) {
-				return A2(
-					$elm$core$Array$builderToArray,
-					false,
-					{nodeList: nodeList, nodeListSize: (len / $elm$core$Array$branchFactor) | 0, tail: tail});
-			} else {
-				var leaf = $elm$core$Array$Leaf(
-					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
-				var $temp$fn = fn,
-					$temp$fromIndex = fromIndex - $elm$core$Array$branchFactor,
-					$temp$len = len,
-					$temp$nodeList = A2($elm$core$List$cons, leaf, nodeList),
-					$temp$tail = tail;
-				fn = $temp$fn;
-				fromIndex = $temp$fromIndex;
-				len = $temp$len;
-				nodeList = $temp$nodeList;
-				tail = $temp$tail;
-				continue initializeHelp;
-			}
-		}
-	});
-var $elm$core$Basics$le = _Utils_le;
-var $elm$core$Basics$remainderBy = _Basics_remainderBy;
-var $elm$core$Array$initialize = F2(
-	function (len, fn) {
-		if (len <= 0) {
-			return $elm$core$Array$empty;
-		} else {
-			var tailLen = len % $elm$core$Array$branchFactor;
-			var tail = A3($elm$core$Elm$JsArray$initialize, tailLen, len - tailLen, fn);
-			var initialFromIndex = (len - tailLen) - $elm$core$Array$branchFactor;
-			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
-		}
-	});
-var $author$project$Sudoku$validPosition = function (_v0) {
-	var row = _v0.a;
-	var col = _v0.b;
-	return (row >= 1) && ((row <= 9) && ((col >= 1) && (col <= 9)));
-};
-var $author$project$Sudoku$newCellAt = function (_v0) {
-	newCellAt:
-	while (true) {
-		var row = _v0.a;
-		var col = _v0.b;
-		if ($author$project$Sudoku$validPosition(
-			_Utils_Tuple2(row, col))) {
-			return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
-		} else {
-			var $temp$_v0 = _Utils_Tuple2(1, 1);
-			_v0 = $temp$_v0;
-			continue newCellAt;
-		}
-	}
-};
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4717,7 +4514,10 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
+var $elm$core$Basics$False = {$: 'False'};
+var $elm$core$Basics$add = _Basics_add;
 var $elm$core$String$all = _String_all;
+var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
 var $elm$json$Json$Encode$encode = _Json_encode;
 var $elm$core$String$fromInt = _String_fromNumber;
@@ -4739,6 +4539,25 @@ var $elm$json$Json$Decode$indent = function (str) {
 		'\n    ',
 		A2($elm$core$String$split, '\n', str));
 };
+var $elm$core$List$foldl = F3(
+	function (func, acc, list) {
+		foldl:
+		while (true) {
+			if (!list.b) {
+				return acc;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				var $temp$func = func,
+					$temp$acc = A2(func, x, acc),
+					$temp$list = xs;
+				func = $temp$func;
+				acc = $temp$acc;
+				list = $temp$list;
+				continue foldl;
+			}
+		}
+	});
 var $elm$core$List$length = function (xs) {
 	return A3(
 		$elm$core$List$foldl,
@@ -4750,6 +4569,8 @@ var $elm$core$List$length = function (xs) {
 		xs);
 };
 var $elm$core$List$map2 = _List_map2;
+var $elm$core$Basics$le = _Utils_le;
+var $elm$core$Basics$sub = _Basics_sub;
 var $elm$core$List$rangeHelp = F3(
 	function (lo, hi, list) {
 		rangeHelp:
@@ -4801,6 +4622,9 @@ var $elm$core$Char$isDigit = function (_char) {
 };
 var $elm$core$Char$isAlphaNum = function (_char) {
 	return $elm$core$Char$isLower(_char) || ($elm$core$Char$isUpper(_char) || $elm$core$Char$isDigit(_char));
+};
+var $elm$core$List$reverse = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
 };
 var $elm$core$String$uncons = _String_uncons;
 var $elm$json$Json$Decode$errorOneOf = F2(
@@ -4906,6 +4730,152 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 			}
 		}
 	});
+var $elm$core$Array$branchFactor = 32;
+var $elm$core$Array$Array_elm_builtin = F4(
+	function (a, b, c, d) {
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
+	});
+var $elm$core$Elm$JsArray$empty = _JsArray_empty;
+var $elm$core$Basics$ceiling = _Basics_ceiling;
+var $elm$core$Basics$fdiv = _Basics_fdiv;
+var $elm$core$Basics$logBase = F2(
+	function (base, number) {
+		return _Basics_log(number) / _Basics_log(base);
+	});
+var $elm$core$Basics$toFloat = _Basics_toFloat;
+var $elm$core$Array$shiftStep = $elm$core$Basics$ceiling(
+	A2($elm$core$Basics$logBase, 2, $elm$core$Array$branchFactor));
+var $elm$core$Array$empty = A4($elm$core$Array$Array_elm_builtin, 0, $elm$core$Array$shiftStep, $elm$core$Elm$JsArray$empty, $elm$core$Elm$JsArray$empty);
+var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
+var $elm$core$Array$Leaf = function (a) {
+	return {$: 'Leaf', a: a};
+};
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
+var $elm$core$Basics$eq = _Utils_equal;
+var $elm$core$Basics$floor = _Basics_floor;
+var $elm$core$Elm$JsArray$length = _JsArray_length;
+var $elm$core$Basics$gt = _Utils_gt;
+var $elm$core$Basics$max = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) > 0) ? x : y;
+	});
+var $elm$core$Basics$mul = _Basics_mul;
+var $elm$core$Array$SubTree = function (a) {
+	return {$: 'SubTree', a: a};
+};
+var $elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
+var $elm$core$Array$compressNodes = F2(
+	function (nodes, acc) {
+		compressNodes:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodes);
+			var node = _v0.a;
+			var remainingNodes = _v0.b;
+			var newAcc = A2(
+				$elm$core$List$cons,
+				$elm$core$Array$SubTree(node),
+				acc);
+			if (!remainingNodes.b) {
+				return $elm$core$List$reverse(newAcc);
+			} else {
+				var $temp$nodes = remainingNodes,
+					$temp$acc = newAcc;
+				nodes = $temp$nodes;
+				acc = $temp$acc;
+				continue compressNodes;
+			}
+		}
+	});
+var $elm$core$Tuple$first = function (_v0) {
+	var x = _v0.a;
+	return x;
+};
+var $elm$core$Array$treeFromBuilder = F2(
+	function (nodeList, nodeListSize) {
+		treeFromBuilder:
+		while (true) {
+			var newNodeSize = $elm$core$Basics$ceiling(nodeListSize / $elm$core$Array$branchFactor);
+			if (newNodeSize === 1) {
+				return A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodeList).a;
+			} else {
+				var $temp$nodeList = A2($elm$core$Array$compressNodes, nodeList, _List_Nil),
+					$temp$nodeListSize = newNodeSize;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue treeFromBuilder;
+			}
+		}
+	});
+var $elm$core$Array$builderToArray = F2(
+	function (reverseNodeList, builder) {
+		if (!builder.nodeListSize) {
+			return A4(
+				$elm$core$Array$Array_elm_builtin,
+				$elm$core$Elm$JsArray$length(builder.tail),
+				$elm$core$Array$shiftStep,
+				$elm$core$Elm$JsArray$empty,
+				builder.tail);
+		} else {
+			var treeLen = builder.nodeListSize * $elm$core$Array$branchFactor;
+			var depth = $elm$core$Basics$floor(
+				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.nodeList) : builder.nodeList;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
+			return A4(
+				$elm$core$Array$Array_elm_builtin,
+				$elm$core$Elm$JsArray$length(builder.tail) + treeLen,
+				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
+				tree,
+				builder.tail);
+		}
+	});
+var $elm$core$Basics$idiv = _Basics_idiv;
+var $elm$core$Basics$lt = _Utils_lt;
+var $elm$core$Array$initializeHelp = F5(
+	function (fn, fromIndex, len, nodeList, tail) {
+		initializeHelp:
+		while (true) {
+			if (fromIndex < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					false,
+					{nodeList: nodeList, nodeListSize: (len / $elm$core$Array$branchFactor) | 0, tail: tail});
+			} else {
+				var leaf = $elm$core$Array$Leaf(
+					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
+				var $temp$fn = fn,
+					$temp$fromIndex = fromIndex - $elm$core$Array$branchFactor,
+					$temp$len = len,
+					$temp$nodeList = A2($elm$core$List$cons, leaf, nodeList),
+					$temp$tail = tail;
+				fn = $temp$fn;
+				fromIndex = $temp$fromIndex;
+				len = $temp$len;
+				nodeList = $temp$nodeList;
+				tail = $temp$tail;
+				continue initializeHelp;
+			}
+		}
+	});
+var $elm$core$Basics$remainderBy = _Basics_remainderBy;
+var $elm$core$Array$initialize = F2(
+	function (len, fn) {
+		if (len <= 0) {
+			return $elm$core$Array$empty;
+		} else {
+			var tailLen = len % $elm$core$Array$branchFactor;
+			var tail = A3($elm$core$Elm$JsArray$initialize, tailLen, len - tailLen, fn);
+			var initialFromIndex = (len - tailLen) - $elm$core$Array$branchFactor;
+			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
+		}
+	});
 var $elm$core$Basics$True = {$: 'True'};
 var $elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4916,16 +4886,115 @@ var $elm$core$Result$isOk = function (result) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Sudoku$validIndex = function (index) {
+	return (index >= 0) && (index < 81);
+};
+var $author$project$Sudoku$indexToPosition = function (index) {
+	return $author$project$Sudoku$validIndex(index) ? _Utils_Tuple2(
+		((index / 9) | 0) + 1,
+		A2($elm$core$Basics$modBy, 9, index) + 1) : _Utils_Tuple2(0, 0);
+};
+var $elm_community$array_extra$Array$Extra$map2 = F3(
+	function (combineAb, aArray, bArray) {
+		return $elm$core$Array$fromList(
+			A3(
+				$elm$core$List$map2,
+				combineAb,
+				$elm$core$Array$toList(aArray),
+				$elm$core$Array$toList(bArray)));
+	});
+var $author$project$Sudoku$validPosition = function (_v0) {
+	var row = _v0.a;
+	var col = _v0.b;
+	return (row >= 1) && ((row <= 9) && ((col >= 1) && (col <= 9)));
+};
+var $author$project$Sudoku$newCellAt = function (_v0) {
+	newCellAt:
+	while (true) {
+		var row = _v0.a;
+		var col = _v0.b;
+		if ($author$project$Sudoku$validPosition(
+			_Utils_Tuple2(row, col))) {
+			return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
+		} else {
+			var $temp$_v0 = _Utils_Tuple2(1, 1);
+			_v0 = $temp$_v0;
+			continue newCellAt;
+		}
+	}
+};
+var $author$project$Sudoku$winningBoard = function () {
+	var values = $elm$core$Array$fromList(
+		_List_fromArray(
+			[1, 2, 3, 9, 7, 8, 5, 6, 4, 4, 5, 6, 3, 1, 2, 8, 9, 7, 7, 8, 9, 6, 4, 5, 2, 3, 1, 3, 1, 2, 8, 9, 7, 4, 5, 6, 6, 4, 5, 2, 3, 1, 7, 8, 9, 9, 7, 8, 5, 6, 4, 1, 2, 3, 2, 3, 1, 7, 8, 9, 6, 4, 5, 5, 6, 4, 1, 2, 3, 9, 7, 8, 8, 9, 7, 4, 5, 6, 3, 1, 0]));
+	var cells = A2(
+		$elm$core$Array$initialize,
+		81,
+		function (i) {
+			return $author$project$Sudoku$newCellAt(
+				$author$project$Sudoku$indexToPosition(i));
+		});
+	return A3(
+		$elm_community$array_extra$Array$Extra$map2,
+		F2(
+			function (cell, v) {
+				return _Utils_update(
+					cell,
+					{
+						value: function () {
+							if (!v) {
+								return $elm$core$Maybe$Nothing;
+							} else {
+								var n = v;
+								return $elm$core$Maybe$Just(n);
+							}
+						}()
+					});
+			}),
+		cells,
+		values);
+}();
 var $author$project$Sudoku$init = _Utils_Tuple2(
 	{
 		activeNumber: $elm$core$Maybe$Just(1),
-		cells: A2(
-			$elm$core$Array$initialize,
-			81,
-			function (i) {
-				return $author$project$Sudoku$newCellAt(
-					$author$project$Sudoku$indexToPosition(i));
-			}),
+		cells: $author$project$Sudoku$winningBoard,
 		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetAnswer),
 		selectedCell: $elm$core$Maybe$Nothing,
 		winningStatus: $author$project$Sudoku$Unknown
@@ -5669,11 +5738,76 @@ var $author$project$Sudoku$anyRowHasValueRepeated = function (model) {
 var $author$project$Sudoku$hasWinningStatusError = function (model) {
 	return $author$project$Sudoku$anyRowHasValueRepeated(model) || ($author$project$Sudoku$anyColHasValueRepeated(model) || ($author$project$Sudoku$anyBlockHasValueRepeated(model) || ($author$project$Sudoku$anyRowHasGuessRepeated(model) || ($author$project$Sudoku$anyColHasGuessRepeated(model) || $author$project$Sudoku$anyBlockHasGuessRepeated(model)))));
 };
-var $author$project$Sudoku$hasWinningStatusLost = function (model) {
+var $author$project$Sudoku$hasWinningStatusLost = function (_v0) {
 	return false;
 };
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $author$project$Sudoku$cellGuessOrValue = function (cell) {
+	return (!_Utils_eq(cell.guess, $elm$core$Maybe$Nothing)) ? cell.guess : cell.value;
+};
+var $author$project$Sudoku$cellsAreComplete = F2(
+	function (cells, getNumber) {
+		return A2(
+			$elm$core$List$all,
+			function (cell) {
+				return !_Utils_eq(
+					getNumber(cell),
+					$elm$core$Maybe$Nothing);
+			},
+			cells) && (!A2($author$project$Sudoku$cellsHaveNumberRepeated, cells, getNumber));
+	});
+var $author$project$Sudoku$rowIsComplete = F3(
+	function (rowNumber, getNumber, model) {
+		return A2(
+			$author$project$Sudoku$cellsAreComplete,
+			A2($author$project$Sudoku$rowCells, rowNumber, model),
+			getNumber);
+	});
+var $author$project$Sudoku$allBlocksAreComplete = function (model) {
+	return A2(
+		$elm$core$List$all,
+		function (blockNumber) {
+			return A3($author$project$Sudoku$rowIsComplete, blockNumber, $author$project$Sudoku$cellGuessOrValue, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$colIsComplete = F3(
+	function (colNumber, getNumber, model) {
+		return A2(
+			$author$project$Sudoku$cellsAreComplete,
+			A2($author$project$Sudoku$rowCells, colNumber, model),
+			getNumber);
+	});
+var $author$project$Sudoku$allColsAreComplete = function (model) {
+	return A2(
+		$elm$core$List$all,
+		function (colNumber) {
+			return A3($author$project$Sudoku$colIsComplete, colNumber, $author$project$Sudoku$cellGuessOrValue, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
+var $author$project$Sudoku$allRowsAreComplete = function (model) {
+	return A2(
+		$elm$core$List$all,
+		function (rowNumber) {
+			return A3($author$project$Sudoku$rowIsComplete, rowNumber, $author$project$Sudoku$cellGuessOrValue, model);
+		},
+		A2($elm$core$List$range, 1, 9));
+};
 var $author$project$Sudoku$hasWinningStatusWon = function (model) {
-	return false;
+	return $author$project$Sudoku$allRowsAreComplete(model) && ($author$project$Sudoku$allColsAreComplete(model) && $author$project$Sudoku$allBlocksAreComplete(model));
 };
 var $author$project$Sudoku$updateWinningStatus = function (model) {
 	var statuses = _List_fromArray(
@@ -6016,8 +6150,8 @@ var $author$project$Sudoku$view = function (_v0) {
 	var model = _v0.a;
 	var _v1 = A2(
 		$elm$core$Debug$log,
-		'model.anyRowHasValueRepeated',
-		$author$project$Sudoku$anyRowHasValueRepeated(model));
+		'model.hasWinningStatusWon',
+		$author$project$Sudoku$hasWinningStatusWon(model));
 	var _v2 = A2(
 		$elm$core$Debug$log,
 		'model.rowHasNumberRepeated',
