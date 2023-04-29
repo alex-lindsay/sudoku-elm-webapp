@@ -152,3 +152,26 @@ cellGuessTest =
             (\_ -> Expect.equal Nothing (cellGuess cellWithoutGuess))
         ]
 
+
+cellGuessOrValueTest : Test
+cellGuessOrValueTest =
+    let
+        cellWithGuess =
+            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
+        cellWithValue =
+            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Nothing, marks = [] }
+        cellWithoutGuessOrValue =
+            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+        cellWithGuessAndValue = -- shouldn't happen, but just in case
+            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Just 1, marks = [] } 
+    in
+    describe "cellGuessOrValue"
+        [ test "cell with guess 1 returns 1"
+            (\_ -> Expect.equal (Just 1) (cellGuessOrValue cellWithGuess))
+        , test "cell with value 1 returns 1"
+            (\_ -> Expect.equal (Just 1) (cellGuessOrValue cellWithValue))
+        , test "cell without guess or value returns Nothing"
+            (\_ -> Expect.equal Nothing (cellGuessOrValue cellWithoutGuessOrValue))
+        , test "cell with guess and value returns value"
+            (\_ -> Expect.equal (Just 1) (cellGuessOrValue cellWithGuessAndValue))
+        ]

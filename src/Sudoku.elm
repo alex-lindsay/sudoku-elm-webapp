@@ -275,12 +275,8 @@ hasWinningStatusWon model =
 
 
 hasWinningStatusLost : Model -> Bool
-hasWinningStatusLost _ =
-    False
-
-
-
--- any (\cell -> cell.value /= cell.guess) (toList model.cells)
+hasWinningStatusLost model =
+    all (\cell -> cell.value /= Nothing || cell.guess /= Nothing) (toList model.cells)
 
 
 hasWinningStatusError : Model -> Bool
