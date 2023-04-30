@@ -224,3 +224,14 @@ blockCellsTest =
         , test "blocks are as expected"
             (\_ -> Expect.equal (List.map (\i -> List.repeat 9 i) (List.range 1 9)) actualBlocks)
         ]
+
+hasNumberRepeatedTest : Test
+hasNumberRepeatedTest = 
+    describe "hasNumberRepeated"
+        [test "no numbers are repeated"
+            (\_ -> Expect.equal False (hasNumberRepeated [1,2,3,4,5,6,7,8,9]))
+            , test "numbers are repeated"
+            (\_ -> Expect.equal True (hasNumberRepeated [1,2,3,4,5,6,7,8,1]))
+            , test "empty list edge case"
+            (\_ -> Expect.equal False (hasNumberRepeated []))
+        ]
