@@ -377,3 +377,66 @@ cellsAreCompleteTest =
         , test "empty list edge case"
             (\_ -> Expect.equal True (cellsAreComplete [] .value))
         ]
+
+allRowsAreCompleteTest : Test
+allRowsAreCompleteTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteRows = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "allRowsAreComplete"
+        [test "rows are not complete"
+            (\_ -> Expect.equal False (allRowsAreComplete model))
+        , test "rows are complete"
+            (\_ -> Expect.equal True (allRowsAreComplete modelWithCompleteRows))
+        , test "empty list edge case"
+            (\_ -> Expect.equal True (allRowsAreComplete {model | cells = Array.fromList []}))
+        ]
+
+allColsAreCompleteTest : Test
+allColsAreCompleteTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteCols = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "allColsAreComplete"
+        [test "cols are not complete"
+            (\_ -> Expect.equal False (allColsAreComplete model))
+        , test "cols are complete"
+            (\_ -> Expect.equal True (allColsAreComplete modelWithCompleteCols))
+        , test "empty list edge case"
+            (\_ -> Expect.equal True (allColsAreComplete {model | cells = Array.fromList []}))
+        ]
+
+allBlocksAreCompleteTest : Test
+allBlocksAreCompleteTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "allBlocksAreComplete"
+        [test "blocks are not complete"
+            (\_ -> Expect.equal False (allBlocksAreComplete model))
+        , test "blocks are complete"
+            (\_ -> Expect.equal True (allBlocksAreComplete modelWithCompleteBlocks))
+        , test "empty list edge case"
+            (\_ -> Expect.equal True (allBlocksAreComplete {model | cells = Array.fromList []}))
+        ]
