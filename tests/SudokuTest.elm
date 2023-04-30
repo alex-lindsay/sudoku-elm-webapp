@@ -241,13 +241,39 @@ anyRowHasValueRepeatedTest =
     let
         (start, _) = init
         model = {start | cells = almostWinningBoard}
+        modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 1 
+                _ -> cell.value
+            }) model.cells }
         
     in
     describe "anyRowHasValueRepeated"
         [test "no numbers are repeated"
             (\_ -> Expect.equal False (anyRowHasValueRepeated model))
         , test "numbers are repeated"
-            (\_ -> Expect.equal True (anyRowHasValueRepeated {model | cells = (List.map (\cell -> {cell | row = 1, value = Just 1}) (rowCells 1 model))}))
+            (\_ -> Expect.equal True (anyRowHasValueRepeated modelWithRepeats))
         , test "empty list edge case"
-            (\_ -> Expect.equal False (anyRowHasValueRepeated {model | cells = []}))
+            (\_ -> Expect.equal False (anyRowHasValueRepeated {model | cells = Array.fromList []}))
+        ]
+
+anyRowHasGuessRepeatedTest : Test
+anyRowHasGuessRepeatedTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
+            cell.guess of 
+                Nothing -> Just 1 
+                _ -> cell.guess
+            }) model.cells }
+        
+    in
+    describe "anyRowHasGuessRepeated"
+        [test "no numbers are repeated"
+            (\_ -> Expect.equal False (anyRowHasGuessRepeated model))
+        , test "numbers are repeated"
+            (\_ -> Expect.equal True (anyRowHasGuessRepeated modelWithRepeats))
+        , test "empty list edge case"
+            (\_ -> Expect.equal False (anyRowHasGuessRepeated {model | cells = Array.fromList []}))
         ]
