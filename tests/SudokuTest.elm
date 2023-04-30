@@ -2,6 +2,7 @@ module SudokuTest exposing (..)
 
 import Array exposing (initialize)
 import Expect exposing (..)
+import List exposing (..)
 -- import Fuzz exposing (Fuzzer, int, list, string)
 import Sudoku exposing (..)
 import Test exposing (..)
@@ -30,21 +31,21 @@ validPositionTest : Test
 validPositionTest =
     describe "validPosition"
         [ test "valid positions 1,1 is valid"
-            (\_ -> Expect.equal True (validPosition ( 1, 1 )))
+            (\_ -> Expect.equal True <| validPosition ( 1, 1 ))
         , test "valid positions 1,2 is valid"
-            (\_ -> Expect.equal True (validPosition ( 1, 2 )))
+            (\_ -> Expect.equal True <| validPosition ( 1, 2 ))
         , test "valid positions 2,1 is valid"
-            (\_ -> Expect.equal True (validPosition ( 2, 1 )))
+            (\_ -> Expect.equal True <| validPosition ( 2, 1 ))
         , test "valid positions 9,9 is valid"
-            (\_ -> Expect.equal True (validPosition ( 9, 9 )))
+            (\_ -> Expect.equal True <| validPosition ( 9, 9 ))
         , test "invalid row 0,5 is invalid"
-            (\_ -> Expect.equal False (validPosition ( 0, 5 )))
+            (\_ -> Expect.equal False <| validPosition ( 0, 5 ))
         , test "invalid col 5,0 is invalid"
-            (\_ -> Expect.equal False (validPosition ( 5, 0 )))
+            (\_ -> Expect.equal False <| validPosition ( 5, 0 ))
         , test "overlarge row 10,5 is invalid"
-            (\_ -> Expect.equal False (validPosition ( 10, 5 )))
+            (\_ -> Expect.equal False <| validPosition ( 10, 5 ))
         , test "overlarge col 5,10 is invalid"
-            (\_ -> Expect.equal False (validPosition ( 5, 10 )))
+            (\_ -> Expect.equal False <| validPosition ( 5, 10 ))
         ]
 
 
@@ -174,4 +175,52 @@ cellGuessOrValueTest =
             (\_ -> Expect.equal Nothing (cellGuessOrValue cellWithoutGuessOrValue))
         , test "cell with guess and value returns value"
             (\_ -> Expect.equal (Just 1) (cellGuessOrValue cellWithGuessAndValue))
+        ]
+
+rowCellsTest : Test
+rowCellsTest = 
+    let
+        (start, _) = init
+        model = {start | cells = winningBoard}
+        actualResults = List.map (\i -> (rowCells i model)) (List.range 1 9)
+        actualLengths = List.map (\row -> (List.length row)) actualResults
+        actualRows = List.map (\row -> (List.map (\cell -> cell.row) row)) actualResults
+    in
+    describe "rowCells"
+        [test "lengths are as expected"
+            (\_ -> Expect.equal (List.map (\_ -> 9) (List.range 1 9)) actualLengths)
+        , test "rows are as expected"
+            (\_ -> Expect.equal (List.map (\i -> List.repeat 9 i) (List.range 1 9)) actualRows)
+        ]
+
+colCellsTest : Test
+colCellsTest = 
+    let
+        (start, _) = init
+        model = {start | cells = winningBoard}
+        actualResults = List.map (\i -> (colCells i model)) (List.range 1 9)
+        actualLengths = List.map (\col -> (List.length col)) actualResults
+        actualCols = List.map (\col -> (List.map (\cell -> cell.col) col)) actualResults
+    in
+    describe "colCells"
+        [test "lengths are as expected"
+            (\_ -> Expect.equal (List.map (\_ -> 9) (List.range 1 9)) actualLengths)
+        , test "cols are as expected"
+            (\_ -> Expect.equal (List.map (\i -> List.repeat 9 i) (List.range 1 9)) actualCols)
+        ]
+
+blockCellsTest : Test
+blockCellsTest = 
+    let
+        (start, _) = init
+        model = {start | cells = winningBoard}
+        actualResults = List.map (\i -> (blockCells i model)) (List.range 1 9)
+        actualLengths = List.map (\block -> (List.length block)) actualResults
+        actualBlocks = List.map (\block -> (List.map (\cell -> cell.block) block)) actualResults
+    in
+    describe "blockCells"
+        [test "lengths are as expected"
+            (\_ -> Expect.equal (List.map (\_ -> 9) (List.range 1 9)) actualLengths)
+        , test "blocks are as expected"
+            (\_ -> Expect.equal (List.map (\i -> List.repeat 9 i) (List.range 1 9)) actualBlocks)
         ]
