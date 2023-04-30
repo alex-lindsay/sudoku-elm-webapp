@@ -440,3 +440,29 @@ allBlocksAreCompleteTest =
         , test "empty list edge case"
             (\_ -> Expect.equal True (allBlocksAreComplete {model | cells = Array.fromList []}))
         ]
+
+hasWinningStatusUnknownTest : Test
+hasWinningStatusUnknownTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        modelWithError = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 1
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "hasWinningStatusUnknown"
+        [test "status is unknown"
+            (\_ -> Expect.equal True (hasWinningStatusUnknown model))
+        , test "status should be winning"
+            (\_ -> Expect.equal False (hasWinningStatusUnknown modelWithCompleteBlocks))
+        , test "status should be losing"
+            (\_ -> Expect.equal False (hasWinningStatusUnknown modelWithError))
+        ]
