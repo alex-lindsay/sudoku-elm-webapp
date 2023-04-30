@@ -118,8 +118,8 @@ emptyBoard : Array Cell
 emptyBoard = initialize 81 (\i -> newCellAt (indexToPosition i))
 
 
-winningBoard : Array Cell
-winningBoard =
+almostWinningBoard : Array Cell
+almostWinningBoard =
     let
         values =
             fromList [ 1, 2, 3, 9, 7, 8, 5, 6, 4,

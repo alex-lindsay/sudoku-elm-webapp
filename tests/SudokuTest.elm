@@ -114,7 +114,7 @@ initTest =
                 gameState = Just SetAnswer
                 , activeNumber = Just 1
                 , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
-                -- , cells = winningBoard
+                -- , cells = almostWinningBoard
                 , selectedCell = Nothing
                 , winningStatus = Unknown
                 }
@@ -181,7 +181,7 @@ rowCellsTest : Test
 rowCellsTest = 
     let
         (start, _) = init
-        model = {start | cells = winningBoard}
+        model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (rowCells i model)) (List.range 1 9)
         actualLengths = List.map (\row -> (List.length row)) actualResults
         actualRows = List.map (\row -> (List.map (\cell -> cell.row) row)) actualResults
@@ -197,7 +197,7 @@ colCellsTest : Test
 colCellsTest = 
     let
         (start, _) = init
-        model = {start | cells = winningBoard}
+        model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (colCells i model)) (List.range 1 9)
         actualLengths = List.map (\col -> (List.length col)) actualResults
         actualCols = List.map (\col -> (List.map (\cell -> cell.col) col)) actualResults
@@ -213,7 +213,7 @@ blockCellsTest : Test
 blockCellsTest = 
     let
         (start, _) = init
-        model = {start | cells = winningBoard}
+        model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (blockCells i model)) (List.range 1 9)
         actualLengths = List.map (\block -> (List.length block)) actualResults
         actualBlocks = List.map (\block -> (List.map (\cell -> cell.block) block)) actualResults
@@ -234,4 +234,20 @@ hasNumberRepeatedTest =
             (\_ -> Expect.equal True (hasNumberRepeated [1,2,3,4,5,6,7,8,1]))
             , test "empty list edge case"
             (\_ -> Expect.equal False (hasNumberRepeated []))
+        ]
+
+anyRowHasValueRepeatedTest : Test
+anyRowHasValueRepeatedTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        
+    in
+    describe "anyRowHasValueRepeated"
+        [test "no numbers are repeated"
+            (\_ -> Expect.equal False (anyRowHasValueRepeated model))
+        , test "numbers are repeated"
+            (\_ -> Expect.equal True (anyRowHasValueRepeated {model | cells = (List.map (\cell -> {cell | row = 1, value = Just 1}) (rowCells 1 model))}))
+        , test "empty list edge case"
+            (\_ -> Expect.equal False (anyRowHasValueRepeated {model | cells = []}))
         ]
