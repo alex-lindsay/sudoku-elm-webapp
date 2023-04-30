@@ -243,7 +243,7 @@ anyRowHasValueRepeatedTest =
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
-                Nothing -> Just 1 
+                Nothing -> Just 1
                 _ -> cell.value
             }) model.cells }
         
@@ -264,7 +264,7 @@ anyRowHasGuessRepeatedTest =
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
-                Nothing -> Just 1 
+                Nothing -> Just 2
                 _ -> cell.guess
             }) model.cells }
         
@@ -285,7 +285,7 @@ anyColHasValueRepeatedTest =
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
-                Nothing -> Just 1 
+                Nothing -> Just 1
                 _ -> cell.value
             }) model.cells }
         
@@ -306,7 +306,7 @@ anyColHasGuessRepeatedTest =
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
-                Nothing -> Just 1 
+                Nothing -> Just 2
                 _ -> cell.guess
             }) model.cells }
         
@@ -348,7 +348,7 @@ anyBlockHasGuessRepeatedTest =
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
-                Nothing -> Just 1 
+                Nothing -> Just 2
                 _ -> cell.guess
             }) model.cells }
         
@@ -360,4 +360,20 @@ anyBlockHasGuessRepeatedTest =
             (\_ -> Expect.equal True (anyBlockHasGuessRepeated modelWithRepeats))
         , test "empty list edge case"
             (\_ -> Expect.equal False (anyBlockHasGuessRepeated {model | cells = Array.fromList []}))
+        ]
+
+cellsAreCompleteTest : Test
+cellsAreCompleteTest = 
+    let
+        incompleteCells = Array.initialize 9 (\i -> newCellAt (i, 0))
+        completeCells = Array.indexedMap (\i cell -> {cell | value = Just (i+1)}) incompleteCells
+        
+    in
+    describe "cellsAreComplete"
+        [test "cells are not complete"
+            (\_ -> Expect.equal False (cellsAreComplete (Array.toList incompleteCells) .value ))
+        , test "cells are complete"
+            (\_ -> Expect.equal True (cellsAreComplete (Array.toList completeCells) .value))
+        , test "empty list edge case"
+            (\_ -> Expect.equal True (cellsAreComplete [] .value))
         ]
