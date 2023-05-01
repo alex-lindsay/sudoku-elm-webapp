@@ -106,7 +106,8 @@ init =
     ( { gameState = Just SetAnswer
       , activeNumber = Just 1
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
-    --   , cells = winningBoard
+
+      --   , cells = winningBoard
       , selectedCell = Nothing
       , winningStatus = Unknown
       }
@@ -115,29 +116,112 @@ init =
 
 
 emptyBoard : Array Cell
-emptyBoard = initialize 81 (\i -> newCellAt (indexToPosition i))
+emptyBoard =
+    initialize 81 (\i -> newCellAt (indexToPosition i))
 
 
 almostWinningBoard : Array Cell
 almostWinningBoard =
     let
         values =
-            fromList [ 1, 2, 3, 9, 7, 8, 5, 6, 4,
-              4, 5, 6, 3, 1, 2, 8, 9, 7,
-              7, 8, 9, 6, 4, 5, 2, 3, 1,
-              3, 1, 2, 8, 9, 7, 4, 5, 6,
-              6, 4, 5, 2, 3, 1, 7, 8, 9,
-              9, 7, 8, 5, 6, 4, 1, 2, 3,
-              2, 3, 1, 7, 8, 9, 6, 4, 5,
-              5, 6, 4, 1, 2, 3, 9, 7, 8,
-              8, 9, 7, 4, 5, 6, 3, 1, 0
-            ]
+            fromList
+                [ 1
+                , 2
+                , 3
+                , 9
+                , 7
+                , 8
+                , 5
+                , 6
+                , 4
+                , 4
+                , 5
+                , 6
+                , 3
+                , 1
+                , 2
+                , 8
+                , 9
+                , 7
+                , 7
+                , 8
+                , 9
+                , 6
+                , 4
+                , 5
+                , 2
+                , 3
+                , 1
+                , 3
+                , 1
+                , 2
+                , 8
+                , 9
+                , 7
+                , 4
+                , 5
+                , 6
+                , 6
+                , 4
+                , 5
+                , 2
+                , 3
+                , 1
+                , 7
+                , 8
+                , 9
+                , 9
+                , 7
+                , 8
+                , 5
+                , 6
+                , 4
+                , 1
+                , 2
+                , 3
+                , 2
+                , 3
+                , 1
+                , 7
+                , 8
+                , 9
+                , 6
+                , 4
+                , 5
+                , 5
+                , 6
+                , 4
+                , 1
+                , 2
+                , 3
+                , 9
+                , 7
+                , 8
+                , 8
+                , 9
+                , 7
+                , 4
+                , 5
+                , 6
+                , 3
+                , 1
+                , 0
+                ]
     in
-    map2 (\cell v -> {cell | value = 
-    case v of
-        0 -> Nothing
-        n -> Just n
-    }) emptyBoard values
+    map2
+        (\cell v ->
+            { cell
+                | value =
+                    case v of
+                        0 ->
+                            Nothing
+
+                        n ->
+                            Just n
+            }
+        )
+        emptyBoard
+        values
 
 
 cellGuessOrValue : Cell -> Maybe Int
@@ -151,11 +235,11 @@ cellGuessOrValue cell =
 
 cellGuessOrKnown : Cell -> Maybe Int
 cellGuessOrKnown cell =
-    case (cell.guess, cell.isVisible) of
-        (Just guess, _) ->
+    case ( cell.guess, cell.isVisible ) of
+        ( Just guess, _ ) ->
             Just guess
 
-        (Nothing, True) ->
+        ( Nothing, True ) ->
             cell.value
 
         _ ->
@@ -279,8 +363,8 @@ hasWinningStatusWon model =
 
 hasWinningStatusLost : Model -> Bool
 hasWinningStatusLost model =
-    (all (\cell -> cell.value /= Nothing || cell.guess /= Nothing) (toList model.cells)) &&
-        not (hasWinningStatusWon model)
+    all (\cell -> cell.value /= Nothing || cell.guess /= Nothing) (toList model.cells)
+        && not (hasWinningStatusWon model)
 
 
 hasWinningStatusError : Model -> Bool
@@ -309,11 +393,6 @@ updateWinningStatus model =
                     Unknown
     in
     { model | winningStatus = newWinningStatus }
-
-
-potentialHunchesForCell : Cell -> List Int
-potentialHunchesForCell cell =
-    let
 
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
