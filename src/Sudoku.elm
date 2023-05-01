@@ -140,11 +140,6 @@ almostWinningBoard =
     }) emptyBoard values
 
 
-cellGuess : Cell -> Maybe Int
-cellGuess cell =
-    cell.guess
-
-
 cellGuessOrValue : Cell -> Maybe Int
 cellGuessOrValue cell =
     if cell.guess /= Nothing then
@@ -191,7 +186,7 @@ anyRowHasValueRepeated model =
 
 anyRowHasGuessRepeated : Model -> Bool
 anyRowHasGuessRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber cellGuess model) (range 1 9)
+    any (\rowNumber -> rowHasNumberRepeated rowNumber .guess model) (range 1 9)
 
 
 colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -206,7 +201,7 @@ anyColHasValueRepeated model =
 
 anyColHasGuessRepeated : Model -> Bool
 anyColHasGuessRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber cellGuess model) (range 1 9)
+    any (\colNumber -> colHasNumberRepeated colNumber .guess model) (range 1 9)
 
 
 blockHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -216,12 +211,12 @@ blockHasNumberRepeated blockNumber getNumber model =
 
 anyBlockHasValueRepeated : Model -> Bool
 anyBlockHasValueRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber cellValue model) (range 1 9)
+    any (\blockNumber -> blockHasNumberRepeated blockNumber .value model) (range 1 9)
 
 
 anyBlockHasGuessRepeated : Model -> Bool
 anyBlockHasGuessRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber cellGuess model) (range 1 9)
+    any (\blockNumber -> blockHasNumberRepeated blockNumber .guess model) (range 1 9)
 
 
 cellsAreComplete : List Cell -> (Cell -> Maybe Int) -> Bool

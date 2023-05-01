@@ -5580,25 +5580,31 @@ var $author$project$Sudoku$blockHasNumberRepeated = F3(
 			A2($author$project$Sudoku$blockCells, blockNumber, model),
 			getNumber);
 	});
-var $author$project$Sudoku$cellGuess = function (cell) {
-	return cell.guess;
-};
 var $author$project$Sudoku$anyBlockHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (blockNumber) {
-			return A3($author$project$Sudoku$blockHasNumberRepeated, blockNumber, $author$project$Sudoku$cellGuess, model);
+			return A3(
+				$author$project$Sudoku$blockHasNumberRepeated,
+				blockNumber,
+				function ($) {
+					return $.guess;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
-};
-var $author$project$Sudoku$cellValue = function (cell) {
-	return cell.value;
 };
 var $author$project$Sudoku$anyBlockHasValueRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (blockNumber) {
-			return A3($author$project$Sudoku$blockHasNumberRepeated, blockNumber, $author$project$Sudoku$cellValue, model);
+			return A3(
+				$author$project$Sudoku$blockHasNumberRepeated,
+				blockNumber,
+				function ($) {
+					return $.value;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -5622,7 +5628,13 @@ var $author$project$Sudoku$anyColHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (colNumber) {
-			return A3($author$project$Sudoku$colHasNumberRepeated, colNumber, $author$project$Sudoku$cellGuess, model);
+			return A3(
+				$author$project$Sudoku$colHasNumberRepeated,
+				colNumber,
+				function ($) {
+					return $.guess;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -5660,7 +5672,13 @@ var $author$project$Sudoku$anyRowHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (rowNumber) {
-			return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellGuess, model);
+			return A3(
+				$author$project$Sudoku$rowHasNumberRepeated,
+				rowNumber,
+				function ($) {
+					return $.guess;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };

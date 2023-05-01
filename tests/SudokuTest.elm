@@ -122,22 +122,6 @@ initTest =
         ]
 
 
-cellGuessTest : Test
-cellGuessTest =
-    let
-        cellWithGuess =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
-        cellWithoutGuess =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
-    in
-    describe "cellGuess"
-        [ test "cell with guess 1 returns 1"
-            (\_ -> Expect.equal (Just 1) (cellGuess cellWithGuess))
-        , test "cell without guess returns Nothing"
-            (\_ -> Expect.equal Nothing (cellGuess cellWithoutGuess))
-        ]
-
-
 cellGuessOrValueTest : Test
 cellGuessOrValueTest =
     let
