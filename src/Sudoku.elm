@@ -140,11 +140,6 @@ almostWinningBoard =
     }) emptyBoard values
 
 
-cellValue : Cell -> Maybe Int
-cellValue cell =
-    cell.value
-
-
 cellGuess : Cell -> Maybe Int
 cellGuess cell =
     cell.guess
