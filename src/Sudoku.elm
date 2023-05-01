@@ -395,6 +395,11 @@ updateWinningStatus model =
     { model | winningStatus = newWinningStatus }
 
 
+guessesAndKnownsForCells : List Cell -> (List Int)
+guessesAndKnownsForCells values =
+    map cellGuessOrKnown values
+    |> filterMap identity
+
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =
     case msg of

@@ -554,3 +554,24 @@ updateWinningStatusTest =
         , test "status should be losing"
             (\_ -> Expect.equal Lost (updateWinningStatus modelWithError).winningStatus)
         ]
+
+guessesAndKnownsForCellsTest : Test
+guessesAndKnownsForCellsTest = 
+    let
+        cellWithGuess11 = (\cell -> {cell | value = Nothing, guess = Just 1}) <| newCellAt(1,1)
+        cellWithGuess12 = (\cell -> {cell | value = Nothing, guess = Just 2}) <| newCellAt(1,2)
+        cellWithKnown13 = (\cell -> {cell | value = Just 3, isVisible = True}) <| newCellAt(1,3)
+        cellWithKnown14 = (\cell -> {cell | value = Just 4, isVisible = True}) <| newCellAt(1,4)
+        cellWithValue15 = (\cell -> {cell | value = Just 5, isVisible = False}) <| newCellAt(1,5)
+        cellWithValue16 = (\cell -> {cell | value = Just 6, isVisible = False}) <| newCellAt(1,6)
+        cellWithNone17 = newCellAt(1,7)
+        cellWithNone18 = newCellAt(1,8)
+        cellWithNone19 = newCellAt(1,9)
+        cells = [cellWithGuess11, cellWithGuess12, cellWithKnown13, cellWithKnown14, cellWithValue15, cellWithValue16, cellWithNone17, cellWithNone18, cellWithNone19]
+    in
+    describe "guessesAndKnownsForCells"
+        [test "guesses and knowns"
+            (\_ -> Expect.equalLists [1, 2, 3, 4] (guessesAndKnownsForCells cells))
+        , test "empty list edge case"
+            (\_ -> Expect.equal [] (guessesAndKnownsForCells []))
+        ]        
