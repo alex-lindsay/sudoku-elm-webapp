@@ -5682,14 +5682,6 @@ var $elm$core$List$all = F2(
 			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
 			list);
 	});
-var $author$project$Sudoku$hasWinningStatusLost = function (model) {
-	return A2(
-		$elm$core$List$all,
-		function (cell) {
-			return (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing)) || (!_Utils_eq(cell.guess, $elm$core$Maybe$Nothing));
-		},
-		$elm$core$Array$toList(model.cells));
-};
 var $author$project$Sudoku$cellGuessOrValue = function (cell) {
 	return (!_Utils_eq(cell.guess, $elm$core$Maybe$Nothing)) ? cell.guess : cell.value;
 };
@@ -5744,6 +5736,14 @@ var $author$project$Sudoku$allRowsAreComplete = function (model) {
 };
 var $author$project$Sudoku$hasWinningStatusWon = function (model) {
 	return $author$project$Sudoku$allRowsAreComplete(model) && ($author$project$Sudoku$allColsAreComplete(model) && $author$project$Sudoku$allBlocksAreComplete(model));
+};
+var $author$project$Sudoku$hasWinningStatusLost = function (model) {
+	return A2(
+		$elm$core$List$all,
+		function (cell) {
+			return (!_Utils_eq(cell.value, $elm$core$Maybe$Nothing)) || (!_Utils_eq(cell.guess, $elm$core$Maybe$Nothing));
+		},
+		$elm$core$Array$toList(model.cells)) && (!$author$project$Sudoku$hasWinningStatusWon(model));
 };
 var $author$project$Sudoku$updateWinningStatus = function (model) {
 	var statuses = _List_fromArray(

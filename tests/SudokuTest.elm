@@ -466,3 +466,55 @@ hasWinningStatusUnknownTest =
         , test "status should be losing"
             (\_ -> Expect.equal False (hasWinningStatusUnknown modelWithError))
         ]
+
+hasWinningStatusWonTest : Test
+hasWinningStatusWonTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        modelWithError = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 1
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "hasWinningStatusWon"
+        [test "status is unknown"
+            (\_ -> Expect.equal False (hasWinningStatusWon model))
+        , test "status should be winning"
+            (\_ -> Expect.equal True (hasWinningStatusWon modelWithCompleteBlocks))
+        , test "status should be losing"
+            (\_ -> Expect.equal False (hasWinningStatusWon modelWithError))
+        ]
+
+hasWinningStatusLostTest : Test
+hasWinningStatusLostTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        modelWithError = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 1
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "hasWinningStatusLost"
+        [test "status is unknown"
+            (\_ -> Expect.equal False (hasWinningStatusLost model))
+        , test "status should be winning"
+            (\_ -> Expect.equal False (hasWinningStatusLost modelWithCompleteBlocks))
+        , test "status should be losing"
+            (\_ -> Expect.equal True (hasWinningStatusLost modelWithError))
+        ]
