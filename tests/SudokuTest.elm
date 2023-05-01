@@ -378,6 +378,20 @@ cellsAreCompleteTest =
             (\_ -> Expect.equal True (cellsAreComplete [] .value))
         ]
 
+blockIsCompleteTest : Test
+blockIsCompleteTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        
+    in
+    describe "blockIsComplete"
+        [test "block is not complete"
+            (\_ -> Expect.equal False (blockIsComplete 9 cellGuessOrValue model))
+        , test "block is complete"
+            (\_ -> Expect.equal True (blockIsComplete 1 cellGuessOrValue model))
+        ]
+
 allRowsAreCompleteTest : Test
 allRowsAreCompleteTest = 
     let
@@ -517,4 +531,30 @@ hasWinningStatusLostTest =
             (\_ -> Expect.equal False (hasWinningStatusLost modelWithCompleteBlocks))
         , test "status should be losing"
             (\_ -> Expect.equal True (hasWinningStatusLost modelWithError))
+        ]
+
+updateWinningStatusTest : Test
+updateWinningStatusTest = 
+    let
+        (start, _) = init
+        model = {start | cells = almostWinningBoard}
+        modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 2
+                _ -> cell.value
+            }) model.cells }
+        modelWithError = { model | cells = Array.map (\cell -> {cell | value = case 
+            cell.value of 
+                Nothing -> Just 1
+                _ -> cell.value
+            }) model.cells }
+        
+    in
+    describe "updateWinningStatus"
+        [test "status is unknown"
+            (\_ -> Expect.equal Unknown (updateWinningStatus model).winningStatus)
+        , test "status should be winning"
+            (\_ -> Expect.equal Won (updateWinningStatus modelWithCompleteBlocks).winningStatus)
+        , test "status should be losing"
+            (\_ -> Expect.equal Lost (updateWinningStatus modelWithError).winningStatus)
         ]
