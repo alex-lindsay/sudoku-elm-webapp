@@ -149,6 +149,19 @@ cellGuessOrValue cell =
         cell.value
 
 
+cellGuessOrKnown : Cell -> Maybe Int
+cellGuessOrKnown cell =
+    case (cell.guess, cell.isVisible) of
+        (Just guess, _) ->
+            Just guess
+
+        (Nothing, True) ->
+            cell.value
+
+        _ ->
+            Nothing
+
+
 rowCells : Int -> Model -> List Cell
 rowCells rowNumber model =
     filter (\cell -> cell.row == rowNumber) (toList model.cells)
@@ -296,6 +309,11 @@ updateWinningStatus model =
                     Unknown
     in
     { model | winningStatus = newWinningStatus }
+
+
+potentialHunchesForCell : Cell -> List Int
+potentialHunchesForCell cell =
+    let
 
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
