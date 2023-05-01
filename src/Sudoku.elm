@@ -191,7 +191,7 @@ rowHasNumberRepeated rowNumber getNumber model =
 
 anyRowHasValueRepeated : Model -> Bool
 anyRowHasValueRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9)
+    any (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9)
 
 
 anyRowHasGuessRepeated : Model -> Bool
@@ -206,7 +206,7 @@ colHasNumberRepeated colNumber getNumber model =
 
 anyColHasValueRepeated : Model -> Bool
 anyColHasValueRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber cellValue model) (range 1 9)
+    any (\colNumber -> colHasNumberRepeated colNumber .value model) (range 1 9)
 
 
 anyColHasGuessRepeated : Model -> Bool
@@ -428,7 +428,7 @@ view ( model, _ ) =
             Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
 
         _ =
-            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber cellValue model) (range 1 9))
+            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
 
         _ =
             Debug.log "model.winningStatus" model.winningStatus

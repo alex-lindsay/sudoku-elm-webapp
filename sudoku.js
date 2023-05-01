@@ -5630,7 +5630,13 @@ var $author$project$Sudoku$anyColHasValueRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (colNumber) {
-			return A3($author$project$Sudoku$colHasNumberRepeated, colNumber, $author$project$Sudoku$cellValue, model);
+			return A3(
+				$author$project$Sudoku$colHasNumberRepeated,
+				colNumber,
+				function ($) {
+					return $.value;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -5662,7 +5668,13 @@ var $author$project$Sudoku$anyRowHasValueRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
 		function (rowNumber) {
-			return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellValue, model);
+			return A3(
+				$author$project$Sudoku$rowHasNumberRepeated,
+				rowNumber,
+				function ($) {
+					return $.value;
+				},
+				model);
 		},
 		A2($elm$core$List$range, 1, 9));
 };
@@ -6094,7 +6106,13 @@ var $author$project$Sudoku$view = function (_v0) {
 		A2(
 			$elm$core$List$map,
 			function (rowNumber) {
-				return A3($author$project$Sudoku$rowHasNumberRepeated, rowNumber, $author$project$Sudoku$cellValue, model);
+				return A3(
+					$author$project$Sudoku$rowHasNumberRepeated,
+					rowNumber,
+					function ($) {
+						return $.value;
+					},
+					model);
 			},
 			A2($elm$core$List$range, 1, 9)));
 	var _v3 = A2($elm$core$Debug$log, 'model.winningStatus', model.winningStatus);
