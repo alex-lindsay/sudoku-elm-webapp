@@ -140,11 +140,11 @@ initTest =
     describe "init"
         [ test "init is as expected"
             (\_ -> Expect.equal ({
-                gameState = Just SetAnswer
+                gameState = Just SetKnown
                 , activeNumber = Just 1
                 , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
                 -- , cells = almostWinningBoard
-                , selectedCell = Nothing
+                , selectedCell = Just (1,1)
                 , winningStatus = Unknown
                 }
             , Cmd.none) (init))

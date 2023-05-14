@@ -4490,8 +4490,7 @@ var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
-var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
+var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
 var $author$project$Sudoku$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4676,6 +4675,7 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -4944,8 +4944,9 @@ var $author$project$Sudoku$init = _Utils_Tuple2(
 				return $author$project$Sudoku$newCellAt(
 					$author$project$Sudoku$indexToPosition(i));
 			}),
-		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetAnswer),
-		selectedCell: $elm$core$Maybe$Nothing,
+		gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
+		selectedCell: $elm$core$Maybe$Just(
+			_Utils_Tuple2(1, 1)),
 		winningStatus: $author$project$Sudoku$Unknown
 	},
 	$elm$core$Platform$Cmd$none);
@@ -6527,12 +6528,12 @@ var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
+var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
 var $author$project$Sudoku$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
-var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -6819,27 +6820,6 @@ var $author$project$Sudoku$view = function (_v0) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
-										$elm$html$Html$Attributes$title('Set the actual answer for a cell.'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetAnswer)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Answer')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
 										$elm$html$Html$Attributes$title('Set the known (visible) value for a cell.'),
 										$elm$html$Html$Attributes$classList(
@@ -6855,6 +6835,27 @@ var $author$project$Sudoku$view = function (_v0) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('Set Known')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
+										$elm$html$Html$Attributes$title('Set the actual answer for a cell.'),
+										$elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'active',
+												_Utils_eq(
+													model.gameState,
+													$elm$core$Maybe$Just($author$project$Sudoku$SetAnswer)))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Set Answer')
 									])),
 								A2(
 								$elm$html$Html$button,

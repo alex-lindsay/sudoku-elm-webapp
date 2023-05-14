@@ -4,7 +4,7 @@ module Sudoku exposing (..)
 
 import Array exposing (Array, fromList, initialize, toList)
 import Array.Extra exposing (map2)
-import Browser
+import Browser exposing (..)
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList, title)
 import Html.Events exposing (onClick)
@@ -13,8 +13,8 @@ import Set
 
 
 type GameState
-    = SetAnswer
-    | SetKnown
+    = SetKnown
+    | SetAnswer
     | SetGuess
     | SetMarks
     | SetAutoMarks
@@ -114,12 +114,12 @@ newCellAt ( row, col ) =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { gameState = Just SetAnswer
+    ( { gameState = Just SetKnown
       , activeNumber = Just 1
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
 
       --   , cells = winningBoard
-      , selectedCell = Nothing
+      , selectedCell = Just (1, 1)
       , winningStatus = Unknown
       }
     , Cmd.none
@@ -475,7 +475,7 @@ update msg ( model, _ ) =
                                     { cell | marks = autoMarks }
                                 _ ->
                                     cell))
-                        |> Array.fromList
+                        |> fromList
 
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
@@ -561,17 +561,17 @@ view ( model, _ ) =
             [ h1 [] [ text "Sudoku" ]
             , div [ class "game-state-buttons" ]
                 [ button
-                    [ onClick (SetGameState SetAnswer)
-                    , title "Set the actual answer for a cell."
-                    , classList [ ( "active", model.gameState == Just SetAnswer ) ]
-                    ]
-                    [ text "Set Answer" ]
-                , button
                     [ onClick (SetGameState SetKnown)
                     , title "Set the known (visible) value for a cell."
                     , classList [ ( "active", model.gameState == Just SetKnown ) ]
                     ]
                     [ text "Set Known" ]
+                , button
+                    [ onClick (SetGameState SetAnswer)
+                    , title "Set the actual answer for a cell."
+                    , classList [ ( "active", model.gameState == Just SetAnswer ) ]
+                    ]
+                    [ text "Set Answer" ]
                 , button
                     [ onClick (SetGameState SetGuess)
                     , title "Set the guess for a cell."
