@@ -429,13 +429,25 @@ guessesAndKnownsForCellAt ( row, col ) model =
             |> Set.fromList
             |> Set.toList
 
-        _ = Debug.log "row, col, block" (row, col, block)
-        _ = Debug.log "rowGuessValues" rowValues
-        _ = Debug.log "colGuessValues" colValues
-        _ = Debug.log "blockGuessValues" blockValues
-        _ = Debug.log "guessValues" values
+        -- _ = Debug.log "row, col, block" (row, col, block)
+        -- _ = Debug.log "rowGuessValues" rowValues
+        -- _ = Debug.log "colGuessValues" colValues
+        -- _ = Debug.log "blockGuessValues" blockValues
+        -- _ = Debug.log "guessValues" values
     in
     values
+
+autoHintsForCellAt : (Int, Int) -> Model -> List Int
+autoHintsForCellAt ( row, col ) model =
+    let
+        allPossibleValues =
+            Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        knownValues = 
+            guessesAndKnownsForCellAt ( row, col ) model
+            |> Set.fromList
+    in
+    Set.diff allPossibleValues knownValues
+        |> Set.toList
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =

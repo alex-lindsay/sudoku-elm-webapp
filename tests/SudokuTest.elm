@@ -636,3 +636,35 @@ guessesAndKnownsForCellAtTest =
         , test "at cell(9,9)"
             (\_ -> Expect.equalSets (Set.fromList [1, 5, 6, 3, 4]) (Set.fromList (guessesAndKnownsForCellAt (9,9) model)))
         ]
+
+autoHintsForCellAtTest : Test
+autoHintsForCellAtTest = 
+    let
+        (model1, _) = init
+        cells = emptyBoard |> 
+            Array.indexedMap (\i cell -> {cell |
+                value = case 
+                    (Array.get i sampleKnowns) of 
+                        Just 0 -> Nothing
+                        _ -> Array.get i sampleKnowns
+                , isVisible = case 
+                    (Array.get i sampleKnowns) of 
+                        Just 0 -> False
+                        _ -> True
+                , guess = case
+                    (Array.get i sampleGuesses) of
+                        Just 0 -> Nothing
+                        _ -> Array.get i sampleGuesses
+            })
+        model = { model1 | cells = cells }
+    in
+    describe "autoHintsForCellAt"
+        [test "at cell(1,1)"
+            (\_ -> Expect.equalSets (Set.fromList [1, 3, 4, 7, 8]) (Set.fromList (autoHintsForCellAt (1,1) model)))
+        , test "at cell(2,1)"
+            (\_ -> Expect.equalSets (Set.fromList [1, 4, 8]) (Set.fromList (autoHintsForCellAt (2,1) model)))
+        , test "at cell(1,2)"
+            (\_ -> Expect.equalSets (Set.fromList [3, 4, 7, 8]) (Set.fromList (autoHintsForCellAt (1,2) model)))
+        , test "at cell(9,9)"
+            (\_ -> Expect.equalSets (Set.fromList [2, 7, 8, 9]) (Set.fromList (autoHintsForCellAt (9,9) model)))
+        ]
