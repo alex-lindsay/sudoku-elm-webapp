@@ -6,7 +6,7 @@ import Array exposing (Array, fromList, initialize, toList)
 import Array.Extra exposing (map2)
 import Browser
 import Html exposing (Html, button, div, h1, text)
-import Html.Attributes exposing (class, classList)
+import Html.Attributes exposing (class, classList, title)
 import Html.Events exposing (onClick)
 import List exposing (all, any, append, filter, filterMap, length, map, member, range)
 import Set
@@ -562,26 +562,31 @@ view ( model, _ ) =
             , div [ class "game-state-buttons" ]
                 [ button
                     [ onClick (SetGameState SetAnswer)
+                    , title "Set the actual answer for a cell."
                     , classList [ ( "active", model.gameState == Just SetAnswer ) ]
                     ]
                     [ text "Set Answer" ]
                 , button
                     [ onClick (SetGameState SetKnown)
+                    , title "Set the known (visible) value for a cell."
                     , classList [ ( "active", model.gameState == Just SetKnown ) ]
                     ]
                     [ text "Set Known" ]
                 , button
                     [ onClick (SetGameState SetGuess)
+                    , title "Set the guess for a cell."
                     , classList [ ( "active", model.gameState == Just SetGuess ) ]
                     ]
                     [ text "Set Guess" ]
                 , button
                     [ onClick (SetGameState SetMarks)
+                    , title "Set pencil marks for a cell."
                     , classList [ ( "active", model.gameState == Just SetMarks ) ]
                     ]
                     [ text "Set Marks" ]
                 , button
                     [ onClick (SetGameState SetAutoMarks)
+                    , title "Set all the possible pencil marks for a cell."
                     , classList [ ( "active", model.gameState == Just SetAutoMarks ) ]
                     ]
                     [ text "Auto Marks" ]
@@ -594,9 +599,9 @@ view ( model, _ ) =
                     [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
                 )
             , div [ class "generator-buttons" ]
-                [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
-                , button [ onClick GenerateAutoMarks ] [ text "Generate Auto Marks" ]
-                , button [ onClick ClearAutoMarks ] [ text "Clear Auto Marks" ]
+                [ button [ onClick GenerateBoard, title "Clear the board." ] [ text "Generate Board" ]
+                , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks." ] [ text "Generate Auto Marks" ]
+                , button [ onClick ClearAutoMarks, title "Clear all pencil marks." ] [ text "Clear Auto Marks" ]
                 ]
             , div [ class "board-container" ]
                 (range 0 80

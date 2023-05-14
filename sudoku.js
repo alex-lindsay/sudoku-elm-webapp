@@ -6580,6 +6580,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
 var $author$project$Sudoku$SetCellValue = function (a) {
 	return {$: 'SetCellValue', a: a};
 };
@@ -6819,6 +6820,7 @@ var $author$project$Sudoku$view = function (_v0) {
 									[
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
+										$elm$html$Html$Attributes$title('Set the actual answer for a cell.'),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
@@ -6839,6 +6841,7 @@ var $author$project$Sudoku$view = function (_v0) {
 									[
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
+										$elm$html$Html$Attributes$title('Set the known (visible) value for a cell.'),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
@@ -6859,6 +6862,7 @@ var $author$project$Sudoku$view = function (_v0) {
 									[
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess)),
+										$elm$html$Html$Attributes$title('Set the guess for a cell.'),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
@@ -6879,6 +6883,7 @@ var $author$project$Sudoku$view = function (_v0) {
 									[
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks)),
+										$elm$html$Html$Attributes$title('Set pencil marks for a cell.'),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
@@ -6899,6 +6904,7 @@ var $author$project$Sudoku$view = function (_v0) {
 									[
 										$elm$html$Html$Events$onClick(
 										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAutoMarks)),
+										$elm$html$Html$Attributes$title('Set all the possible pencil marks for a cell.'),
 										$elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
@@ -6975,7 +6981,8 @@ var $author$project$Sudoku$view = function (_v0) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard)
+										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard),
+										$elm$html$Html$Attributes$title('Clear the board.')
 									]),
 								_List_fromArray(
 									[
@@ -6985,7 +6992,8 @@ var $author$project$Sudoku$view = function (_v0) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateAutoMarks)
+										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateAutoMarks),
+										$elm$html$Html$Attributes$title('Add all possible pencil marks.')
 									]),
 								_List_fromArray(
 									[
@@ -6995,7 +7003,8 @@ var $author$project$Sudoku$view = function (_v0) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks)
+										$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks),
+										$elm$html$Html$Attributes$title('Clear all pencil marks.')
 									]),
 								_List_fromArray(
 									[
