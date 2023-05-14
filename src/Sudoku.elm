@@ -17,6 +17,7 @@ type GameState
     | SetKnown
     | SetGuess
     | SetMarks
+    | SetAutoMarks
 
 
 type WinningStatus
@@ -35,6 +36,7 @@ type Msg
     | SetActiveNumber (Maybe Int)
     | SetCellValue ( Int, Int )
     | GenerateBoard
+    | GenerateAutoMarks
 
 
 type alias Cell =
@@ -132,89 +134,11 @@ almostWinningBoard : Array Cell
 almostWinningBoard =
     let
         values =
-            fromList
-                [ 1
-                , 2
-                , 3
-                , 9
-                , 7
-                , 8
-                , 5
-                , 6
-                , 4
-                , 4
-                , 5
-                , 6
-                , 3
-                , 1
-                , 2
-                , 8
-                , 9
-                , 7
-                , 7
-                , 8
-                , 9
-                , 6
-                , 4
-                , 5
-                , 2
-                , 3
-                , 1
-                , 3
-                , 1
-                , 2
-                , 8
-                , 9
-                , 7
-                , 4
-                , 5
-                , 6
-                , 6
-                , 4
-                , 5
-                , 2
-                , 3
-                , 1
-                , 7
-                , 8
-                , 9
-                , 9
-                , 7
-                , 8
-                , 5
-                , 6
-                , 4
-                , 1
-                , 2
-                , 3
-                , 2
-                , 3
-                , 1
-                , 7
-                , 8
-                , 9
-                , 6
-                , 4
-                , 5
-                , 5
-                , 6
-                , 4
-                , 1
-                , 2
-                , 3
-                , 9
-                , 7
-                , 8
-                , 8
-                , 9
-                , 7
-                , 4
-                , 5
-                , 6
-                , 3
-                , 1
-                , 0
-                ]
+            "123978564456312897789645231312897456645231789978564123231789645564123978897456310"
+            |> String.split ""
+            |> List.map (\s -> String.toInt s |> Maybe.withDefault 0)
+            |> fromList
+
     in
     map2
         (\cell v ->
@@ -513,6 +437,17 @@ update msg ( model, _ ) =
                                 Nothing ->
                                     cell
 
+                        Just SetAutoMarks -> 
+                            let
+                                autoMarks =
+                                    autoHintsForCellAt ( row, col ) model
+                            in
+                            if cell.marks /= autoMarks then
+                                { cell | marks = autoMarks }
+
+                            else
+                                cell
+
                         Nothing ->
                             cell
             in
@@ -520,6 +455,29 @@ update msg ( model, _ ) =
 
         GenerateBoard ->
             init
+
+        GenerateAutoMarks ->
+            let
+                -- for cells which don't have a guess, or known value, set the marks to the auto marks
+                newCells =
+                    range 0 80
+                        |> map (\i -> Array.get i model.cells
+                            |> Maybe.withDefault (newCellAt (indexToPosition i)))
+                        |> map (\cell -> 
+                            let
+                                autoMarks = autoHintsForCellAt ( cell.row, cell.col ) model
+                            in
+                            (case (cell.guess, cell.value, cell.isVisible) of
+                                (Nothing, Nothing, _) ->
+                                    { cell | marks = autoMarks }
+                                (Nothing, Just _, False) ->
+                                    { cell | marks = autoMarks }
+                                _ ->
+                                    cell))
+                        |> Array.fromList
+
+            in
+            ( updateWinningStatus { model | cells = newCells }, Cmd.none )
 
 
 viewCellAt : Model -> Position -> Html Msg
@@ -555,8 +513,14 @@ viewCellAt model ( row, col ) =
 
             Nothing ->
                 div [] []
-        , div [ class "cell__marks" ]
-            (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
+        , case ( cell.value, cell.isVisible, cell.guess ) of
+            (Just _, False, Nothing) ->
+                div [ class "cell__marks" ]
+                    (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
+            (Nothing, _, Nothing) ->
+                div [ class "cell__marks" ]
+                    (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
+            _ -> div [] []
 
         -- [ text (String.fromInt cell.marks) ]
         ]
@@ -606,6 +570,11 @@ view ( model, _ ) =
                     , classList [ ( "active", model.gameState == Just SetMarks ) ]
                     ]
                     [ text "Set Marks" ]
+                , button
+                    [ onClick (SetGameState SetAutoMarks)
+                    , classList [ ( "active", model.gameState == Just SetAutoMarks ) ]
+                    ]
+                    [ text "Auto Marks" ]
                 ]
             , div [ class "number-buttons" ]
                 (List.append
@@ -616,6 +585,7 @@ view ( model, _ ) =
                 )
             , div [ class "generator-buttons" ]
                 [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
+                , button [ onClick GenerateAutoMarks ] [ text "Generate Auto Marks" ]
                 ]
             , div [ class "board-container" ]
                 (range 0 80
