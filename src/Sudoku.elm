@@ -37,6 +37,7 @@ type Msg
     | SetCellValue ( Int, Int )
     | GenerateBoard
     | GenerateAutoMarks
+    | ClearAutoMarks
 
 
 type alias Cell =
@@ -478,6 +479,15 @@ update msg ( model, _ ) =
 
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
+        ClearAutoMarks ->
+            let
+                newCells = model.cells
+                    |> Array.toList
+                    |> map (\cell -> { cell | marks = [] })
+                    |> Array.fromList
+            in
+            ( updateWinningStatus { model | cells = newCells }, Cmd.none )
+
 
 
 viewCellAt : Model -> Position -> Html Msg
@@ -586,6 +596,7 @@ view ( model, _ ) =
             , div [ class "generator-buttons" ]
                 [ button [ onClick GenerateBoard ] [ text "Generate Board" ]
                 , button [ onClick GenerateAutoMarks ] [ text "Generate Auto Marks" ]
+                , button [ onClick ClearAutoMarks ] [ text "Clear Auto Marks" ]
                 ]
             , div [ class "board-container" ]
                 (range 0 80

@@ -6452,7 +6452,7 @@ var $author$project$Sudoku$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'GenerateBoard':
 				return $author$project$Sudoku$init;
-			default:
+			case 'GenerateAutoMarks':
 				var newCells = $elm$core$Array$fromList(
 					A2(
 						$elm$core$List$map,
@@ -6503,8 +6503,25 @@ var $author$project$Sudoku$update = F2(
 							model,
 							{cells: newCells})),
 					$elm$core$Platform$Cmd$none);
+			default:
+				var newCells = $elm$core$Array$fromList(
+					A2(
+						$elm$core$List$map,
+						function (cell) {
+							return _Utils_update(
+								cell,
+								{marks: _List_Nil});
+						},
+						$elm$core$Array$toList(model.cells)));
+				return _Utils_Tuple2(
+					$author$project$Sudoku$updateWinningStatus(
+						_Utils_update(
+							model,
+							{cells: newCells})),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Sudoku$ClearAutoMarks = {$: 'ClearAutoMarks'};
 var $author$project$Sudoku$GenerateAutoMarks = {$: 'GenerateAutoMarks'};
 var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
@@ -6973,6 +6990,16 @@ var $author$project$Sudoku$view = function (_v0) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('Generate Auto Marks')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Clear Auto Marks')
 									]))
 							])),
 						A2(
