@@ -1,12 +1,41 @@
 module SudokuTest exposing (..)
 
-import Array exposing (initialize)
+import Array exposing (..)
 import Expect exposing (..)
 import List exposing (..)
 -- import Fuzz exposing (Fuzzer, int, list, string)
 import Sudoku exposing (..)
+import Set exposing (..)
 import Test exposing (..)
 
+
+sampleKnowns : Array Int
+sampleKnowns =
+    Array.fromList [ 
+      0, 2, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 6, 0, 3, 7, 2, 0, 0
+    , 0, 0, 0, 0, 6, 9, 0, 8, 0
+    , 2, 0, 3, 7, 0, 0, 0, 4, 0
+    , 0, 0, 5, 0, 4, 0, 0, 0, 6
+    , 9, 0, 0, 0, 2, 0, 8, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 5, 1
+    , 0, 9, 0, 0, 0, 0, 0, 0, 0
+    , 0, 1, 4, 0, 0, 3, 0, 0, 0
+    ]
+
+sampleGuesses : Array Int
+sampleGuesses =
+    Array.fromList [ 
+      0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 5, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    , 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ]
 
 
 validIndexTest : Test
@@ -113,7 +142,7 @@ initTest =
             (\_ -> Expect.equal ({
                 gameState = Just SetAnswer
                 , activeNumber = Just 1
-                , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
+                , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
                 -- , cells = almostWinningBoard
                 , selectedCell = Nothing
                 , winningStatus = Unknown
@@ -158,7 +187,7 @@ cellGuessOrKnownTest =
         cellWithoutGuessOrValue =
             { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
         cellWithGuessAndValue = -- shouldn't happen, but just in case
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Just 1, marks = [] } 
+            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Just 5, marks = [] } 
     in
     describe "cellGuessOrKnownValue"
         [ test "cell with guess 1 returns 1"
@@ -169,8 +198,8 @@ cellGuessOrKnownTest =
             (\_ -> Expect.equal (Just 1) (cellGuessOrKnown cellWithKnown))
         , test "cell without guess or value returns Nothing"
             (\_ -> Expect.equal Nothing (cellGuessOrKnown cellWithoutGuessOrValue))
-        , test "cell with guess and value returns value"
-            (\_ -> Expect.equal (Just 1) (cellGuessOrKnown cellWithGuessAndValue))
+        , test "cell with guess and value returns guess"
+            (\_ -> Expect.equal (Just 5) (cellGuessOrKnown cellWithGuessAndValue))
         ]
 
 rowCellsTest : Test
@@ -575,3 +604,35 @@ guessesAndKnownsForCellsTest =
         , test "empty list edge case"
             (\_ -> Expect.equal [] (guessesAndKnownsForCells []))
         ]        
+
+guessesAndKnownsForCellAtTest : Test
+guessesAndKnownsForCellAtTest = 
+    let
+        (model1, _) = init
+        cells = emptyBoard |> 
+            Array.indexedMap (\i cell -> {cell |
+                value = case 
+                    (Array.get i sampleKnowns) of 
+                        Just 0 -> Nothing
+                        _ -> Array.get i sampleKnowns
+                , isVisible = case 
+                    (Array.get i sampleKnowns) of 
+                        Just 0 -> False
+                        _ -> True
+                , guess = case
+                    (Array.get i sampleGuesses) of
+                        Just 0 -> Nothing
+                        _ -> Array.get i sampleGuesses
+            })
+        model = { model1 | cells = cells }
+    in
+    describe "guessesAndKnownsForCellAt"
+        [test "at cell(1,1)"
+            (\_ -> Expect.equalSets (Set.fromList [2, 6, 5, 9]) (Set.fromList (guessesAndKnownsForCellAt (1,1) model)))
+        , test "at cell(2,1)"
+            (\_ -> Expect.equalSets (Set.fromList [2, 3, 5, 6, 7, 9]) (Set.fromList (guessesAndKnownsForCellAt (2,1) model)))
+        , test "at cell(1,2)"
+            (\_ -> Expect.equalSets (Set.fromList [2, 6, 5, 9, 1]) (Set.fromList (guessesAndKnownsForCellAt (1,2) model)))
+        , test "at cell(9,9)"
+            (\_ -> Expect.equalSets (Set.fromList [1, 5, 6, 3, 4]) (Set.fromList (guessesAndKnownsForCellAt (9,9) model)))
+        ]

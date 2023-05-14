@@ -85,12 +85,20 @@ positionToIndex ( row, col ) =
         -1
 
 
+positionToBlock : Position -> Int
+positionToBlock ( row, col ) =
+    if validPosition ( row, col ) then
+        (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
+
+    else
+        -1
+
 newCellAt : Position -> Cell
 newCellAt ( row, col ) =
     if validPosition ( row, col ) then
         { row = row
         , col = col
-        , block = (((row - 1) // 3) * 3) + ((col - 1) // 3) + 1
+        , block = positionToBlock ( row, col )
         , value = Nothing
         , isVisible = False
         , guess = Nothing
@@ -399,6 +407,35 @@ guessesAndKnownsForCells : List Cell -> (List Int)
 guessesAndKnownsForCells values =
     map cellGuessOrKnown values
     |> filterMap identity
+
+
+guessesAndKnownsForCellAt : (Int, Int) -> Model -> List Int
+guessesAndKnownsForCellAt ( row, col ) model =
+    let
+        block = positionToBlock ( row, col )
+        rowValues =
+            rowCells row model
+            |> guessesAndKnownsForCells
+        
+        colValues =
+            colCells col model
+            |> guessesAndKnownsForCells
+
+        blockValues =
+            blockCells block model
+            |> guessesAndKnownsForCells
+
+        values = rowValues ++ colValues ++ blockValues
+            |> Set.fromList
+            |> Set.toList
+
+        _ = Debug.log "row, col, block" (row, col, block)
+        _ = Debug.log "rowGuessValues" rowValues
+        _ = Debug.log "colGuessValues" colValues
+        _ = Debug.log "blockGuessValues" blockValues
+        _ = Debug.log "guessValues" values
+    in
+    values
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =

@@ -4676,10 +4676,19 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var $author$project$Sudoku$validPosition = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
 	return (row >= 1) && ((row <= 9) && ((col >= 1) && (col <= 9)));
+};
+var $author$project$Sudoku$positionToBlock = function (_v0) {
+	var row = _v0.a;
+	var col = _v0.b;
+	return $author$project$Sudoku$validPosition(
+		_Utils_Tuple2(row, col)) ? ((((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1) : (-1);
 };
 var $author$project$Sudoku$newCellAt = function (_v0) {
 	newCellAt:
@@ -4688,7 +4697,16 @@ var $author$project$Sudoku$newCellAt = function (_v0) {
 		var col = _v0.b;
 		if ($author$project$Sudoku$validPosition(
 			_Utils_Tuple2(row, col))) {
-			return {block: (((((row - 1) / 3) | 0) * 3) + (((col - 1) / 3) | 0)) + 1, col: col, guess: $elm$core$Maybe$Nothing, isVisible: false, marks: _List_Nil, row: row, value: $elm$core$Maybe$Nothing};
+			return {
+				block: $author$project$Sudoku$positionToBlock(
+					_Utils_Tuple2(row, col)),
+				col: col,
+				guess: $elm$core$Maybe$Nothing,
+				isVisible: false,
+				marks: _List_Nil,
+				row: row,
+				value: $elm$core$Maybe$Nothing
+			};
 		} else {
 			var $temp$_v0 = _Utils_Tuple2(1, 1);
 			_v0 = $temp$_v0;
@@ -5355,9 +5373,6 @@ var $elm$core$List$member = F2(
 			xs);
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var $author$project$Sudoku$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
