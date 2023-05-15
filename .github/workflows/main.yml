@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - main
+name: 🚀 Deploy website on push to main
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+      with:
+        ref: main
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: www.alex-lindsay.com
+        username: ${{ secrets.GD_FTP_USER }}
+        password: ${{ secrets.GD_FTP_PASS }}
+        server-dir: projects/sudoku/
+        dry-run: false
