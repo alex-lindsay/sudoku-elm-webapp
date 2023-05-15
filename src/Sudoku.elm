@@ -386,6 +386,85 @@ autoHintsForCellAt ( row, col ) model =
         |> Set.toList
 
 
+updateActiveNumber : Maybe Int -> Model -> Model
+updateActiveNumber activeNumber model =
+    { model | activeNumber = activeNumber }
+
+
+updateCellValue : Position -> Model -> Model
+updateCellValue pos model =
+    let
+        index =
+            positionToIndex pos
+
+        cell =
+            model.cells
+                |> Array.get index
+                |> Maybe.withDefault (newCellAt pos)
+
+        updatedCell =
+            case model.gameState of
+                Just SetAnswer ->
+                    if cell.value /= model.activeNumber then
+                        { cell | value = model.activeNumber, isVisible = False }
+
+                    else
+                        { cell | value = Nothing }
+
+                Just SetKnown ->
+                    if cell.value /= model.activeNumber then
+                        { cell | value = model.activeNumber, isVisible = True }
+
+                    else
+                        { cell | value = Nothing }
+
+                Just SetGuess ->
+                    case ( cell.value, cell.isVisible ) of
+                        -- Don't allow the guess if there's a visible known value for the cell
+                        ( Just _, True ) ->
+                            cell
+
+                        _ ->
+                            if cell.guess /= model.activeNumber then
+                                { cell | guess = model.activeNumber }
+
+                            else
+                                { cell | guess = Nothing }
+
+                Just SetMarks ->
+                    case model.activeNumber of
+                        Just number ->
+                            if member number cell.marks then
+                                { cell | marks = filter (\mark -> mark /= number) cell.marks }
+
+                            else
+                                { cell | marks = append cell.marks [ number ] }
+
+                        Nothing ->
+                            cell
+
+                Just SetAutoMarks ->
+                    let
+                        autoMarks =
+                            autoHintsForCellAt pos model
+                    in
+                    if cell.marks /= autoMarks then
+                        { cell | marks = autoMarks }
+
+                    else
+                        cell
+
+                Nothing ->
+                    cell
+    in
+    updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = pos }
+
+
+updateCurrentCellValue : Model -> Model
+updateCurrentCellValue model =
+    updateCellValue model.selectedCell model
+
+
 updateGameState : GameState -> Model -> Model
 updateGameState gameState model =
     if model.gameState == Just gameState then
@@ -395,13 +474,19 @@ updateGameState gameState model =
         { model | gameState = Just gameState }
 
 
-moveSelectedCell : Int -> Model -> Model
-moveSelectedCell delta model =
+updateSelectedCell : Int -> Model -> Model
+updateSelectedCell delta model =
     let
-        index = positionToIndex model.selectedCell
-        newIndex = index + delta
-            |> modBy 81
-        ( newRow, newCol ) = indexToPosition newIndex
+        index =
+            positionToIndex model.selectedCell
+
+        newIndex =
+            index
+                + delta
+                |> modBy 81
+
+        ( newRow, newCol ) =
+            indexToPosition newIndex
     in
     if validPosition ( newRow, newCol ) then
         { model | selectedCell = ( newRow, newCol ) }
@@ -411,19 +496,23 @@ moveSelectedCell delta model =
 
 
 moveSelectedCellDown : Model -> Model
-moveSelectedCellDown model = moveSelectedCell 9 model
+moveSelectedCellDown model =
+    updateSelectedCell 9 model
 
 
 moveSelectedCellLeft : Model -> Model
-moveSelectedCellLeft model = moveSelectedCell -1 model
+moveSelectedCellLeft model =
+    updateSelectedCell -1 model
 
 
 moveSelectedCellRight : Model -> Model
-moveSelectedCellRight model = moveSelectedCell 1 model
+moveSelectedCellRight model =
+    updateSelectedCell 1 model
 
 
 moveSelectedCellUp : Model -> Model
-moveSelectedCellUp model = moveSelectedCell -9 model
+moveSelectedCellUp model =
+    updateSelectedCell -9 model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -433,74 +522,10 @@ update msg model =
             ( updateGameState gameState model, Cmd.none )
 
         SetActiveNumber activeNumber ->
-            ( { model | activeNumber = activeNumber }, Cmd.none )
+            ( updateActiveNumber activeNumber model, Cmd.none )
 
         SetCellValue ( row, col ) ->
-            let
-                index =
-                    positionToIndex ( row, col )
-
-                cell =
-                    model.cells
-                        |> Array.get index
-                        |> Maybe.withDefault (newCellAt ( row, col ))
-
-                updatedCell =
-                    case model.gameState of
-                        Just SetAnswer ->
-                            if cell.value /= model.activeNumber then
-                                { cell | value = model.activeNumber, isVisible = False }
-
-                            else
-                                { cell | value = Nothing }
-
-                        Just SetKnown ->
-                            if cell.value /= model.activeNumber then
-                                { cell | value = model.activeNumber, isVisible = True }
-
-                            else
-                                { cell | value = Nothing }
-
-                        Just SetGuess ->
-                            case ( cell.value, cell.isVisible ) of
-                                -- Don't allow the guess if there's a visible known value for the cell
-                                ( Just _, True ) ->
-                                    cell
-
-                                _ ->
-                                    if cell.guess /= model.activeNumber then
-                                        { cell | guess = model.activeNumber }
-
-                                    else
-                                        { cell | guess = Nothing }
-
-                        Just SetMarks ->
-                            case model.activeNumber of
-                                Just number ->
-                                    if member number cell.marks then
-                                        { cell | marks = filter (\mark -> mark /= number) cell.marks }
-
-                                    else
-                                        { cell | marks = append cell.marks [ number ] }
-
-                                Nothing ->
-                                    cell
-
-                        Just SetAutoMarks ->
-                            let
-                                autoMarks =
-                                    autoHintsForCellAt ( row, col ) model
-                            in
-                            if cell.marks /= autoMarks then
-                                { cell | marks = autoMarks }
-
-                            else
-                                cell
-
-                        Nothing ->
-                            cell
-            in
-            ( updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = ( row, col ) }, Cmd.none )
+            ( updateCellValue ( row, col ) model, Cmd.none )
 
         GenerateBoard ->
             init ()
@@ -547,25 +572,57 @@ update msg model =
 
         CharacterKeyPressed key ->
             let
-                _ =
-                    Debug.log "CharacterKeyPressed" key
+                isNumberKey =
+                    key >= '1' && key <= '9'
             in
-            ( model, Cmd.none )
+            case key of
+                'k' ->
+                    ( updateGameState SetKnown model, Cmd.none )
+
+                'a' ->
+                    ( updateGameState SetAnswer model, Cmd.none )
+
+                'g' ->
+                    ( updateGameState SetGuess model, Cmd.none )
+
+                'm' ->
+                    ( updateGameState SetMarks model, Cmd.none )
+
+                'M' ->
+                    ( updateGameState SetAutoMarks model, Cmd.none )
+
+                ' ' ->
+                    ( moveSelectedCellRight model, Cmd.none )
+
+                _ ->
+                    if isNumberKey then
+                        ( updateActiveNumber (String.toInt (String.fromChar key)) model
+                        |> updateCurrentCellValue
+                        |> moveSelectedCellRight
+                        |> updateWinningStatus, Cmd.none )
+
+                    else
+                        ( model, Cmd.none )
 
         ControlKeyPressed label ->
-            let
-                _ =
-                    Debug.log "ControlKeyPressed" label
-            in
             case label of
                 "ArrowRight" ->
                     ( moveSelectedCellRight model, Cmd.none )
+
                 "ArrowLeft" ->
                     ( moveSelectedCellLeft model, Cmd.none )
+
                 "ArrowUp" ->
                     ( moveSelectedCellUp model, Cmd.none )
+
                 "ArrowDown" ->
                     ( moveSelectedCellDown model, Cmd.none )
+
+                "Backspace" ->
+                    ( moveSelectedCellLeft model
+                    |> updateActiveNumber Nothing
+                    |> updateCurrentCellValue
+                    |> updateWinningStatus, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -622,14 +679,14 @@ viewCellAt model ( row, col ) =
 
 view : Model -> Html Msg
 view model =
-    let
+    -- let
         -- _ =
         --     Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
         -- _ =
         --     Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
-        _ =
-            Debug.log "model.winningStatus" model.winningStatus
-    in
+        -- _ =
+            -- Debug.log "model.winningStatus" model.winningStatus
+    -- in
     div [ class "sudoku-game-container" ]
         [ div
             [ classList
@@ -696,15 +753,15 @@ view model =
 
 keyDecoder : Decode.Decoder Msg
 keyDecoder =
-    let
-        _ =
-            Debug.log "keyDecoder" "keyDecoder"
-    in
     Decode.map toKey (Decode.field "key" Decode.string)
 
 
 toKey : String -> Msg
 toKey keyValue =
+    let
+        _ =
+            Debug.log "toKey keyValue" keyValue
+    in
     case String.uncons keyValue of
         Just ( char, "" ) ->
             CharacterKeyPressed char

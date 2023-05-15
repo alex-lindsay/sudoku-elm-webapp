@@ -5266,7 +5266,6 @@ var $author$project$Sudoku$init = function (_v0) {
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Sudoku$CharacterKeyPressed = function (a) {
 	return {$: 'CharacterKeyPressed', a: a};
@@ -5274,23 +5273,22 @@ var $author$project$Sudoku$CharacterKeyPressed = function (a) {
 var $author$project$Sudoku$ControlKeyPressed = function (a) {
 	return {$: 'ControlKeyPressed', a: a};
 };
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$toKey = function (keyValue) {
-	var _v0 = $elm$core$String$uncons(keyValue);
-	if ((_v0.$ === 'Just') && (_v0.a.b === '')) {
-		var _v1 = _v0.a;
-		var _char = _v1.a;
+	var _v0 = A2($elm$core$Debug$log, 'toKey keyValue', keyValue);
+	var _v1 = $elm$core$String$uncons(keyValue);
+	if ((_v1.$ === 'Just') && (_v1.a.b === '')) {
+		var _v2 = _v1.a;
+		var _char = _v2.a;
 		return $author$project$Sudoku$CharacterKeyPressed(_char);
 	} else {
 		return $author$project$Sudoku$ControlKeyPressed(keyValue);
 	}
 };
-var $author$project$Sudoku$keyDecoder = function () {
-	var _v0 = A2($elm$core$Debug$log, 'keyDecoder', 'keyDecoder');
-	return A2(
-		$elm$json$Json$Decode$map,
-		$author$project$Sudoku$toKey,
-		A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
-}();
+var $author$project$Sudoku$keyDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$Sudoku$toKey,
+	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
 var $elm$browser$Browser$Events$Document = {$: 'Document'};
 var $elm$browser$Browser$Events$MySub = F3(
 	function (a, b, c) {
@@ -5695,14 +5693,10 @@ var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $
 var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Sudoku$keyDecoder);
 };
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
+var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
+var $author$project$Sudoku$SetAutoMarks = {$: 'SetAutoMarks'};
+var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
+var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -6188,6 +6182,10 @@ var $author$project$Sudoku$autoHintsForCellAt = F2(
 		return $elm$core$Set$toList(
 			A2($elm$core$Set$diff, allPossibleValues, knownValues));
 	});
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -6264,6 +6262,52 @@ var $elm$core$Array$get = F2(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
+var $author$project$Sudoku$positionToIndex = function (_v0) {
+	var row = _v0.a;
+	var col = _v0.b;
+	return $author$project$Sudoku$validPosition(
+		_Utils_Tuple2(row, col)) ? (((row - 1) * 9) + (col - 1)) : (-1);
+};
+var $author$project$Sudoku$updateSelectedCell = F2(
+	function (delta, model) {
+		var index = $author$project$Sudoku$positionToIndex(model.selectedCell);
+		var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
+		var _v0 = $author$project$Sudoku$indexToPosition(newIndex);
+		var newRow = _v0.a;
+		var newCol = _v0.b;
+		return $author$project$Sudoku$validPosition(
+			_Utils_Tuple2(newRow, newCol)) ? _Utils_update(
+			model,
+			{
+				selectedCell: _Utils_Tuple2(newRow, newCol)
+			}) : model;
+	});
+var $author$project$Sudoku$moveSelectedCellDown = function (model) {
+	return A2($author$project$Sudoku$updateSelectedCell, 9, model);
+};
+var $author$project$Sudoku$moveSelectedCellLeft = function (model) {
+	return A2($author$project$Sudoku$updateSelectedCell, -1, model);
+};
+var $author$project$Sudoku$moveSelectedCellRight = function (model) {
+	return A2($author$project$Sudoku$updateSelectedCell, 1, model);
+};
+var $author$project$Sudoku$moveSelectedCellUp = function (model) {
+	return A2($author$project$Sudoku$updateSelectedCell, -9, model);
+};
+var $author$project$Sudoku$updateActiveNumber = F2(
+	function (activeNumber, model) {
+		return _Utils_update(
+			model,
+			{activeNumber: activeNumber});
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -6294,38 +6338,6 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Sudoku$positionToIndex = function (_v0) {
-	var row = _v0.a;
-	var col = _v0.b;
-	return $author$project$Sudoku$validPosition(
-		_Utils_Tuple2(row, col)) ? (((row - 1) * 9) + (col - 1)) : (-1);
-};
-var $author$project$Sudoku$moveSelectedCell = F2(
-	function (delta, model) {
-		var index = $author$project$Sudoku$positionToIndex(model.selectedCell);
-		var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
-		var _v0 = $author$project$Sudoku$indexToPosition(newIndex);
-		var newRow = _v0.a;
-		var newCol = _v0.b;
-		return $author$project$Sudoku$validPosition(
-			_Utils_Tuple2(newRow, newCol)) ? _Utils_update(
-			model,
-			{
-				selectedCell: _Utils_Tuple2(newRow, newCol)
-			}) : model;
-	});
-var $author$project$Sudoku$moveSelectedCellDown = function (model) {
-	return A2($author$project$Sudoku$moveSelectedCell, 9, model);
-};
-var $author$project$Sudoku$moveSelectedCellLeft = function (model) {
-	return A2($author$project$Sudoku$moveSelectedCell, -1, model);
-};
-var $author$project$Sudoku$moveSelectedCellRight = function (model) {
-	return A2($author$project$Sudoku$moveSelectedCell, 1, model);
-};
-var $author$project$Sudoku$moveSelectedCellUp = function (model) {
-	return A2($author$project$Sudoku$moveSelectedCell, -9, model);
-};
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$setHelp = F4(
@@ -6369,18 +6381,6 @@ var $elm$core$Array$set = F3(
 			startShift,
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
-	});
-var $author$project$Sudoku$updateGameState = F2(
-	function (gameState, model) {
-		return _Utils_eq(
-			model.gameState,
-			$elm$core$Maybe$Just(gameState)) ? _Utils_update(
-			model,
-			{gameState: $elm$core$Maybe$Nothing}) : _Utils_update(
-			model,
-			{
-				gameState: $elm$core$Maybe$Just(gameState)
-			});
 	});
 var $author$project$Sudoku$Error = {$: 'Error'};
 var $author$project$Sudoku$Lost = {$: 'Lost'};
@@ -6630,6 +6630,103 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
+var $author$project$Sudoku$updateCellValue = F2(
+	function (pos, model) {
+		var index = $author$project$Sudoku$positionToIndex(pos);
+		var cell = A2(
+			$elm$core$Maybe$withDefault,
+			$author$project$Sudoku$newCellAt(pos),
+			A2($elm$core$Array$get, index, model.cells));
+		var updatedCell = function () {
+			var _v0 = model.gameState;
+			if (_v0.$ === 'Just') {
+				switch (_v0.a.$) {
+					case 'SetAnswer':
+						var _v1 = _v0.a;
+						return (!_Utils_eq(cell.value, model.activeNumber)) ? _Utils_update(
+							cell,
+							{isVisible: false, value: model.activeNumber}) : _Utils_update(
+							cell,
+							{value: $elm$core$Maybe$Nothing});
+					case 'SetKnown':
+						var _v2 = _v0.a;
+						return (!_Utils_eq(cell.value, model.activeNumber)) ? _Utils_update(
+							cell,
+							{isVisible: true, value: model.activeNumber}) : _Utils_update(
+							cell,
+							{value: $elm$core$Maybe$Nothing});
+					case 'SetGuess':
+						var _v3 = _v0.a;
+						var _v4 = _Utils_Tuple2(cell.value, cell.isVisible);
+						if ((_v4.a.$ === 'Just') && _v4.b) {
+							return cell;
+						} else {
+							return (!_Utils_eq(cell.guess, model.activeNumber)) ? _Utils_update(
+								cell,
+								{guess: model.activeNumber}) : _Utils_update(
+								cell,
+								{guess: $elm$core$Maybe$Nothing});
+						}
+					case 'SetMarks':
+						var _v5 = _v0.a;
+						var _v6 = model.activeNumber;
+						if (_v6.$ === 'Just') {
+							var number = _v6.a;
+							return A2($elm$core$List$member, number, cell.marks) ? _Utils_update(
+								cell,
+								{
+									marks: A2(
+										$elm$core$List$filter,
+										function (mark) {
+											return !_Utils_eq(mark, number);
+										},
+										cell.marks)
+								}) : _Utils_update(
+								cell,
+								{
+									marks: A2(
+										$elm$core$List$append,
+										cell.marks,
+										_List_fromArray(
+											[number]))
+								});
+						} else {
+							return cell;
+						}
+					default:
+						var _v7 = _v0.a;
+						var autoMarks = A2($author$project$Sudoku$autoHintsForCellAt, pos, model);
+						return (!_Utils_eq(cell.marks, autoMarks)) ? _Utils_update(
+							cell,
+							{marks: autoMarks}) : cell;
+				}
+			} else {
+				return cell;
+			}
+		}();
+		return $author$project$Sudoku$updateWinningStatus(
+			_Utils_update(
+				model,
+				{
+					cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
+					selectedCell: pos
+				}));
+	});
+var $author$project$Sudoku$updateCurrentCellValue = function (model) {
+	return A2($author$project$Sudoku$updateCellValue, model.selectedCell, model);
+};
+var $author$project$Sudoku$updateGameState = F2(
+	function (gameState, model) {
+		return _Utils_eq(
+			model.gameState,
+			$elm$core$Maybe$Just(gameState)) ? _Utils_update(
+			model,
+			{gameState: $elm$core$Maybe$Nothing}) : _Utils_update(
+			model,
+			{
+				gameState: $elm$core$Maybe$Just(gameState)
+			});
+	});
 var $author$project$Sudoku$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6641,99 +6738,17 @@ var $author$project$Sudoku$update = F2(
 			case 'SetActiveNumber':
 				var activeNumber = msg.a;
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{activeNumber: activeNumber}),
+					A2($author$project$Sudoku$updateActiveNumber, activeNumber, model),
 					$elm$core$Platform$Cmd$none);
 			case 'SetCellValue':
 				var _v1 = msg.a;
 				var row = _v1.a;
 				var col = _v1.b;
-				var index = $author$project$Sudoku$positionToIndex(
-					_Utils_Tuple2(row, col));
-				var cell = A2(
-					$elm$core$Maybe$withDefault,
-					$author$project$Sudoku$newCellAt(
-						_Utils_Tuple2(row, col)),
-					A2($elm$core$Array$get, index, model.cells));
-				var updatedCell = function () {
-					var _v2 = model.gameState;
-					if (_v2.$ === 'Just') {
-						switch (_v2.a.$) {
-							case 'SetAnswer':
-								var _v3 = _v2.a;
-								return (!_Utils_eq(cell.value, model.activeNumber)) ? _Utils_update(
-									cell,
-									{isVisible: false, value: model.activeNumber}) : _Utils_update(
-									cell,
-									{value: $elm$core$Maybe$Nothing});
-							case 'SetKnown':
-								var _v4 = _v2.a;
-								return (!_Utils_eq(cell.value, model.activeNumber)) ? _Utils_update(
-									cell,
-									{isVisible: true, value: model.activeNumber}) : _Utils_update(
-									cell,
-									{value: $elm$core$Maybe$Nothing});
-							case 'SetGuess':
-								var _v5 = _v2.a;
-								var _v6 = _Utils_Tuple2(cell.value, cell.isVisible);
-								if ((_v6.a.$ === 'Just') && _v6.b) {
-									return cell;
-								} else {
-									return (!_Utils_eq(cell.guess, model.activeNumber)) ? _Utils_update(
-										cell,
-										{guess: model.activeNumber}) : _Utils_update(
-										cell,
-										{guess: $elm$core$Maybe$Nothing});
-								}
-							case 'SetMarks':
-								var _v7 = _v2.a;
-								var _v8 = model.activeNumber;
-								if (_v8.$ === 'Just') {
-									var number = _v8.a;
-									return A2($elm$core$List$member, number, cell.marks) ? _Utils_update(
-										cell,
-										{
-											marks: A2(
-												$elm$core$List$filter,
-												function (mark) {
-													return !_Utils_eq(mark, number);
-												},
-												cell.marks)
-										}) : _Utils_update(
-										cell,
-										{
-											marks: A2(
-												$elm$core$List$append,
-												cell.marks,
-												_List_fromArray(
-													[number]))
-										});
-								} else {
-									return cell;
-								}
-							default:
-								var _v9 = _v2.a;
-								var autoMarks = A2(
-									$author$project$Sudoku$autoHintsForCellAt,
-									_Utils_Tuple2(row, col),
-									model);
-								return (!_Utils_eq(cell.marks, autoMarks)) ? _Utils_update(
-									cell,
-									{marks: autoMarks}) : cell;
-						}
-					} else {
-						return cell;
-					}
-				}();
 				return _Utils_Tuple2(
-					$author$project$Sudoku$updateWinningStatus(
-						_Utils_update(
-							model,
-							{
-								cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
-								selectedCell: _Utils_Tuple2(row, col)
-							})),
+					A2(
+						$author$project$Sudoku$updateCellValue,
+						_Utils_Tuple2(row, col),
+						model),
 					$elm$core$Platform$Cmd$none);
 			case 'GenerateBoard':
 				return $author$project$Sudoku$init(_Utils_Tuple0);
@@ -6746,28 +6761,28 @@ var $author$project$Sudoku$update = F2(
 								$author$project$Sudoku$autoHintsForCellAt,
 								_Utils_Tuple2(cell.row, cell.col),
 								model);
-							var _v10 = _Utils_Tuple3(cell.guess, cell.value, cell.isVisible);
-							_v10$2:
+							var _v2 = _Utils_Tuple3(cell.guess, cell.value, cell.isVisible);
+							_v2$2:
 							while (true) {
-								if (_v10.a.$ === 'Nothing') {
-									if (_v10.b.$ === 'Nothing') {
-										var _v11 = _v10.a;
-										var _v12 = _v10.b;
+								if (_v2.a.$ === 'Nothing') {
+									if (_v2.b.$ === 'Nothing') {
+										var _v3 = _v2.a;
+										var _v4 = _v2.b;
 										return _Utils_update(
 											cell,
 											{marks: autoMarks});
 									} else {
-										if (!_v10.c) {
-											var _v13 = _v10.a;
+										if (!_v2.c) {
+											var _v5 = _v2.a;
 											return _Utils_update(
 												cell,
 												{marks: autoMarks});
 										} else {
-											break _v10$2;
+											break _v2$2;
 										}
 									}
 								} else {
-									break _v10$2;
+									break _v2$2;
 								}
 							}
 							return cell;
@@ -6806,11 +6821,50 @@ var $author$project$Sudoku$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'CharacterKeyPressed':
 				var key = msg.a;
-				var _v14 = A2($elm$core$Debug$log, 'CharacterKeyPressed', key);
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				var isNumberKey = (_Utils_cmp(
+					key,
+					_Utils_chr('1')) > -1) && (_Utils_cmp(
+					key,
+					_Utils_chr('9')) < 1);
+				switch (key.valueOf()) {
+					case 'k':
+						return _Utils_Tuple2(
+							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetKnown, model),
+							$elm$core$Platform$Cmd$none);
+					case 'a':
+						return _Utils_Tuple2(
+							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetAnswer, model),
+							$elm$core$Platform$Cmd$none);
+					case 'g':
+						return _Utils_Tuple2(
+							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetGuess, model),
+							$elm$core$Platform$Cmd$none);
+					case 'm':
+						return _Utils_Tuple2(
+							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetMarks, model),
+							$elm$core$Platform$Cmd$none);
+					case 'M':
+						return _Utils_Tuple2(
+							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetAutoMarks, model),
+							$elm$core$Platform$Cmd$none);
+					case ' ':
+						return _Utils_Tuple2(
+							$author$project$Sudoku$moveSelectedCellRight(model),
+							$elm$core$Platform$Cmd$none);
+					default:
+						return isNumberKey ? _Utils_Tuple2(
+							$author$project$Sudoku$updateWinningStatus(
+								$author$project$Sudoku$moveSelectedCellRight(
+									$author$project$Sudoku$updateCurrentCellValue(
+										A2(
+											$author$project$Sudoku$updateActiveNumber,
+											$elm$core$String$toInt(
+												$elm$core$String$fromChar(key)),
+											model)))),
+							$elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				}
 			default:
 				var label = msg.a;
-				var _v15 = A2($elm$core$Debug$log, 'ControlKeyPressed', label);
 				switch (label) {
 					case 'ArrowRight':
 						return _Utils_Tuple2(
@@ -6828,6 +6882,15 @@ var $author$project$Sudoku$update = F2(
 						return _Utils_Tuple2(
 							$author$project$Sudoku$moveSelectedCellDown(model),
 							$elm$core$Platform$Cmd$none);
+					case 'Backspace':
+						return _Utils_Tuple2(
+							$author$project$Sudoku$updateWinningStatus(
+								$author$project$Sudoku$updateCurrentCellValue(
+									A2(
+										$author$project$Sudoku$updateActiveNumber,
+										$elm$core$Maybe$Nothing,
+										$author$project$Sudoku$moveSelectedCellLeft(model)))),
+							$elm$core$Platform$Cmd$none);
 					default:
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
@@ -6839,13 +6902,9 @@ var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
 var $author$project$Sudoku$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
-var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
-var $author$project$Sudoku$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
-var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
-var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -7056,7 +7115,6 @@ var $author$project$Sudoku$viewCellAt = F2(
 				]));
 	});
 var $author$project$Sudoku$view = function (model) {
-	var _v0 = A2($elm$core$Debug$log, 'model.winningStatus', model.winningStatus);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
