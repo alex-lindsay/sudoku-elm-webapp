@@ -5,9 +5,11 @@ module Sudoku exposing (..)
 import Array exposing (Array, fromList, initialize, toList)
 import Array.Extra exposing (map2)
 import Browser exposing (..)
+import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (class, classList, title)
 import Html.Events exposing (onClick)
+import Json.Decode as Decode
 import List exposing (all, any, append, filter, filterMap, length, map, member, range)
 import Set
 
@@ -38,6 +40,8 @@ type Msg
     | GenerateBoard
     | GenerateAutoMarks
     | ClearAutoMarks
+    | CharacterKeyPressed Char
+    | ControlKeyPressed String
 
 
 type alias Cell =
@@ -382,15 +386,56 @@ autoHintsForCellAt ( row, col ) model =
         |> Set.toList
 
 
+updateGameState : GameState -> Model -> Model
+updateGameState gameState model =
+    if model.gameState == Just gameState then
+        { model | gameState = Maybe.Nothing }
+
+    else
+        { model | gameState = Just gameState }
+
+
+moveSelectedCell : Int -> Model -> Model
+moveSelectedCell delta model =
+    case model.selectedCell of
+        Just ( row, col ) ->
+            let
+                index = positionToIndex ( row, col )
+                newIndex = index + delta
+                    |> modBy 81
+                ( newRow, newCol ) = indexToPosition newIndex
+            in
+            if validPosition ( newRow, newCol ) then
+                { model | selectedCell = Just ( newRow, newCol ) }
+
+            else
+                model
+
+        Nothing ->
+            model
+
+
+moveSelectedCellDown : Model -> Model
+moveSelectedCellDown model = moveSelectedCell 9 model
+
+
+moveSelectedCellLeft : Model -> Model
+moveSelectedCellLeft model = moveSelectedCell -1 model
+
+
+moveSelectedCellRight : Model -> Model
+moveSelectedCellRight model = moveSelectedCell 1 model
+
+
+moveSelectedCellUp : Model -> Model
+moveSelectedCellUp model = moveSelectedCell -9 model
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SetGameState gameState ->
-            if model.gameState == Just gameState then
-                ( { model | gameState = Maybe.Nothing }, Cmd.none )
-
-            else
-                ( { model | gameState = Just gameState }, Cmd.none )
+            ( updateGameState gameState model, Cmd.none )
 
         SetActiveNumber activeNumber ->
             ( { model | activeNumber = activeNumber }, Cmd.none )
@@ -505,6 +550,31 @@ update msg model =
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
 
+        CharacterKeyPressed key ->
+            let
+                _ =
+                    Debug.log "CharacterKeyPressed" key
+            in
+            ( model, Cmd.none )
+
+        ControlKeyPressed label ->
+            let
+                _ =
+                    Debug.log "ControlKeyPressed" label
+            in
+            case label of
+                "ArrowRight" ->
+                    ( moveSelectedCellRight model, Cmd.none )
+                "ArrowLeft" ->
+                    ( moveSelectedCellLeft model, Cmd.none )
+                "ArrowUp" ->
+                    ( moveSelectedCellUp model, Cmd.none )
+                "ArrowDown" ->
+                    ( moveSelectedCellDown model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 viewCellAt : Model -> Position -> Html Msg
 viewCellAt model ( row, col ) =
@@ -558,12 +628,10 @@ viewCellAt model ( row, col ) =
 view : Model -> Html Msg
 view model =
     let
-        _ =
-            Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
-
-        _ =
-            Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
-
+        -- _ =
+        --     Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
+        -- _ =
+        --     Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
         _ =
             Debug.log "model.winningStatus" model.winningStatus
     in
@@ -581,31 +649,31 @@ view model =
             , div [ class "game-state-buttons" ]
                 [ button
                     [ onClick (SetGameState SetKnown)
-                    , title "Set the known (visible) value for a cell."
+                    , title "Set the known (visible) value for a cell. [k]"
                     , classList [ ( "active", model.gameState == Just SetKnown ) ]
                     ]
                     [ text "Set Known" ]
                 , button
                     [ onClick (SetGameState SetAnswer)
-                    , title "Set the actual answer for a cell."
+                    , title "Set the actual answer for a cell. [a]"
                     , classList [ ( "active", model.gameState == Just SetAnswer ) ]
                     ]
                     [ text "Set Answer" ]
                 , button
                     [ onClick (SetGameState SetGuess)
-                    , title "Set the guess for a cell."
+                    , title "Set the guess for a cell. [g]"
                     , classList [ ( "active", model.gameState == Just SetGuess ) ]
                     ]
                     [ text "Set Guess" ]
                 , button
                     [ onClick (SetGameState SetMarks)
-                    , title "Set pencil marks for a cell."
+                    , title "Set pencil marks for a cell.[m]"
                     , classList [ ( "active", model.gameState == Just SetMarks ) ]
                     ]
                     [ text "Set Marks" ]
                 , button
                     [ onClick (SetGameState SetAutoMarks)
-                    , title "Set all the possible pencil marks for a cell."
+                    , title "Set all the possible pencil marks for a cell. [M]"
                     , classList [ ( "active", model.gameState == Just SetAutoMarks ) ]
                     ]
                     [ text "Auto Marks" ]
@@ -618,9 +686,9 @@ view model =
                     [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
                 )
             , div [ class "generator-buttons" ]
-                [ button [ onClick GenerateBoard, title "Clear the board." ] [ text "Generate Board" ]
-                , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks." ] [ text "Generate Auto Marks" ]
-                , button [ onClick ClearAutoMarks, title "Clear all pencil marks." ] [ text "Clear Auto Marks" ]
+                [ button [ onClick GenerateBoard, title "Clear the board. [!]" ] [ text "Generate Board" ]
+                , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks. [!]" ] [ text "Generate Auto Marks" ]
+                , button [ onClick ClearAutoMarks, title "Clear all pencil marks. [@]" ] [ text "Clear Auto Marks" ]
                 ]
             , div [ class "board-container" ]
                 (range 0 80
@@ -631,6 +699,30 @@ view model =
         ]
 
 
+keyDecoder : Decode.Decoder Msg
+keyDecoder =
+    let
+        _ =
+            Debug.log "keyDecoder" "keyDecoder"
+    in
+    Decode.map toKey (Decode.field "key" Decode.string)
+
+
+toKey : String -> Msg
+toKey keyValue =
+    case String.uncons keyValue of
+        Just ( char, "" ) ->
+            CharacterKeyPressed char
+
+        _ ->
+            ControlKeyPressed keyValue
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    onKeyDown keyDecoder
+
+
 main : Program () Model Msg
 main =
-    Browser.element { init = init, update = update, view = view, subscriptions = (\_ -> Sub.none) }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
