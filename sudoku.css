@@ -76,6 +76,10 @@ button.active {
     color: #000;
 }
 
+.cell--selected {
+    border: 1px solid #00f;
+}
+
 .col1 {
     clear: both;
 }
