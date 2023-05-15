@@ -113,8 +113,8 @@ newCellAt ( row, col ) =
         newCellAt ( 1, 1 )
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init _ =
     ( { gameState = Just SetKnown
       , activeNumber = Just 1
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
@@ -382,8 +382,8 @@ autoHintsForCellAt ( row, col ) model =
         |> Set.toList
 
 
-update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-update msg ( model, _ ) =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         SetGameState gameState ->
             if model.gameState == Just gameState then
@@ -463,7 +463,7 @@ update msg ( model, _ ) =
             ( updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
 
         GenerateBoard ->
-            init
+            init ()
 
         GenerateAutoMarks ->
             let
@@ -555,8 +555,8 @@ viewCellAt model ( row, col ) =
         ]
 
 
-view : ( Model, Cmd Msg ) -> Html Msg
-view ( model, _ ) =
+view : Model -> Html Msg
+view model =
     let
         _ =
             Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
@@ -631,6 +631,6 @@ view ( model, _ ) =
         ]
 
 
-main : Program () ( Model, Cmd Msg ) Msg
+main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = (\_ -> Sub.none) }

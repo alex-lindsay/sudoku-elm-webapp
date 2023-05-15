@@ -147,7 +147,7 @@ initTest =
                 , selectedCell = Just (1,1)
                 , winningStatus = Unknown
                 }
-            , Cmd.none) (init))
+            , Cmd.none) (init ()))
         ]
 
 
@@ -205,7 +205,7 @@ cellGuessOrKnownTest =
 rowCellsTest : Test
 rowCellsTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (rowCells i model)) (List.range 1 9)
         actualLengths = List.map (\row -> (List.length row)) actualResults
@@ -221,7 +221,7 @@ rowCellsTest =
 colCellsTest : Test
 colCellsTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (colCells i model)) (List.range 1 9)
         actualLengths = List.map (\col -> (List.length col)) actualResults
@@ -237,7 +237,7 @@ colCellsTest =
 blockCellsTest : Test
 blockCellsTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         actualResults = List.map (\i -> (blockCells i model)) (List.range 1 9)
         actualLengths = List.map (\block -> (List.length block)) actualResults
@@ -264,7 +264,7 @@ hasNumberRepeatedTest =
 anyRowHasValueRepeatedTest : Test
 anyRowHasValueRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -285,7 +285,7 @@ anyRowHasValueRepeatedTest =
 anyRowHasGuessRepeatedTest : Test
 anyRowHasGuessRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
@@ -306,7 +306,7 @@ anyRowHasGuessRepeatedTest =
 anyColHasValueRepeatedTest : Test
 anyColHasValueRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -327,7 +327,7 @@ anyColHasValueRepeatedTest =
 anyColHasGuessRepeatedTest : Test
 anyColHasGuessRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
@@ -348,7 +348,7 @@ anyColHasGuessRepeatedTest =
 anyBlockHasValueRepeatedTest : Test
 anyBlockHasValueRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -369,7 +369,7 @@ anyBlockHasValueRepeatedTest =
 anyBlockHasGuessRepeatedTest : Test
 anyBlockHasGuessRepeatedTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithRepeats = { model | cells = Array.map (\cell -> {cell | guess = case 
             cell.guess of 
@@ -406,7 +406,7 @@ cellsAreCompleteTest =
 blockIsCompleteTest : Test
 blockIsCompleteTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         
     in
@@ -420,7 +420,7 @@ blockIsCompleteTest =
 allRowsAreCompleteTest : Test
 allRowsAreCompleteTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteRows = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -441,7 +441,7 @@ allRowsAreCompleteTest =
 allColsAreCompleteTest : Test
 allColsAreCompleteTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteCols = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -462,7 +462,7 @@ allColsAreCompleteTest =
 allBlocksAreCompleteTest : Test
 allBlocksAreCompleteTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -483,7 +483,7 @@ allBlocksAreCompleteTest =
 hasWinningStatusUnknownTest : Test
 hasWinningStatusUnknownTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -509,7 +509,7 @@ hasWinningStatusUnknownTest =
 hasWinningStatusWonTest : Test
 hasWinningStatusWonTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -535,7 +535,7 @@ hasWinningStatusWonTest =
 hasWinningStatusLostTest : Test
 hasWinningStatusLostTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -561,7 +561,7 @@ hasWinningStatusLostTest =
 updateWinningStatusTest : Test
 updateWinningStatusTest = 
     let
-        (start, _) = init
+        (start, _) = init ()
         model = {start | cells = almostWinningBoard}
         modelWithCompleteBlocks = { model | cells = Array.map (\cell -> {cell | value = case 
             cell.value of 
@@ -608,7 +608,7 @@ guessesAndKnownsForCellsTest =
 guessesAndKnownsForCellAtTest : Test
 guessesAndKnownsForCellAtTest = 
     let
-        (model1, _) = init
+        (model1, _) = init ()
         cells = emptyBoard |> 
             Array.indexedMap (\i cell -> {cell |
                 value = case 
@@ -640,7 +640,7 @@ guessesAndKnownsForCellAtTest =
 autoHintsForCellAtTest : Test
 autoHintsForCellAtTest = 
     let
-        (model1, _) = init
+        (model1, _) = init ()
         cells = emptyBoard |> 
             Array.indexedMap (\i cell -> {cell |
                 value = case 
