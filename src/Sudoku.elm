@@ -96,6 +96,7 @@ positionToBlock ( row, col ) =
     else
         -1
 
+
 newCellAt : Position -> Cell
 newCellAt ( row, col ) =
     if validPosition ( row, col ) then
@@ -119,7 +120,7 @@ init =
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
 
       --   , cells = winningBoard
-      , selectedCell = Just (1, 1)
+      , selectedCell = Just ( 1, 1 )
       , winningStatus = Unknown
       }
     , Cmd.none
@@ -136,10 +137,9 @@ almostWinningBoard =
     let
         values =
             "123978564456312897789645231312897456645231789978564123231789645564123978897456310"
-            |> String.split ""
-            |> List.map (\s -> String.toInt s |> Maybe.withDefault 0)
-            |> fromList
-
+                |> String.split ""
+                |> List.map (\s -> String.toInt s |> Maybe.withDefault 0)
+                |> fromList
     in
     map2
         (\cell v ->
@@ -328,31 +328,36 @@ updateWinningStatus model =
     { model | winningStatus = newWinningStatus }
 
 
-guessesAndKnownsForCells : List Cell -> (List Int)
+guessesAndKnownsForCells : List Cell -> List Int
 guessesAndKnownsForCells values =
     map cellGuessOrKnown values
-    |> filterMap identity
+        |> filterMap identity
 
 
-guessesAndKnownsForCellAt : (Int, Int) -> Model -> List Int
+guessesAndKnownsForCellAt : ( Int, Int ) -> Model -> List Int
 guessesAndKnownsForCellAt ( row, col ) model =
     let
-        block = positionToBlock ( row, col )
+        block =
+            positionToBlock ( row, col )
+
         rowValues =
             rowCells row model
-            |> guessesAndKnownsForCells
-        
+                |> guessesAndKnownsForCells
+
         colValues =
             colCells col model
-            |> guessesAndKnownsForCells
+                |> guessesAndKnownsForCells
 
         blockValues =
             blockCells block model
-            |> guessesAndKnownsForCells
+                |> guessesAndKnownsForCells
 
-        values = rowValues ++ colValues ++ blockValues
-            |> Set.fromList
-            |> Set.toList
+        values =
+            rowValues
+                ++ colValues
+                ++ blockValues
+                |> Set.fromList
+                |> Set.toList
 
         -- _ = Debug.log "row, col, block" (row, col, block)
         -- _ = Debug.log "rowGuessValues" rowValues
@@ -362,17 +367,20 @@ guessesAndKnownsForCellAt ( row, col ) model =
     in
     values
 
-autoHintsForCellAt : (Int, Int) -> Model -> List Int
+
+autoHintsForCellAt : ( Int, Int ) -> Model -> List Int
 autoHintsForCellAt ( row, col ) model =
     let
         allPossibleValues =
             Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
-        knownValues = 
+
+        knownValues =
             guessesAndKnownsForCellAt ( row, col ) model
-            |> Set.fromList
+                |> Set.fromList
     in
     Set.diff allPossibleValues knownValues
         |> Set.toList
+
 
 update : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 update msg ( model, _ ) =
@@ -438,7 +446,7 @@ update msg ( model, _ ) =
                                 Nothing ->
                                     cell
 
-                        Just SetAutoMarks -> 
+                        Just SetAutoMarks ->
                             let
                                 autoMarks =
                                     autoHintsForCellAt ( row, col ) model
@@ -462,32 +470,40 @@ update msg ( model, _ ) =
                 -- for cells which don't have a guess, or known value, set the marks to the auto marks
                 newCells =
                     range 0 80
-                        |> map (\i -> Array.get i model.cells
-                            |> Maybe.withDefault (newCellAt (indexToPosition i)))
-                        |> map (\cell -> 
-                            let
-                                autoMarks = autoHintsForCellAt ( cell.row, cell.col ) model
-                            in
-                            (case (cell.guess, cell.value, cell.isVisible) of
-                                (Nothing, Nothing, _) ->
-                                    { cell | marks = autoMarks }
-                                (Nothing, Just _, False) ->
-                                    { cell | marks = autoMarks }
-                                _ ->
-                                    cell))
-                        |> fromList
+                        |> map
+                            (\i ->
+                                Array.get i model.cells
+                                    |> Maybe.withDefault (newCellAt (indexToPosition i))
+                            )
+                        |> map
+                            (\cell ->
+                                let
+                                    autoMarks =
+                                        autoHintsForCellAt ( cell.row, cell.col ) model
+                                in
+                                case ( cell.guess, cell.value, cell.isVisible ) of
+                                    ( Nothing, Nothing, _ ) ->
+                                        { cell | marks = autoMarks }
 
+                                    ( Nothing, Just _, False ) ->
+                                        { cell | marks = autoMarks }
+
+                                    _ ->
+                                        cell
+                            )
+                        |> fromList
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
+
         ClearAutoMarks ->
             let
-                newCells = model.cells
-                    |> Array.toList
-                    |> map (\cell -> { cell | marks = [] })
-                    |> Array.fromList
+                newCells =
+                    model.cells
+                        |> Array.toList
+                        |> map (\cell -> { cell | marks = [] })
+                        |> Array.fromList
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
-
 
 
 viewCellAt : Model -> Position -> Html Msg
@@ -524,13 +540,16 @@ viewCellAt model ( row, col ) =
             Nothing ->
                 div [] []
         , case ( cell.value, cell.isVisible, cell.guess ) of
-            (Just _, False, Nothing) ->
+            ( Just _, False, Nothing ) ->
                 div [ class "cell__marks" ]
                     (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
-            (Nothing, _, Nothing) ->
+
+            ( Nothing, _, Nothing ) ->
                 div [ class "cell__marks" ]
                     (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
-            _ -> div [] []
+
+            _ ->
+                div [] []
 
         -- [ text (String.fromInt cell.marks) ]
         ]
