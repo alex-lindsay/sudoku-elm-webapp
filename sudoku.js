@@ -5260,8 +5260,7 @@ var $author$project$Sudoku$init = function (_v0) {
 						$author$project$Sudoku$indexToPosition(i));
 				}),
 			gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
-			selectedCell: $elm$core$Maybe$Just(
-				_Utils_Tuple2(1, 1)),
+			selectedCell: _Utils_Tuple2(1, 1),
 			winningStatus: $author$project$Sudoku$Unknown
 		},
 		$elm$core$Platform$Cmd$none);
@@ -6303,27 +6302,17 @@ var $author$project$Sudoku$positionToIndex = function (_v0) {
 };
 var $author$project$Sudoku$moveSelectedCell = F2(
 	function (delta, model) {
-		var _v0 = model.selectedCell;
-		if (_v0.$ === 'Just') {
-			var _v1 = _v0.a;
-			var row = _v1.a;
-			var col = _v1.b;
-			var index = $author$project$Sudoku$positionToIndex(
-				_Utils_Tuple2(row, col));
-			var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
-			var _v2 = $author$project$Sudoku$indexToPosition(newIndex);
-			var newRow = _v2.a;
-			var newCol = _v2.b;
-			return $author$project$Sudoku$validPosition(
-				_Utils_Tuple2(newRow, newCol)) ? _Utils_update(
-				model,
-				{
-					selectedCell: $elm$core$Maybe$Just(
-						_Utils_Tuple2(newRow, newCol))
-				}) : model;
-		} else {
-			return model;
-		}
+		var index = $author$project$Sudoku$positionToIndex(model.selectedCell);
+		var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
+		var _v0 = $author$project$Sudoku$indexToPosition(newIndex);
+		var newRow = _v0.a;
+		var newCol = _v0.b;
+		return $author$project$Sudoku$validPosition(
+			_Utils_Tuple2(newRow, newCol)) ? _Utils_update(
+			model,
+			{
+				selectedCell: _Utils_Tuple2(newRow, newCol)
+			}) : model;
 	});
 var $author$project$Sudoku$moveSelectedCellDown = function (model) {
 	return A2($author$project$Sudoku$moveSelectedCell, 9, model);
@@ -6743,8 +6732,7 @@ var $author$project$Sudoku$update = F2(
 							model,
 							{
 								cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
-								selectedCell: $elm$core$Maybe$Just(
-									_Utils_Tuple2(row, col))
+								selectedCell: _Utils_Tuple2(row, col)
 							})),
 					$elm$core$Platform$Cmd$none);
 			case 'GenerateBoard':
@@ -6930,8 +6918,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 							'cell--selected',
 							_Utils_eq(
 								model.selectedCell,
-								$elm$core$Maybe$Just(
-									_Utils_Tuple2(row, col)))),
+								_Utils_Tuple2(row, col))),
 							_Utils_Tuple2(
 							'row' + $elm$core$String$fromInt(row),
 							true),

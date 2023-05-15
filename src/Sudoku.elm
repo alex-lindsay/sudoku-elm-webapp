@@ -59,7 +59,7 @@ type alias Model =
     { gameState : Maybe GameState
     , activeNumber : Maybe Int
     , cells : Array Cell
-    , selectedCell : Maybe Position
+    , selectedCell : Position
     , winningStatus : WinningStatus
     }
 
@@ -124,7 +124,7 @@ init _ =
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
 
       --   , cells = winningBoard
-      , selectedCell = Just ( 1, 1 )
+      , selectedCell = ( 1, 1 )
       , winningStatus = Unknown
       }
     , Cmd.none
@@ -397,22 +397,17 @@ updateGameState gameState model =
 
 moveSelectedCell : Int -> Model -> Model
 moveSelectedCell delta model =
-    case model.selectedCell of
-        Just ( row, col ) ->
-            let
-                index = positionToIndex ( row, col )
-                newIndex = index + delta
-                    |> modBy 81
-                ( newRow, newCol ) = indexToPosition newIndex
-            in
-            if validPosition ( newRow, newCol ) then
-                { model | selectedCell = Just ( newRow, newCol ) }
+    let
+        index = positionToIndex model.selectedCell
+        newIndex = index + delta
+            |> modBy 81
+        ( newRow, newCol ) = indexToPosition newIndex
+    in
+    if validPosition ( newRow, newCol ) then
+        { model | selectedCell = ( newRow, newCol ) }
 
-            else
-                model
-
-        Nothing ->
-            model
+    else
+        model
 
 
 moveSelectedCellDown : Model -> Model
@@ -505,7 +500,7 @@ update msg model =
                         Nothing ->
                             cell
             in
-            ( updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = Just ( row, col ) }, Cmd.none )
+            ( updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = ( row, col ) }, Cmd.none )
 
         GenerateBoard ->
             init ()
@@ -588,7 +583,7 @@ viewCellAt model ( row, col ) =
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
     div
-        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == Just ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ), ( "block" ++ String.fromInt cell.block, True ) ]
+        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ), ( "block" ++ String.fromInt cell.block, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
         [ case ( cell.value, cell.isVisible ) of

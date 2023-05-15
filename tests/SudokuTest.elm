@@ -144,7 +144,7 @@ initTest =
                 , activeNumber = Just 1
                 , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
                 -- , cells = almostWinningBoard
-                , selectedCell = Just (1,1)
+                , selectedCell = (1,1)
                 , winningStatus = Unknown
                 }
             , Cmd.none) (init ()))
