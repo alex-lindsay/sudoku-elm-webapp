@@ -6,8 +6,8 @@ import Array exposing (Array, fromList, initialize, toList)
 import Array.Extra exposing (map2)
 import Browser exposing (..)
 import Browser.Events exposing (onKeyDown)
-import Html exposing (Html, button, div, h1, text)
-import Html.Attributes exposing (class, classList, title)
+import Html exposing (Html, a, button, div, h1, text)
+import Html.Attributes exposing (class, classList, href, title)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import List exposing (all, any, append, filter, filterMap, length, map, member, range)
@@ -679,14 +679,15 @@ viewCellAt model ( row, col ) =
 
 view : Model -> Html Msg
 view model =
-    -- let
+    let
+        sourceLoc = "https://github.com/alex-lindsay/sudoku-elm-webapp"
         -- _ =
         --     Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
         -- _ =
         --     Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
         -- _ =
             -- Debug.log "model.winningStatus" model.winningStatus
-    -- in
+    in
     div [ class "sudoku-game-container" ]
         [ div
             [ classList
@@ -747,6 +748,10 @@ view model =
                     |> List.map indexToPosition
                     |> List.map (viewCellAt model)
                 )
+            , div [ class "footnote" ]
+                [ text "Source code can be found at: "
+                , a [ href sourceLoc ] [ text sourceLoc ]
+                ]
             ]
         ]
 

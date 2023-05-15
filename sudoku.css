@@ -161,3 +161,7 @@ button.active {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.footnote {
+    font-size: 0.75rem;
+}

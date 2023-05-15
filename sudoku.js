@@ -6905,6 +6905,7 @@ var $author$project$Sudoku$SetActiveNumber = function (a) {
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
+var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -6931,6 +6932,12 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7115,6 +7122,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 				]));
 	});
 var $author$project$Sudoku$view = function (model) {
+	var sourceLoc = 'https://github.com/alex-lindsay/sudoku-elm-webapp';
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -7371,7 +7379,27 @@ var $author$project$Sudoku$view = function (model) {
 							A2(
 								$elm$core$List$map,
 								$author$project$Sudoku$indexToPosition,
-								A2($elm$core$List$range, 0, 80))))
+								A2($elm$core$List$range, 0, 80)))),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('footnote')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Source code can be found at: '),
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$href(sourceLoc)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(sourceLoc)
+									]))
+							]))
 					]))
 			]));
 };
