@@ -5699,10 +5699,6 @@ var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
 var $author$project$Sudoku$SolveSingles = {$: 'SolveSingles'};
 var $author$project$Sudoku$SolvingSingles = {$: 'SolvingSingles'};
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5737,6 +5733,30 @@ var $elm$core$Array$fromList = function (list) {
 	} else {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
+};
+var $elm$core$Array$filter = F2(
+	function (isGood, array) {
+		return $elm$core$Array$fromList(
+			A3(
+				$elm$core$Array$foldr,
+				F2(
+					function (x, xs) {
+						return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+					}),
+				_List_Nil,
+				array));
+	});
+var $author$project$Sudoku$cellsWithSingleMark = function (cells) {
+	return A2(
+		$elm$core$Array$filter,
+		function (cell) {
+			return $elm$core$List$length(cell.marks) === 1;
+		},
+		cells);
+};
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
 };
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
@@ -6322,6 +6342,10 @@ var $author$project$Sudoku$generateAutoMarks = function (model) {
 		model,
 		{cells: newCells});
 };
+var $elm$core$Array$length = function (_v0) {
+	var len = _v0.a;
+	return len;
+};
 var $author$project$Sudoku$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
@@ -6785,6 +6809,40 @@ var $author$project$Sudoku$updateGameState = F2(
 				gameState: $elm$core$Maybe$Just(gameState)
 			});
 	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Sudoku$updateSingle = function (model) {
+	var firstCellWithSingleMark = A2(
+		$elm$core$Array$get,
+		0,
+		$author$project$Sudoku$cellsWithSingleMark(model.cells));
+	var newCells = function () {
+		if (firstCellWithSingleMark.$ === 'Just') {
+			var cell = firstCellWithSingleMark.a;
+			var updatedCell = _Utils_update(
+				cell,
+				{
+					guess: $elm$core$List$head(cell.marks),
+					marks: _List_Nil
+				});
+			var index = $author$project$Sudoku$positionToIndex(
+				_Utils_Tuple2(cell.row, cell.col));
+			return A3($elm$core$Array$set, index, updatedCell, model.cells);
+		} else {
+			return model.cells;
+		}
+	}();
+	return _Utils_update(
+		model,
+		{cells: newCells});
+};
 var $author$project$Sudoku$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6921,7 +6979,24 @@ var $author$project$Sudoku$update = F2(
 					A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$NotSolving, model),
 					$elm$core$Platform$Cmd$none);
 			default:
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				var _v5 = $elm$core$Array$length(
+					$author$project$Sudoku$cellsWithSingleMark(model.cells));
+				if (!_v5) {
+					return _Utils_Tuple2(
+						A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$NotSolving, model),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(
+						$author$project$Sudoku$generateAutoMarks(
+							$author$project$Sudoku$updateSingle(
+								A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model))),
+						A2(
+							$elm$core$Task$perform,
+							function (_v6) {
+								return $author$project$Sudoku$SolveSingles;
+							},
+							$elm$core$Process$sleep(2000)));
+				}
 		}
 	});
 var $author$project$Sudoku$ClearAutoMarks = {$: 'ClearAutoMarks'};

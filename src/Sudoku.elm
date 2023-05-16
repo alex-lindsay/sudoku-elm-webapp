@@ -564,6 +564,37 @@ moveSelectedCellUp model =
     updateSelectedCell -9 model
 
 
+cellsWithSingleMark : Array Cell -> Array Cell
+cellsWithSingleMark cells =
+    Array.filter (\cell -> List.length cell.marks == 1) cells
+
+
+updateSingle : Model -> Model
+updateSingle model =
+    let
+        firstCellWithSingleMark =
+            cellsWithSingleMark model.cells
+                |> Array.get 0
+        
+        newCells =
+            case firstCellWithSingleMark of
+                Just cell ->
+                    let
+                        index =
+                            positionToIndex ( cell.row, cell.col )
+
+                        updatedCell =
+                            { cell | guess = List.head cell.marks, marks = [] }
+                    in
+                    Array.set index updatedCell model.cells
+
+                Nothing ->
+                    model.cells
+
+
+    in
+    { model | cells = newCells }
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -660,7 +691,12 @@ update msg model =
             ( updateAutoSolveState NotSolving model, Cmd.none )
 
         SolveSingles ->
-            ( model, Cmd.none )
+            case cellsWithSingleMark model.cells |> Array.length of
+                0 ->
+                    ( updateAutoSolveState NotSolving model, Cmd.none )
+
+                _ ->
+                    ( updateAutoSolveState SolvingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
 
 
 viewCellAt : Model -> Position -> Html Msg
