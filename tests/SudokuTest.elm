@@ -146,6 +146,7 @@ initTest =
                 -- , cells = almostWinningBoard
                 , selectedCell = (1,1)
                 , winningStatus = Unknown
+                , autoSolveState = NotSolving
                 }
             , Cmd.none) (init ()))
         ]

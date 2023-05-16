@@ -5196,6 +5196,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Sudoku$NotSolving = {$: 'NotSolving'};
 var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
 var $author$project$Sudoku$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$modBy = _Basics_modBy;
@@ -5252,6 +5253,7 @@ var $author$project$Sudoku$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			activeNumber: $elm$core$Maybe$Just(1),
+			autoSolveState: $author$project$Sudoku$NotSolving,
 			cells: A2(
 				$elm$core$Array$initialize,
 				81,
@@ -5273,13 +5275,11 @@ var $author$project$Sudoku$CharacterKeyPressed = function (a) {
 var $author$project$Sudoku$ControlKeyPressed = function (a) {
 	return {$: 'ControlKeyPressed', a: a};
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Sudoku$toKey = function (keyValue) {
-	var _v0 = A2($elm$core$Debug$log, 'toKey keyValue', keyValue);
-	var _v1 = $elm$core$String$uncons(keyValue);
-	if ((_v1.$ === 'Just') && (_v1.a.b === '')) {
-		var _v2 = _v1.a;
-		var _char = _v2.a;
+	var _v0 = $elm$core$String$uncons(keyValue);
+	if ((_v0.$ === 'Just') && (_v0.a.b === '')) {
+		var _v1 = _v0.a;
+		var _char = _v1.a;
 		return $author$project$Sudoku$CharacterKeyPressed(_char);
 	} else {
 		return $author$project$Sudoku$ControlKeyPressed(keyValue);
@@ -5697,6 +5697,47 @@ var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
 var $author$project$Sudoku$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
 var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
+var $author$project$Sudoku$SolveSingles = {$: 'SolveSingles'};
+var $author$project$Sudoku$SolvingSingles = {$: 'SolvingSingles'};
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -6182,45 +6223,6 @@ var $author$project$Sudoku$autoHintsForCellAt = F2(
 		return $elm$core$Set$toList(
 			A2($elm$core$Set$diff, allPossibleValues, knownValues));
 	});
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
-var $elm$core$Array$fromListHelp = F3(
-	function (list, nodeList, nodeListSize) {
-		fromListHelp:
-		while (true) {
-			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
-			var jsArray = _v0.a;
-			var remainingItems = _v0.b;
-			if (_Utils_cmp(
-				$elm$core$Elm$JsArray$length(jsArray),
-				$elm$core$Array$branchFactor) < 0) {
-				return A2(
-					$elm$core$Array$builderToArray,
-					true,
-					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
-			} else {
-				var $temp$list = remainingItems,
-					$temp$nodeList = A2(
-					$elm$core$List$cons,
-					$elm$core$Array$Leaf(jsArray),
-					nodeList),
-					$temp$nodeListSize = nodeListSize + 1;
-				list = $temp$list;
-				nodeList = $temp$nodeList;
-				nodeListSize = $temp$nodeListSize;
-				continue fromListHelp;
-			}
-		}
-	});
-var $elm$core$Array$fromList = function (list) {
-	if (!list.b) {
-		return $elm$core$Array$empty;
-	} else {
-		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
-	}
-};
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
@@ -6262,6 +6264,64 @@ var $elm$core$Array$get = F2(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Sudoku$generateAutoMarks = function (model) {
+	var newCells = $elm$core$Array$fromList(
+		A2(
+			$elm$core$List$map,
+			function (cell) {
+				var autoMarks = A2(
+					$author$project$Sudoku$autoHintsForCellAt,
+					_Utils_Tuple2(cell.row, cell.col),
+					model);
+				var _v0 = _Utils_Tuple3(cell.guess, cell.value, cell.isVisible);
+				_v0$2:
+				while (true) {
+					if (_v0.a.$ === 'Nothing') {
+						if (_v0.b.$ === 'Nothing') {
+							var _v1 = _v0.a;
+							var _v2 = _v0.b;
+							return _Utils_update(
+								cell,
+								{marks: autoMarks});
+						} else {
+							if (!_v0.c) {
+								var _v3 = _v0.a;
+								return _Utils_update(
+									cell,
+									{marks: autoMarks});
+							} else {
+								break _v0$2;
+							}
+						}
+					} else {
+						break _v0$2;
+					}
+				}
+				return cell;
+			},
+			A2(
+				$elm$core$List$map,
+				function (i) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						$author$project$Sudoku$newCellAt(
+							$author$project$Sudoku$indexToPosition(i)),
+						A2($elm$core$Array$get, i, model.cells));
+				},
+				A2($elm$core$List$range, 0, 80))));
+	return _Utils_update(
+		model,
+		{cells: newCells});
+};
 var $author$project$Sudoku$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
@@ -6294,11 +6354,18 @@ var $author$project$Sudoku$moveSelectedCellRight = function (model) {
 var $author$project$Sudoku$moveSelectedCellUp = function (model) {
 	return A2($author$project$Sudoku$updateSelectedCell, -9, model);
 };
+var $elm$core$Process$sleep = _Process_sleep;
 var $author$project$Sudoku$updateActiveNumber = F2(
 	function (activeNumber, model) {
 		return _Utils_update(
 			model,
 			{activeNumber: activeNumber});
+	});
+var $author$project$Sudoku$updateAutoSolveState = F2(
+	function (newAutoSolveState, model) {
+		return _Utils_update(
+			model,
+			{autoSolveState: newAutoSolveState});
 	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6621,15 +6688,6 @@ var $author$project$Sudoku$updateWinningStatus = function (model) {
 		model,
 		{winningStatus: newWinningStatus});
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Sudoku$updateCellValue = F2(
 	function (pos, model) {
 		var index = $author$project$Sudoku$positionToIndex(pos);
@@ -6753,55 +6811,9 @@ var $author$project$Sudoku$update = F2(
 			case 'GenerateBoard':
 				return $author$project$Sudoku$init(_Utils_Tuple0);
 			case 'GenerateAutoMarks':
-				var newCells = $elm$core$Array$fromList(
-					A2(
-						$elm$core$List$map,
-						function (cell) {
-							var autoMarks = A2(
-								$author$project$Sudoku$autoHintsForCellAt,
-								_Utils_Tuple2(cell.row, cell.col),
-								model);
-							var _v2 = _Utils_Tuple3(cell.guess, cell.value, cell.isVisible);
-							_v2$2:
-							while (true) {
-								if (_v2.a.$ === 'Nothing') {
-									if (_v2.b.$ === 'Nothing') {
-										var _v3 = _v2.a;
-										var _v4 = _v2.b;
-										return _Utils_update(
-											cell,
-											{marks: autoMarks});
-									} else {
-										if (!_v2.c) {
-											var _v5 = _v2.a;
-											return _Utils_update(
-												cell,
-												{marks: autoMarks});
-										} else {
-											break _v2$2;
-										}
-									}
-								} else {
-									break _v2$2;
-								}
-							}
-							return cell;
-						},
-						A2(
-							$elm$core$List$map,
-							function (i) {
-								return A2(
-									$elm$core$Maybe$withDefault,
-									$author$project$Sudoku$newCellAt(
-										$author$project$Sudoku$indexToPosition(i)),
-									A2($elm$core$Array$get, i, model.cells));
-							},
-							A2($elm$core$List$range, 0, 80))));
 				return _Utils_Tuple2(
 					$author$project$Sudoku$updateWinningStatus(
-						_Utils_update(
-							model,
-							{cells: newCells})),
+						$author$project$Sudoku$generateAutoMarks(model)),
 					$elm$core$Platform$Cmd$none);
 			case 'ClearAutoMarks':
 				var newCells = $elm$core$Array$fromList(
@@ -6863,7 +6875,7 @@ var $author$project$Sudoku$update = F2(
 											model)))),
 							$elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'ControlKeyPressed':
 				var label = msg.a;
 				switch (label) {
 					case 'ArrowRight':
@@ -6894,6 +6906,22 @@ var $author$project$Sudoku$update = F2(
 					default:
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
+			case 'StartSolving':
+				return _Utils_Tuple2(
+					$author$project$Sudoku$generateAutoMarks(
+						A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model)),
+					A2(
+						$elm$core$Task$perform,
+						function (_v4) {
+							return $author$project$Sudoku$SolveSingles;
+						},
+						$elm$core$Process$sleep(2000)));
+			case 'StopSolving':
+				return _Utils_Tuple2(
+					A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$NotSolving, model),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Sudoku$ClearAutoMarks = {$: 'ClearAutoMarks'};
@@ -6905,6 +6933,8 @@ var $author$project$Sudoku$SetActiveNumber = function (a) {
 var $author$project$Sudoku$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
+var $author$project$Sudoku$StartSolving = {$: 'StartSolving'};
+var $author$project$Sudoku$StopSolving = {$: 'StopSolving'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -6932,12 +6962,22 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$hidden = $elm$html$Html$Attributes$boolProperty('hidden');
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
 		'href',
 		_VirtualDom_noJavaScriptUri(url));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7123,6 +7163,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 	});
 var $author$project$Sudoku$view = function (model) {
 	var sourceLoc = 'https://github.com/alex-lindsay/sudoku-elm-webapp';
+	var _v0 = A2($elm$core$Debug$log, 'model.autoSolveState', model.autoSolveState);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -7365,6 +7406,41 @@ var $author$project$Sudoku$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('Clear Auto Marks')
+									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('solver-buttons')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Sudoku$StartSolving),
+										$elm$html$Html$Attributes$title('Start solving the board.'),
+										$elm$html$Html$Attributes$hidden(
+										!_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Start Solving')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Sudoku$StopSolving),
+										$elm$html$Html$Attributes$title('Stop solving the board.'),
+										$elm$html$Html$Attributes$hidden(
+										_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Stop Solving')
 									]))
 							])),
 						A2(

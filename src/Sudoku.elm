@@ -2,16 +2,18 @@ module Sudoku exposing (..)
 
 -- import Random exposing (int)
 
-import Array exposing (Array, fromList, initialize, toList)
-import Array.Extra exposing (map2)
+import Array exposing (Array, initialize)
+import Array.Extra exposing (..)
 import Browser exposing (..)
 import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, a, button, div, h1, text)
-import Html.Attributes exposing (class, classList, href, title)
+import Html.Attributes exposing (class, classList, hidden, href, title)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
-import List exposing (all, any, append, filter, filterMap, length, map, member, range)
-import Set
+import List exposing (range)
+import Process exposing (..)
+import Set exposing (..)
+import Task exposing (..)
 
 
 type GameState
@@ -29,6 +31,11 @@ type WinningStatus
     | Error
 
 
+type AutoSolveState
+    = NotSolving
+    | SolvingSingles
+
+
 type alias Position =
     ( Int, Int )
 
@@ -42,6 +49,9 @@ type Msg
     | ClearAutoMarks
     | CharacterKeyPressed Char
     | ControlKeyPressed String
+    | StartSolving
+    | StopSolving
+    | SolveSingles
 
 
 type alias Cell =
@@ -61,6 +71,7 @@ type alias Model =
     , cells : Array Cell
     , selectedCell : Position
     , winningStatus : WinningStatus
+    , autoSolveState : AutoSolveState
     }
 
 
@@ -126,6 +137,7 @@ init _ =
       --   , cells = winningBoard
       , selectedCell = ( 1, 1 )
       , winningStatus = Unknown
+      , autoSolveState = NotSolving
       }
     , Cmd.none
     )
@@ -143,9 +155,9 @@ almostWinningBoard =
             "123978564456312897789645231312897456645231789978564123231789645564123978897456310"
                 |> String.split ""
                 |> List.map (\s -> String.toInt s |> Maybe.withDefault 0)
-                |> fromList
+                |> Array.fromList
     in
-    map2
+    Array.Extra.map2
         (\cell v ->
             { cell
                 | value =
@@ -185,27 +197,27 @@ cellGuessOrKnown cell =
 
 rowCells : Int -> Model -> List Cell
 rowCells rowNumber model =
-    filter (\cell -> cell.row == rowNumber) (toList model.cells)
+    List.filter (\cell -> cell.row == rowNumber) (Array.toList model.cells)
 
 
 colCells : Int -> Model -> List Cell
 colCells colNumber model =
-    filter (\cell -> cell.col == colNumber) (toList model.cells)
+    List.filter (\cell -> cell.col == colNumber) (Array.toList model.cells)
 
 
 blockCells : Int -> Model -> List Cell
 blockCells blockNumber model =
-    filter (\cell -> cell.block == blockNumber) (toList model.cells)
+    List.filter (\cell -> cell.block == blockNumber) (Array.toList model.cells)
 
 
 hasNumberRepeated : List Int -> Bool
 hasNumberRepeated numbers =
-    length numbers /= length (Set.toList (Set.fromList numbers))
+    List.length numbers /= List.length (Set.toList (Set.fromList numbers))
 
 
 cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
 cellsHaveNumberRepeated cells getNumber =
-    hasNumberRepeated (filterMap getNumber cells)
+    hasNumberRepeated (List.filterMap getNumber cells)
 
 
 rowHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -215,12 +227,12 @@ rowHasNumberRepeated rowNumber getNumber model =
 
 anyRowHasValueRepeated : Model -> Bool
 anyRowHasValueRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9)
+    List.any (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9)
 
 
 anyRowHasGuessRepeated : Model -> Bool
 anyRowHasGuessRepeated model =
-    any (\rowNumber -> rowHasNumberRepeated rowNumber .guess model) (range 1 9)
+    List.any (\rowNumber -> rowHasNumberRepeated rowNumber .guess model) (range 1 9)
 
 
 colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -230,12 +242,12 @@ colHasNumberRepeated colNumber getNumber model =
 
 anyColHasValueRepeated : Model -> Bool
 anyColHasValueRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber .value model) (range 1 9)
+    List.any (\colNumber -> colHasNumberRepeated colNumber .value model) (range 1 9)
 
 
 anyColHasGuessRepeated : Model -> Bool
 anyColHasGuessRepeated model =
-    any (\colNumber -> colHasNumberRepeated colNumber .guess model) (range 1 9)
+    List.any (\colNumber -> colHasNumberRepeated colNumber .guess model) (range 1 9)
 
 
 blockHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -245,17 +257,17 @@ blockHasNumberRepeated blockNumber getNumber model =
 
 anyBlockHasValueRepeated : Model -> Bool
 anyBlockHasValueRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber .value model) (range 1 9)
+    List.any (\blockNumber -> blockHasNumberRepeated blockNumber .value model) (range 1 9)
 
 
 anyBlockHasGuessRepeated : Model -> Bool
 anyBlockHasGuessRepeated model =
-    any (\blockNumber -> blockHasNumberRepeated blockNumber .guess model) (range 1 9)
+    List.any (\blockNumber -> blockHasNumberRepeated blockNumber .guess model) (range 1 9)
 
 
 cellsAreComplete : List Cell -> (Cell -> Maybe Int) -> Bool
 cellsAreComplete cells getNumber =
-    all (\cell -> getNumber cell /= Nothing) cells && not (cellsHaveNumberRepeated cells getNumber)
+    List.all (\cell -> getNumber cell /= Nothing) cells && not (cellsHaveNumberRepeated cells getNumber)
 
 
 rowIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -265,7 +277,7 @@ rowIsComplete rowNumber getNumber model =
 
 allRowsAreComplete : Model -> Bool
 allRowsAreComplete model =
-    all (\rowNumber -> rowIsComplete rowNumber cellGuessOrValue model) (range 1 9)
+    List.all (\rowNumber -> rowIsComplete rowNumber cellGuessOrValue model) (range 1 9)
 
 
 colIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -275,7 +287,7 @@ colIsComplete colNumber getNumber model =
 
 allColsAreComplete : Model -> Bool
 allColsAreComplete model =
-    all (\colNumber -> colIsComplete colNumber cellGuessOrValue model) (range 1 9)
+    List.all (\colNumber -> colIsComplete colNumber cellGuessOrValue model) (range 1 9)
 
 
 blockIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -285,12 +297,12 @@ blockIsComplete blockNumber getNumber model =
 
 allBlocksAreComplete : Model -> Bool
 allBlocksAreComplete model =
-    all (\blockNumber -> rowIsComplete blockNumber cellGuessOrValue model) (range 1 9)
+    List.all (\blockNumber -> rowIsComplete blockNumber cellGuessOrValue model) (range 1 9)
 
 
 hasWinningStatusUnknown : Model -> Bool
 hasWinningStatusUnknown model =
-    any (\cell -> ( cell.value, cell.guess ) == ( Nothing, Nothing )) (toList model.cells)
+    List.any (\cell -> ( cell.value, cell.guess ) == ( Nothing, Nothing )) (Array.toList model.cells)
 
 
 hasWinningStatusWon : Model -> Bool
@@ -300,7 +312,7 @@ hasWinningStatusWon model =
 
 hasWinningStatusLost : Model -> Bool
 hasWinningStatusLost model =
-    all (\cell -> cell.value /= Nothing || cell.guess /= Nothing) (toList model.cells)
+    List.all (\cell -> cell.value /= Nothing || cell.guess /= Nothing) (Array.toList model.cells)
         && not (hasWinningStatusWon model)
 
 
@@ -334,8 +346,8 @@ updateWinningStatus model =
 
 guessesAndKnownsForCells : List Cell -> List Int
 guessesAndKnownsForCells values =
-    map cellGuessOrKnown values
-        |> filterMap identity
+    List.map cellGuessOrKnown values
+        |> List.filterMap identity
 
 
 guessesAndKnownsForCellAt : ( Int, Int ) -> Model -> List Int
@@ -386,6 +398,38 @@ autoHintsForCellAt ( row, col ) model =
         |> Set.toList
 
 
+generateAutoMarks : Model -> Model
+generateAutoMarks model =
+    let
+        -- for cells which don't have a guess, or known value, set the marks to the auto marks
+        newCells =
+            range 0 80
+                |> List.map
+                    (\i ->
+                        Array.get i model.cells
+                            |> Maybe.withDefault (newCellAt (indexToPosition i))
+                    )
+                |> List.map
+                    (\cell ->
+                        let
+                            autoMarks =
+                                autoHintsForCellAt ( cell.row, cell.col ) model
+                        in
+                        case ( cell.guess, cell.value, cell.isVisible ) of
+                            ( Nothing, Nothing, _ ) ->
+                                { cell | marks = autoMarks }
+
+                            ( Nothing, Just _, False ) ->
+                                { cell | marks = autoMarks }
+
+                            _ ->
+                                cell
+                    )
+                |> Array.fromList
+    in
+    { model | cells = newCells }
+
+
 updateActiveNumber : Maybe Int -> Model -> Model
 updateActiveNumber activeNumber model =
     { model | activeNumber = activeNumber }
@@ -434,11 +478,11 @@ updateCellValue pos model =
                 Just SetMarks ->
                     case model.activeNumber of
                         Just number ->
-                            if member number cell.marks then
-                                { cell | marks = filter (\mark -> mark /= number) cell.marks }
+                            if List.member number cell.marks then
+                                { cell | marks = List.filter (\mark -> mark /= number) cell.marks }
 
                             else
-                                { cell | marks = append cell.marks [ number ] }
+                                { cell | marks = List.append cell.marks [ number ] }
 
                         Nothing ->
                             cell
@@ -495,6 +539,11 @@ updateSelectedCell delta model =
         model
 
 
+updateAutoSolveState : AutoSolveState -> Model -> Model
+updateAutoSolveState newAutoSolveState model =
+    { model | autoSolveState = newAutoSolveState }
+
+
 moveSelectedCellDown : Model -> Model
 moveSelectedCellDown model =
     updateSelectedCell 9 model
@@ -531,41 +580,14 @@ update msg model =
             init ()
 
         GenerateAutoMarks ->
-            let
-                -- for cells which don't have a guess, or known value, set the marks to the auto marks
-                newCells =
-                    range 0 80
-                        |> map
-                            (\i ->
-                                Array.get i model.cells
-                                    |> Maybe.withDefault (newCellAt (indexToPosition i))
-                            )
-                        |> map
-                            (\cell ->
-                                let
-                                    autoMarks =
-                                        autoHintsForCellAt ( cell.row, cell.col ) model
-                                in
-                                case ( cell.guess, cell.value, cell.isVisible ) of
-                                    ( Nothing, Nothing, _ ) ->
-                                        { cell | marks = autoMarks }
-
-                                    ( Nothing, Just _, False ) ->
-                                        { cell | marks = autoMarks }
-
-                                    _ ->
-                                        cell
-                            )
-                        |> fromList
-            in
-            ( updateWinningStatus { model | cells = newCells }, Cmd.none )
+            ( updateWinningStatus (generateAutoMarks model), Cmd.none )
 
         ClearAutoMarks ->
             let
                 newCells =
                     model.cells
                         |> Array.toList
-                        |> map (\cell -> { cell | marks = [] })
+                        |> List.map (\cell -> { cell | marks = [] })
                         |> Array.fromList
             in
             ( updateWinningStatus { model | cells = newCells }, Cmd.none )
@@ -597,9 +619,11 @@ update msg model =
                 _ ->
                     if isNumberKey then
                         ( updateActiveNumber (String.toInt (String.fromChar key)) model
-                        |> updateCurrentCellValue
-                        |> moveSelectedCellRight
-                        |> updateWinningStatus, Cmd.none )
+                            |> updateCurrentCellValue
+                            |> moveSelectedCellRight
+                            |> updateWinningStatus
+                        , Cmd.none
+                        )
 
                     else
                         ( model, Cmd.none )
@@ -620,12 +644,23 @@ update msg model =
 
                 "Backspace" ->
                     ( moveSelectedCellLeft model
-                    |> updateActiveNumber Nothing
-                    |> updateCurrentCellValue
-                    |> updateWinningStatus, Cmd.none )
+                        |> updateActiveNumber Nothing
+                        |> updateCurrentCellValue
+                        |> updateWinningStatus
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
+
+        StartSolving ->
+            ( updateAutoSolveState SolvingSingles model |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
+
+        StopSolving ->
+            ( updateAutoSolveState NotSolving model, Cmd.none )
+
+        SolveSingles ->
+            ( model, Cmd.none )
 
 
 viewCellAt : Model -> Position -> Html Msg
@@ -664,11 +699,11 @@ viewCellAt model ( row, col ) =
         , case ( cell.value, cell.isVisible, cell.guess ) of
             ( Just _, False, Nothing ) ->
                 div [ class "cell__marks" ]
-                    (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
+                    (List.map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
 
             ( Nothing, _, Nothing ) ->
                 div [ class "cell__marks" ]
-                    (map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
+                    (List.map (\mark -> div [ class ("mark" ++ String.fromInt mark) ] [ text (String.fromInt mark) ]) cell.marks)
 
             _ ->
                 div [] []
@@ -680,13 +715,15 @@ viewCellAt model ( row, col ) =
 view : Model -> Html Msg
 view model =
     let
-        sourceLoc = "https://github.com/alex-lindsay/sudoku-elm-webapp"
+        sourceLoc =
+            "https://github.com/alex-lindsay/sudoku-elm-webapp"
+
         -- _ =
         --     Debug.log "model.hasWinningStatusWon" (hasWinningStatusWon model)
         -- _ =
         --     Debug.log "model.rowHasNumberRepeated" (List.map (\rowNumber -> rowHasNumberRepeated rowNumber .value model) (range 1 9))
-        -- _ =
-            -- Debug.log "model.winningStatus" model.winningStatus
+        _ =
+            Debug.log "model.autoSolveState" model.autoSolveState
     in
     div [ class "sudoku-game-container" ]
         [ div
@@ -743,6 +780,10 @@ view model =
                 , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks. [!]" ] [ text "Generate Auto Marks" ]
                 , button [ onClick ClearAutoMarks, title "Clear all pencil marks. [@]" ] [ text "Clear Auto Marks" ]
                 ]
+            , div [ class "solver-buttons" ]
+                [ button [ onClick StartSolving, title "Start solving the board.", hidden (model.autoSolveState /= NotSolving) ] [ text "Start Solving" ]
+                , button [ onClick StopSolving, title "Stop solving the board.", hidden (model.autoSolveState == NotSolving) ] [ text "Stop Solving" ]
+                ]
             , div [ class "board-container" ]
                 (range 0 80
                     |> List.map indexToPosition
@@ -763,10 +804,6 @@ keyDecoder =
 
 toKey : String -> Msg
 toKey keyValue =
-    let
-        _ =
-            Debug.log "toKey keyValue" keyValue
-    in
     case String.uncons keyValue of
         Just ( char, "" ) ->
             CharacterKeyPressed char
