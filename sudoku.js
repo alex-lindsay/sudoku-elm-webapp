@@ -7241,314 +7241,339 @@ var $author$project$Sudoku$view = function (model) {
 	var _v0 = A2($elm$core$Debug$log, 'model.autoSolveState', model.autoSolveState);
 	return A2(
 		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('sudoku-game-container')
-			]),
+		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2('sudoku-game', true),
-								_Utils_Tuple2(
-								'status-unknown',
-								_Utils_eq(model.winningStatus, $author$project$Sudoku$Unknown)),
-								_Utils_Tuple2(
-								'status-won',
-								_Utils_eq(model.winningStatus, $author$project$Sudoku$Won)),
-								_Utils_Tuple2(
-								'status-lost',
-								_Utils_eq(model.winningStatus, $author$project$Sudoku$Lost)),
-								_Utils_Tuple2(
-								'status-error',
-								_Utils_eq(model.winningStatus, $author$project$Sudoku$Error))
-							]))
+						$elm$html$Html$Attributes$class('home')
 					]),
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$h1,
-						_List_Nil,
+						$elm$html$Html$a,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Sudoku')
-							])),
+								$elm$html$Html$Attributes$href('/')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Alex Lindsay')
+							]))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('sudoku-game-container')
+					]),
+				_List_fromArray(
+					[
 						A2(
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('game-state-buttons')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$Attributes$classList(
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
-										$elm$html$Html$Attributes$title('Set the known (visible) value for a cell. [k]'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Known')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
-										$elm$html$Html$Attributes$title('Set the actual answer for a cell. [a]'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetAnswer)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Answer')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess)),
-										$elm$html$Html$Attributes$title('Set the guess for a cell. [g]'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetGuess)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Guess')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks)),
-										$elm$html$Html$Attributes$title('Set pencil marks for a cell.[m]'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetMarks)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Set Marks')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAutoMarks)),
-										$elm$html$Html$Attributes$title('Set all the possible pencil marks for a cell. [M]'),
-										$elm$html$Html$Attributes$classList(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'active',
-												_Utils_eq(
-													model.gameState,
-													$elm$core$Maybe$Just($author$project$Sudoku$SetAutoMarks)))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Auto Marks')
+										_Utils_Tuple2('sudoku-game', true),
+										_Utils_Tuple2(
+										'status-unknown',
+										_Utils_eq(model.winningStatus, $author$project$Sudoku$Unknown)),
+										_Utils_Tuple2(
+										'status-won',
+										_Utils_eq(model.winningStatus, $author$project$Sudoku$Won)),
+										_Utils_Tuple2(
+										'status-lost',
+										_Utils_eq(model.winningStatus, $author$project$Sudoku$Lost)),
+										_Utils_Tuple2(
+										'status-error',
+										_Utils_eq(model.winningStatus, $author$project$Sudoku$Error))
 									]))
-							])),
-						A2(
-						$elm$html$Html$div,
+							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('number-buttons')
-							]),
-						A2(
-							$elm$core$List$append,
-							A2(
-								$elm$core$List$map,
-								function (number) {
-									return A2(
+								A2(
+								$elm$html$Html$h1,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Sudoku')
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('game-state-buttons')
+									]),
+								_List_fromArray(
+									[
+										A2(
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetActiveNumber(
-													$elm$core$Maybe$Just(number))),
+												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
+												$elm$html$Html$Attributes$title('Set the known (visible) value for a cell. [k]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
 													[
 														_Utils_Tuple2(
 														'active',
 														_Utils_eq(
-															model.activeNumber,
-															$elm$core$Maybe$Just(number)))
+															model.gameState,
+															$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
 													]))
 											]),
 										_List_fromArray(
 											[
-												$elm$html$Html$text(
-												$elm$core$String$fromInt(number))
-											]));
-								},
-								A2($elm$core$List$range, 1, 9)),
-							_List_fromArray(
-								[
+												$elm$html$Html$text('Set Known')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
+												$elm$html$Html$Attributes$title('Set the actual answer for a cell. [a]'),
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active',
+														_Utils_eq(
+															model.gameState,
+															$elm$core$Maybe$Just($author$project$Sudoku$SetAnswer)))
+													]))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Set Answer')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess)),
+												$elm$html$Html$Attributes$title('Set the guess for a cell. [g]'),
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active',
+														_Utils_eq(
+															model.gameState,
+															$elm$core$Maybe$Just($author$project$Sudoku$SetGuess)))
+													]))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Set Guess')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks)),
+												$elm$html$Html$Attributes$title('Set pencil marks for a cell.[m]'),
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active',
+														_Utils_eq(
+															model.gameState,
+															$elm$core$Maybe$Just($author$project$Sudoku$SetMarks)))
+													]))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Set Marks')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAutoMarks)),
+												$elm$html$Html$Attributes$title('Set all the possible pencil marks for a cell. [M]'),
+												$elm$html$Html$Attributes$classList(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'active',
+														_Utils_eq(
+															model.gameState,
+															$elm$core$Maybe$Just($author$project$Sudoku$SetAutoMarks)))
+													]))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Auto Marks')
+											]))
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('number-buttons')
+									]),
+								A2(
+									$elm$core$List$append,
 									A2(
-									$elm$html$Html$button,
+										$elm$core$List$map,
+										function (number) {
+											return A2(
+												$elm$html$Html$button,
+												_List_fromArray(
+													[
+														$elm$html$Html$Events$onClick(
+														$author$project$Sudoku$SetActiveNumber(
+															$elm$core$Maybe$Just(number))),
+														$elm$html$Html$Attributes$classList(
+														_List_fromArray(
+															[
+																_Utils_Tuple2(
+																'active',
+																_Utils_eq(
+																	model.activeNumber,
+																	$elm$core$Maybe$Just(number)))
+															]))
+													]),
+												_List_fromArray(
+													[
+														$elm$html$Html$text(
+														$elm$core$String$fromInt(number))
+													]));
+										},
+										A2($elm$core$List$range, 1, 9)),
 									_List_fromArray(
 										[
-											$elm$html$Html$Events$onClick(
-											$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Clear')
-										]))
-								]))),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('generator-buttons')
-							]),
-						_List_fromArray(
-							[
+											A2(
+											$elm$html$Html$button,
+											_List_fromArray(
+												[
+													$elm$html$Html$Events$onClick(
+													$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Clear')
+												]))
+										]))),
 								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$div,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard),
-										$elm$html$Html$Attributes$title('Clear the board. [!]')
+										$elm$html$Html$Attributes$class('generator-buttons')
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Generate Board')
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard),
+												$elm$html$Html$Attributes$title('Clear the board. [!]')
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Generate Board')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateAutoMarks),
+												$elm$html$Html$Attributes$title('Add all possible pencil marks. [!]')
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Generate Auto Marks')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks),
+												$elm$html$Html$Attributes$title('Clear all pencil marks. [@]')
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Clear Auto Marks')
+											]))
 									])),
 								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$div,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateAutoMarks),
-										$elm$html$Html$Attributes$title('Add all possible pencil marks. [!]')
+										$elm$html$Html$Attributes$class('solver-buttons')
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Generate Auto Marks')
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Sudoku$StartSolving),
+												$elm$html$Html$Attributes$title('Start solving the board.'),
+												$elm$html$Html$Attributes$hidden(
+												!_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Start Solving')
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Sudoku$StopSolving),
+												$elm$html$Html$Attributes$title('Stop solving the board.'),
+												$elm$html$Html$Attributes$hidden(
+												_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Stop Solving')
+											]))
 									])),
 								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$div,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks),
-										$elm$html$Html$Attributes$title('Clear all pencil marks. [@]')
+										$elm$html$Html$Attributes$class('board-container')
 									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Clear Auto Marks')
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('solver-buttons')
-							]),
-						_List_fromArray(
-							[
 								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$StartSolving),
-										$elm$html$Html$Attributes$title('Start solving the board.'),
-										$elm$html$Html$Attributes$hidden(
-										!_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Start Solving')
-									])),
+									$elm$core$List$map,
+									$author$project$Sudoku$viewCellAt(model),
+									A2(
+										$elm$core$List$map,
+										$author$project$Sudoku$indexToPosition,
+										A2($elm$core$List$range, 0, 80)))),
 								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$div,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Sudoku$StopSolving),
-										$elm$html$Html$Attributes$title('Stop solving the board.'),
-										$elm$html$Html$Attributes$hidden(
-										_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+										$elm$html$Html$Attributes$class('footnote')
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Stop Solving')
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('board-container')
-							]),
-						A2(
-							$elm$core$List$map,
-							$author$project$Sudoku$viewCellAt(model),
-							A2(
-								$elm$core$List$map,
-								$author$project$Sudoku$indexToPosition,
-								A2($elm$core$List$range, 0, 80)))),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('footnote')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Source code can be found at: '),
-								A2(
-								$elm$html$Html$a,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$href(sourceLoc)
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text(sourceLoc)
+										$elm$html$Html$text('Source code can be found at: '),
+										A2(
+										$elm$html$Html$a,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$href(sourceLoc)
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text(sourceLoc)
+											]))
 									]))
 							]))
 					]))

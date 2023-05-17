@@ -575,7 +575,7 @@ updateSingle model =
         firstCellWithSingleMark =
             cellsWithSingleMark model.cells
                 |> Array.get 0
-        
+
         newCells =
             case firstCellWithSingleMark of
                 Just cell ->
@@ -590,10 +590,9 @@ updateSingle model =
 
                 Nothing ->
                     model.cells
-
-
     in
     { model | cells = newCells }
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -761,73 +760,76 @@ view model =
         _ =
             Debug.log "model.autoSolveState" model.autoSolveState
     in
-    div [ class "sudoku-game-container" ]
-        [ div
-            [ classList
-                [ ( "sudoku-game", True )
-                , ( "status-unknown", model.winningStatus == Unknown )
-                , ( "status-won", model.winningStatus == Won )
-                , ( "status-lost", model.winningStatus == Lost )
-                , ( "status-error", model.winningStatus == Error )
+    div []
+        [ div [ class "home" ][ a [ href "/" ] [ text "Alex Lindsay" ] ]
+        , div [ class "sudoku-game-container" ]
+            [ div
+                [ classList
+                    [ ( "sudoku-game", True )
+                    , ( "status-unknown", model.winningStatus == Unknown )
+                    , ( "status-won", model.winningStatus == Won )
+                    , ( "status-lost", model.winningStatus == Lost )
+                    , ( "status-error", model.winningStatus == Error )
+                    ]
                 ]
-            ]
-            [ h1 [] [ text "Sudoku" ]
-            , div [ class "game-state-buttons" ]
-                [ button
-                    [ onClick (SetGameState SetKnown)
-                    , title "Set the known (visible) value for a cell. [k]"
-                    , classList [ ( "active", model.gameState == Just SetKnown ) ]
+                [ h1 [] [ text "Sudoku" ]
+                , div [ class "game-state-buttons" ]
+                    [ button
+                        [ onClick (SetGameState SetKnown)
+                        , title "Set the known (visible) value for a cell. [k]"
+                        , classList [ ( "active", model.gameState == Just SetKnown ) ]
+                        ]
+                        [ text "Set Known" ]
+                    , button
+                        [ onClick (SetGameState SetAnswer)
+                        , title "Set the actual answer for a cell. [a]"
+                        , classList [ ( "active", model.gameState == Just SetAnswer ) ]
+                        ]
+                        [ text "Set Answer" ]
+                    , button
+                        [ onClick (SetGameState SetGuess)
+                        , title "Set the guess for a cell. [g]"
+                        , classList [ ( "active", model.gameState == Just SetGuess ) ]
+                        ]
+                        [ text "Set Guess" ]
+                    , button
+                        [ onClick (SetGameState SetMarks)
+                        , title "Set pencil marks for a cell.[m]"
+                        , classList [ ( "active", model.gameState == Just SetMarks ) ]
+                        ]
+                        [ text "Set Marks" ]
+                    , button
+                        [ onClick (SetGameState SetAutoMarks)
+                        , title "Set all the possible pencil marks for a cell. [M]"
+                        , classList [ ( "active", model.gameState == Just SetAutoMarks ) ]
+                        ]
+                        [ text "Auto Marks" ]
                     ]
-                    [ text "Set Known" ]
-                , button
-                    [ onClick (SetGameState SetAnswer)
-                    , title "Set the actual answer for a cell. [a]"
-                    , classList [ ( "active", model.gameState == Just SetAnswer ) ]
-                    ]
-                    [ text "Set Answer" ]
-                , button
-                    [ onClick (SetGameState SetGuess)
-                    , title "Set the guess for a cell. [g]"
-                    , classList [ ( "active", model.gameState == Just SetGuess ) ]
-                    ]
-                    [ text "Set Guess" ]
-                , button
-                    [ onClick (SetGameState SetMarks)
-                    , title "Set pencil marks for a cell.[m]"
-                    , classList [ ( "active", model.gameState == Just SetMarks ) ]
-                    ]
-                    [ text "Set Marks" ]
-                , button
-                    [ onClick (SetGameState SetAutoMarks)
-                    , title "Set all the possible pencil marks for a cell. [M]"
-                    , classList [ ( "active", model.gameState == Just SetAutoMarks ) ]
-                    ]
-                    [ text "Auto Marks" ]
-                ]
-            , div [ class "number-buttons" ]
-                (List.append
-                    (range 1 9
-                        |> List.map (\number -> button [ onClick (SetActiveNumber (Just number)), classList [ ( "active", model.activeNumber == Just number ) ] ] [ text (String.fromInt number) ])
+                , div [ class "number-buttons" ]
+                    (List.append
+                        (range 1 9
+                            |> List.map (\number -> button [ onClick (SetActiveNumber (Just number)), classList [ ( "active", model.activeNumber == Just number ) ] ] [ text (String.fromInt number) ])
+                        )
+                        [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
                     )
-                    [ button [ onClick (SetActiveNumber Nothing) ] [ text "Clear" ] ]
-                )
-            , div [ class "generator-buttons" ]
-                [ button [ onClick GenerateBoard, title "Clear the board. [!]" ] [ text "Generate Board" ]
-                , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks. [!]" ] [ text "Generate Auto Marks" ]
-                , button [ onClick ClearAutoMarks, title "Clear all pencil marks. [@]" ] [ text "Clear Auto Marks" ]
-                ]
-            , div [ class "solver-buttons" ]
-                [ button [ onClick StartSolving, title "Start solving the board.", hidden (model.autoSolveState /= NotSolving) ] [ text "Start Solving" ]
-                , button [ onClick StopSolving, title "Stop solving the board.", hidden (model.autoSolveState == NotSolving) ] [ text "Stop Solving" ]
-                ]
-            , div [ class "board-container" ]
-                (range 0 80
-                    |> List.map indexToPosition
-                    |> List.map (viewCellAt model)
-                )
-            , div [ class "footnote" ]
-                [ text "Source code can be found at: "
-                , a [ href sourceLoc ] [ text sourceLoc ]
+                , div [ class "generator-buttons" ]
+                    [ button [ onClick GenerateBoard, title "Clear the board. [!]" ] [ text "Generate Board" ]
+                    , button [ onClick GenerateAutoMarks, title "Add all possible pencil marks. [!]" ] [ text "Generate Auto Marks" ]
+                    , button [ onClick ClearAutoMarks, title "Clear all pencil marks. [@]" ] [ text "Clear Auto Marks" ]
+                    ]
+                , div [ class "solver-buttons" ]
+                    [ button [ onClick StartSolving, title "Start solving the board.", hidden (model.autoSolveState /= NotSolving) ] [ text "Start Solving" ]
+                    , button [ onClick StopSolving, title "Stop solving the board.", hidden (model.autoSolveState == NotSolving) ] [ text "Stop Solving" ]
+                    ]
+                , div [ class "board-container" ]
+                    (range 0 80
+                        |> List.map indexToPosition
+                        |> List.map (viewCellAt model)
+                    )
+                , div [ class "footnote" ]
+                    [ text "Source code can be found at: "
+                    , a [ href sourceLoc ] [ text sourceLoc ]
+                    ]
                 ]
             ]
         ]
