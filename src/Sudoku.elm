@@ -435,6 +435,11 @@ updateActiveNumber activeNumber model =
     { model | activeNumber = activeNumber }
 
 
+updateAutoSolveState : AutoSolveState -> Model -> Model
+updateAutoSolveState newAutoSolveState model =
+    { model | autoSolveState = newAutoSolveState }
+
+
 updateCellValue : Position -> Model -> Model
 updateCellValue pos model =
     let
@@ -537,11 +542,6 @@ updateSelectedCell delta model =
 
     else
         model
-
-
-updateAutoSolveState : AutoSolveState -> Model -> Model
-updateAutoSolveState newAutoSolveState model =
-    { model | autoSolveState = newAutoSolveState }
 
 
 moveSelectedCellDown : Model -> Model
