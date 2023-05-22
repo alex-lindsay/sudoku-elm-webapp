@@ -5196,9 +5196,9 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Sudoku$NotSolving = {$: 'NotSolving'};
-var $author$project$Sudoku$SetKnown = {$: 'SetKnown'};
-var $author$project$Sudoku$Unknown = {$: 'Unknown'};
+var $author$project$SudokuTypes$NotSolving = {$: 'NotSolving'};
+var $author$project$SudokuTypes$SetKnown = {$: 'SetKnown'};
+var $author$project$SudokuTypes$Unknown = {$: 'Unknown'};
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Sudoku$validIndex = function (index) {
@@ -5253,7 +5253,7 @@ var $author$project$Sudoku$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			activeNumber: $elm$core$Maybe$Just(1),
-			autoSolveState: $author$project$Sudoku$NotSolving,
+			autoSolveState: $author$project$SudokuTypes$NotSolving,
 			cells: A2(
 				$elm$core$Array$initialize,
 				81,
@@ -5261,18 +5261,18 @@ var $author$project$Sudoku$init = function (_v0) {
 					return $author$project$Sudoku$newCellAt(
 						$author$project$Sudoku$indexToPosition(i));
 				}),
-			gameState: $elm$core$Maybe$Just($author$project$Sudoku$SetKnown),
+			gameState: $elm$core$Maybe$Just($author$project$SudokuTypes$SetKnown),
 			selectedCell: _Utils_Tuple2(1, 1),
-			winningStatus: $author$project$Sudoku$Unknown
+			winningStatus: $author$project$SudokuTypes$Unknown
 		},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Sudoku$CharacterKeyPressed = function (a) {
+var $author$project$SudokuTypes$CharacterKeyPressed = function (a) {
 	return {$: 'CharacterKeyPressed', a: a};
 };
-var $author$project$Sudoku$ControlKeyPressed = function (a) {
+var $author$project$SudokuTypes$ControlKeyPressed = function (a) {
 	return {$: 'ControlKeyPressed', a: a};
 };
 var $author$project$Sudoku$toKey = function (keyValue) {
@@ -5280,9 +5280,9 @@ var $author$project$Sudoku$toKey = function (keyValue) {
 	if ((_v0.$ === 'Just') && (_v0.a.b === '')) {
 		var _v1 = _v0.a;
 		var _char = _v1.a;
-		return $author$project$Sudoku$CharacterKeyPressed(_char);
+		return $author$project$SudokuTypes$CharacterKeyPressed(_char);
 	} else {
-		return $author$project$Sudoku$ControlKeyPressed(keyValue);
+		return $author$project$SudokuTypes$ControlKeyPressed(keyValue);
 	}
 };
 var $author$project$Sudoku$keyDecoder = A2(
@@ -5693,12 +5693,12 @@ var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $
 var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Sudoku$keyDecoder);
 };
-var $author$project$Sudoku$SetAnswer = {$: 'SetAnswer'};
-var $author$project$Sudoku$SetAutoMarks = {$: 'SetAutoMarks'};
-var $author$project$Sudoku$SetGuess = {$: 'SetGuess'};
-var $author$project$Sudoku$SetMarks = {$: 'SetMarks'};
-var $author$project$Sudoku$SolveSingles = {$: 'SolveSingles'};
-var $author$project$Sudoku$SolvingSingles = {$: 'SolvingSingles'};
+var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
+var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
+var $author$project$SudokuTypes$SetGuess = {$: 'SetGuess'};
+var $author$project$SudokuTypes$SetMarks = {$: 'SetMarks'};
+var $author$project$SudokuTypes$SolveSingles = {$: 'SolveSingles'};
+var $author$project$SudokuTypes$SolvingSingles = {$: 'SolvingSingles'};
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -6473,9 +6473,9 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
-var $author$project$Sudoku$Error = {$: 'Error'};
-var $author$project$Sudoku$Lost = {$: 'Lost'};
-var $author$project$Sudoku$Won = {$: 'Won'};
+var $author$project$SudokuTypes$Error = {$: 'Error'};
+var $author$project$SudokuTypes$Lost = {$: 'Lost'};
+var $author$project$SudokuTypes$Won = {$: 'Won'};
 var $author$project$Sudoku$hasNumberRepeated = function (numbers) {
 	return !_Utils_eq(
 		$elm$core$List$length(numbers),
@@ -6686,17 +6686,17 @@ var $author$project$Sudoku$updateWinningStatus = function (model) {
 				if (statuses.a) {
 					var _v1 = statuses.b;
 					var _v2 = _v1.b;
-					return $author$project$Sudoku$Won;
+					return $author$project$SudokuTypes$Won;
 				} else {
 					if (statuses.b.a) {
 						var _v3 = statuses.b;
 						var _v4 = _v3.b;
-						return $author$project$Sudoku$Lost;
+						return $author$project$SudokuTypes$Lost;
 					} else {
 						if (statuses.b.b.a) {
 							var _v5 = statuses.b;
 							var _v6 = _v5.b;
-							return $author$project$Sudoku$Error;
+							return $author$project$SudokuTypes$Error;
 						} else {
 							break _v0$3;
 						}
@@ -6706,7 +6706,7 @@ var $author$project$Sudoku$updateWinningStatus = function (model) {
 				break _v0$3;
 			}
 		}
-		return $author$project$Sudoku$Unknown;
+		return $author$project$SudokuTypes$Unknown;
 	}();
 	return _Utils_update(
 		model,
@@ -6899,23 +6899,23 @@ var $author$project$Sudoku$update = F2(
 				switch (key.valueOf()) {
 					case 'k':
 						return _Utils_Tuple2(
-							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetKnown, model),
+							A2($author$project$Sudoku$updateGameState, $author$project$SudokuTypes$SetKnown, model),
 							$elm$core$Platform$Cmd$none);
 					case 'a':
 						return _Utils_Tuple2(
-							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetAnswer, model),
+							A2($author$project$Sudoku$updateGameState, $author$project$SudokuTypes$SetAnswer, model),
 							$elm$core$Platform$Cmd$none);
 					case 'g':
 						return _Utils_Tuple2(
-							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetGuess, model),
+							A2($author$project$Sudoku$updateGameState, $author$project$SudokuTypes$SetGuess, model),
 							$elm$core$Platform$Cmd$none);
 					case 'm':
 						return _Utils_Tuple2(
-							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetMarks, model),
+							A2($author$project$Sudoku$updateGameState, $author$project$SudokuTypes$SetMarks, model),
 							$elm$core$Platform$Cmd$none);
 					case 'M':
 						return _Utils_Tuple2(
-							A2($author$project$Sudoku$updateGameState, $author$project$Sudoku$SetAutoMarks, model),
+							A2($author$project$Sudoku$updateGameState, $author$project$SudokuTypes$SetAutoMarks, model),
 							$elm$core$Platform$Cmd$none);
 					case ' ':
 						return _Utils_Tuple2(
@@ -6970,49 +6970,49 @@ var $author$project$Sudoku$update = F2(
 						$author$project$Sudoku$updateSelectedCell,
 						0,
 						$author$project$Sudoku$generateAutoMarks(
-							A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model))),
+							A2($author$project$Sudoku$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
 					A2(
 						$elm$core$Task$perform,
 						function (_v4) {
-							return $author$project$Sudoku$SolveSingles;
+							return $author$project$SudokuTypes$SolveSingles;
 						},
 						$elm$core$Process$sleep(2000)));
 			case 'StopSolving':
 				return _Utils_Tuple2(
-					A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$NotSolving, model),
+					A2($author$project$Sudoku$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
 					$elm$core$Platform$Cmd$none);
 			default:
 				var _v5 = $elm$core$Array$length(
 					$author$project$Sudoku$cellsWithSingleMark(model.cells));
 				if (!_v5) {
 					return _Utils_Tuple2(
-						A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$NotSolving, model),
+						A2($author$project$Sudoku$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(
 						$author$project$Sudoku$generateAutoMarks(
 							$author$project$Sudoku$updateSingle(
-								A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model))),
+								A2($author$project$Sudoku$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
 						A2(
 							$elm$core$Task$perform,
 							function (_v6) {
-								return $author$project$Sudoku$SolveSingles;
+								return $author$project$SudokuTypes$SolveSingles;
 							},
 							$elm$core$Process$sleep(2000)));
 				}
 		}
 	});
-var $author$project$Sudoku$ClearAutoMarks = {$: 'ClearAutoMarks'};
-var $author$project$Sudoku$GenerateAutoMarks = {$: 'GenerateAutoMarks'};
-var $author$project$Sudoku$GenerateBoard = {$: 'GenerateBoard'};
-var $author$project$Sudoku$SetActiveNumber = function (a) {
+var $author$project$SudokuTypes$ClearAutoMarks = {$: 'ClearAutoMarks'};
+var $author$project$SudokuTypes$GenerateAutoMarks = {$: 'GenerateAutoMarks'};
+var $author$project$SudokuTypes$GenerateBoard = {$: 'GenerateBoard'};
+var $author$project$SudokuTypes$SetActiveNumber = function (a) {
 	return {$: 'SetActiveNumber', a: a};
 };
-var $author$project$Sudoku$SetGameState = function (a) {
+var $author$project$SudokuTypes$SetGameState = function (a) {
 	return {$: 'SetGameState', a: a};
 };
-var $author$project$Sudoku$StartSolving = {$: 'StartSolving'};
-var $author$project$Sudoku$StopSolving = {$: 'StopSolving'};
+var $author$project$SudokuTypes$StartSolving = {$: 'StartSolving'};
+var $author$project$SudokuTypes$StopSolving = {$: 'StopSolving'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -7076,7 +7076,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
-var $author$project$Sudoku$SetCellValue = function (a) {
+var $author$project$SudokuTypes$SetCellValue = function (a) {
 	return {$: 'SetCellValue', a: a};
 };
 var $author$project$Sudoku$viewCellAt = F2(
@@ -7114,7 +7114,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 							true)
 						])),
 					$elm$html$Html$Events$onClick(
-					$author$project$Sudoku$SetCellValue(
+					$author$project$SudokuTypes$SetCellValue(
 						_Utils_Tuple2(row, col)))
 				]),
 			_List_fromArray(
@@ -7284,16 +7284,16 @@ var $author$project$Sudoku$view = function (model) {
 										_Utils_Tuple2('sudoku-game', true),
 										_Utils_Tuple2(
 										'status-unknown',
-										_Utils_eq(model.winningStatus, $author$project$Sudoku$Unknown)),
+										_Utils_eq(model.winningStatus, $author$project$SudokuTypes$Unknown)),
 										_Utils_Tuple2(
 										'status-won',
-										_Utils_eq(model.winningStatus, $author$project$Sudoku$Won)),
+										_Utils_eq(model.winningStatus, $author$project$SudokuTypes$Won)),
 										_Utils_Tuple2(
 										'status-lost',
-										_Utils_eq(model.winningStatus, $author$project$Sudoku$Lost)),
+										_Utils_eq(model.winningStatus, $author$project$SudokuTypes$Lost)),
 										_Utils_Tuple2(
 										'status-error',
-										_Utils_eq(model.winningStatus, $author$project$Sudoku$Error))
+										_Utils_eq(model.winningStatus, $author$project$SudokuTypes$Error))
 									]))
 							]),
 						_List_fromArray(
@@ -7318,7 +7318,7 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetKnown)),
+												$author$project$SudokuTypes$SetGameState($author$project$SudokuTypes$SetKnown)),
 												$elm$html$Html$Attributes$title('Set the known (visible) value for a cell. [k]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
@@ -7327,7 +7327,7 @@ var $author$project$Sudoku$view = function (model) {
 														'active',
 														_Utils_eq(
 															model.gameState,
-															$elm$core$Maybe$Just($author$project$Sudoku$SetKnown)))
+															$elm$core$Maybe$Just($author$project$SudokuTypes$SetKnown)))
 													]))
 											]),
 										_List_fromArray(
@@ -7339,7 +7339,7 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAnswer)),
+												$author$project$SudokuTypes$SetGameState($author$project$SudokuTypes$SetAnswer)),
 												$elm$html$Html$Attributes$title('Set the actual answer for a cell. [a]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
@@ -7348,7 +7348,7 @@ var $author$project$Sudoku$view = function (model) {
 														'active',
 														_Utils_eq(
 															model.gameState,
-															$elm$core$Maybe$Just($author$project$Sudoku$SetAnswer)))
+															$elm$core$Maybe$Just($author$project$SudokuTypes$SetAnswer)))
 													]))
 											]),
 										_List_fromArray(
@@ -7360,7 +7360,7 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetGuess)),
+												$author$project$SudokuTypes$SetGameState($author$project$SudokuTypes$SetGuess)),
 												$elm$html$Html$Attributes$title('Set the guess for a cell. [g]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
@@ -7369,7 +7369,7 @@ var $author$project$Sudoku$view = function (model) {
 														'active',
 														_Utils_eq(
 															model.gameState,
-															$elm$core$Maybe$Just($author$project$Sudoku$SetGuess)))
+															$elm$core$Maybe$Just($author$project$SudokuTypes$SetGuess)))
 													]))
 											]),
 										_List_fromArray(
@@ -7381,7 +7381,7 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetMarks)),
+												$author$project$SudokuTypes$SetGameState($author$project$SudokuTypes$SetMarks)),
 												$elm$html$Html$Attributes$title('Set pencil marks for a cell.[m]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
@@ -7390,7 +7390,7 @@ var $author$project$Sudoku$view = function (model) {
 														'active',
 														_Utils_eq(
 															model.gameState,
-															$elm$core$Maybe$Just($author$project$Sudoku$SetMarks)))
+															$elm$core$Maybe$Just($author$project$SudokuTypes$SetMarks)))
 													]))
 											]),
 										_List_fromArray(
@@ -7402,7 +7402,7 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Sudoku$SetGameState($author$project$Sudoku$SetAutoMarks)),
+												$author$project$SudokuTypes$SetGameState($author$project$SudokuTypes$SetAutoMarks)),
 												$elm$html$Html$Attributes$title('Set all the possible pencil marks for a cell. [M]'),
 												$elm$html$Html$Attributes$classList(
 												_List_fromArray(
@@ -7411,7 +7411,7 @@ var $author$project$Sudoku$view = function (model) {
 														'active',
 														_Utils_eq(
 															model.gameState,
-															$elm$core$Maybe$Just($author$project$Sudoku$SetAutoMarks)))
+															$elm$core$Maybe$Just($author$project$SudokuTypes$SetAutoMarks)))
 													]))
 											]),
 										_List_fromArray(
@@ -7435,7 +7435,7 @@ var $author$project$Sudoku$view = function (model) {
 												_List_fromArray(
 													[
 														$elm$html$Html$Events$onClick(
-														$author$project$Sudoku$SetActiveNumber(
+														$author$project$SudokuTypes$SetActiveNumber(
 															$elm$core$Maybe$Just(number))),
 														$elm$html$Html$Attributes$classList(
 														_List_fromArray(
@@ -7461,7 +7461,7 @@ var $author$project$Sudoku$view = function (model) {
 											_List_fromArray(
 												[
 													$elm$html$Html$Events$onClick(
-													$author$project$Sudoku$SetActiveNumber($elm$core$Maybe$Nothing))
+													$author$project$SudokuTypes$SetActiveNumber($elm$core$Maybe$Nothing))
 												]),
 											_List_fromArray(
 												[
@@ -7480,7 +7480,7 @@ var $author$project$Sudoku$view = function (model) {
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
-												$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateBoard),
+												$elm$html$Html$Events$onClick($author$project$SudokuTypes$GenerateBoard),
 												$elm$html$Html$Attributes$title('Clear the board. [!]')
 											]),
 										_List_fromArray(
@@ -7491,7 +7491,7 @@ var $author$project$Sudoku$view = function (model) {
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
-												$elm$html$Html$Events$onClick($author$project$Sudoku$GenerateAutoMarks),
+												$elm$html$Html$Events$onClick($author$project$SudokuTypes$GenerateAutoMarks),
 												$elm$html$Html$Attributes$title('Add all possible pencil marks. [!]')
 											]),
 										_List_fromArray(
@@ -7502,7 +7502,7 @@ var $author$project$Sudoku$view = function (model) {
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
-												$elm$html$Html$Events$onClick($author$project$Sudoku$ClearAutoMarks),
+												$elm$html$Html$Events$onClick($author$project$SudokuTypes$ClearAutoMarks),
 												$elm$html$Html$Attributes$title('Clear all pencil marks. [@]')
 											]),
 										_List_fromArray(
@@ -7522,10 +7522,10 @@ var $author$project$Sudoku$view = function (model) {
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
-												$elm$html$Html$Events$onClick($author$project$Sudoku$StartSolving),
+												$elm$html$Html$Events$onClick($author$project$SudokuTypes$StartSolving),
 												$elm$html$Html$Attributes$title('Start solving the board.'),
 												$elm$html$Html$Attributes$hidden(
-												!_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+												!_Utils_eq(model.autoSolveState, $author$project$SudokuTypes$NotSolving))
 											]),
 										_List_fromArray(
 											[
@@ -7535,10 +7535,10 @@ var $author$project$Sudoku$view = function (model) {
 										$elm$html$Html$button,
 										_List_fromArray(
 											[
-												$elm$html$Html$Events$onClick($author$project$Sudoku$StopSolving),
+												$elm$html$Html$Events$onClick($author$project$SudokuTypes$StopSolving),
 												$elm$html$Html$Attributes$title('Stop solving the board.'),
 												$elm$html$Html$Attributes$hidden(
-												_Utils_eq(model.autoSolveState, $author$project$Sudoku$NotSolving))
+												_Utils_eq(model.autoSolveState, $author$project$SudokuTypes$NotSolving))
 											]),
 										_List_fromArray(
 											[
