@@ -684,7 +684,11 @@ update msg model =
                     ( model, Cmd.none )
 
         StartSolving ->
-            ( updateAutoSolveState SolvingSingles model |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
+            ( updateAutoSolveState SolvingSingles model
+                |> generateAutoMarks
+                |> updateSelectedCell 0
+            , Process.sleep 2000 |> Task.perform (\_ -> SolveSingles)
+            )
 
         StopSolving ->
             ( updateAutoSolveState NotSolving model, Cmd.none )
@@ -761,7 +765,7 @@ view model =
             Debug.log "model.autoSolveState" model.autoSolveState
     in
     div []
-        [ div [ class "home" ][ a [ href "/" ] [ text "Alex Lindsay" ] ]
+        [ div [ class "home" ] [ a [ href "/" ] [ text "Alex Lindsay" ] ]
         , div [ class "sudoku-game-container" ]
             [ div
                 [ classList

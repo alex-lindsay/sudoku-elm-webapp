@@ -6966,8 +6966,11 @@ var $author$project$Sudoku$update = F2(
 				}
 			case 'StartSolving':
 				return _Utils_Tuple2(
-					$author$project$Sudoku$generateAutoMarks(
-						A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model)),
+					A2(
+						$author$project$Sudoku$updateSelectedCell,
+						0,
+						$author$project$Sudoku$generateAutoMarks(
+							A2($author$project$Sudoku$updateAutoSolveState, $author$project$Sudoku$SolvingSingles, model))),
 					A2(
 						$elm$core$Task$perform,
 						function (_v4) {
