@@ -22,7 +22,7 @@ generateAutoMarks model =
                     (\cell ->
                         let
                             autoMarks =
-                                autoHintsForCellAt ( cell.row, cell.col ) model
+                                autoHintsForCellAt cell.pos model
                         in
                         case ( cell.guess, cell.value, cell.isVisible ) of
                             ( Nothing, Nothing, _ ) ->

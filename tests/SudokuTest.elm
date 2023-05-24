@@ -111,13 +111,13 @@ newCellAtTest =
     -- TODO: we really shouldn't return a default cell with invalid positions, but we do for now
     let
         newCell11 =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+            { pos = ( 1, 1 ), block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
 
         newCell35 =
-            { row = 3, col = 5, block = 2, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+            { pos = ( 3, 5 ), block = 2, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
 
         newCell97 =
-            { row = 9, col = 7, block = 9, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+            { pos = ( 9, 7), block = 9, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
     in
     describe "newCellAt"
         [ test "new cell at (1,1) is as expected"
@@ -157,17 +157,17 @@ cellGuessOrValueTest : Test
 cellGuessOrValueTest =
     let
         cellWithGuess =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
+            { pos = (1, 1), block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
 
         cellWithValue =
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Nothing, marks = [] }
+            { pos = (1, 1), block = 1, value = Just 1, isVisible = False, guess = Nothing, marks = [] }
 
         cellWithoutGuessOrValue =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+            { pos = (1, 1), block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
 
         cellWithGuessAndValue =
             -- shouldn't happen, but just in case
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Just 1, marks = [] }
+            { pos = (1, 1), block = 1, value = Just 1, isVisible = False, guess = Just 1, marks = [] }
     in
     describe "cellGuessOrValue"
         [ test "cell with guess 1 returns 1"
@@ -185,20 +185,20 @@ cellGuessOrKnownTest : Test
 cellGuessOrKnownTest =
     let
         cellWithGuess =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
+            { pos = (1, 1), block = 1, value = Nothing, isVisible = False, guess = Just 1, marks = [] }
 
         cellWithValue =
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Nothing, marks = [] }
+            { pos = (1, 1), block = 1, value = Just 1, isVisible = False, guess = Nothing, marks = [] }
 
         cellWithKnown =
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = True, guess = Nothing, marks = [] }
+            { pos = (1, 1), block = 1, value = Just 1, isVisible = True, guess = Nothing, marks = [] }
 
         cellWithoutGuessOrValue =
-            { row = 1, col = 1, block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
+            { pos = (1, 1), block = 1, value = Nothing, isVisible = False, guess = Nothing, marks = [] }
 
         cellWithGuessAndValue =
             -- shouldn't happen, but just in case
-            { row = 1, col = 1, block = 1, value = Just 1, isVisible = False, guess = Just 5, marks = [] }
+            { pos = (1, 1), block = 1, value = Just 1, isVisible = False, guess = Just 5, marks = [] }
     in
     describe "cellGuessOrKnownValue"
         [ test "cell with guess 1 returns 1"
@@ -224,13 +224,13 @@ rowCellsTest =
             { start | cells = almostWinningBoard }
 
         actualResults =
-            List.map (\i -> rowCells i model) (List.range 1 9)
+            List.map (\i -> rowCells i model) digits
 
         actualLengths =
             List.map (\row -> List.length row) actualResults
 
         actualRows =
-            List.map (\row -> List.map (\cell -> cell.row) row) actualResults
+            List.map (\row -> List.map (\cell -> (Tuple.first cell.pos)) row) actualResults
     in
     describe "rowCells"
         [ test "lengths are as expected"
@@ -250,13 +250,13 @@ colCellsTest =
             { start | cells = almostWinningBoard }
 
         actualResults =
-            List.map (\i -> colCells i model) (List.range 1 9)
+            List.map (\i -> colCells i model) digits
 
         actualLengths =
             List.map (\col -> List.length col) actualResults
 
         actualCols =
-            List.map (\col -> List.map (\cell -> cell.col) col) actualResults
+            List.map (\col -> List.map (\cell -> (Tuple.second cell.pos)) col) actualResults
     in
     describe "colCells"
         [ test "lengths are as expected"

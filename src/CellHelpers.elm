@@ -115,7 +115,9 @@ cellsHaveNumberRepeated cells getNumber =
 
 colCells : Int -> Model -> List Cell
 colCells colNumber model =
-    List.filter (\cell -> cell.col == colNumber) (Array.toList model.cells)
+    model.cells
+    |> Array.toList
+    |> List.filter (\cell -> (Tuple.second cell.pos) == colNumber)
 
 
 colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -170,7 +172,9 @@ guessesAndKnownsForCellAt ( row, col ) model =
 
 rowCells : Int -> Model -> List Cell
 rowCells rowNumber model =
-    List.filter (\cell -> cell.row == rowNumber) (Array.toList model.cells)
+    model.cells
+    |> Array.toList
+    |> List.filter (\cell -> (Tuple.first cell.pos) == rowNumber)
 
 
 rowHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool

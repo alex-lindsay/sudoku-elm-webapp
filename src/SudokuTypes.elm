@@ -21,6 +21,7 @@ type WinningStatus
 type AutoSolveState
     = NotSolving
     | SolvingSingles
+    | SolvingPairs
 
 
 type alias Position =
@@ -39,11 +40,11 @@ type Msg
     | StartSolving
     | StopSolving
     | SolveSingles
+    | SolvePairs
 
 
 type alias Cell =
-    { row : Int
-    , col : Int
+    { pos : Position
     , block : Int
     , value : Maybe Int
     , isVisible : Bool

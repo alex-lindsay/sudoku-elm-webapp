@@ -135,12 +135,21 @@ update msg model =
             ( updateAutoSolveState NotSolving model, Cmd.none )
 
         SolveSingles ->
-            case cellsWithSingleMark model.cells |> Array.length of
+            case cellsWithSingleMark model.cells |> List.length of
+                0 ->
+                    ( updateAutoSolveState NotSolving model, Cmd.none )
+                    -- we'll want to set the active cell to the first cell and then start solving the pairs
+
+                _ ->
+                    ( updateAutoSolveState SolvingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
+        SolvePairs ->
+            case uncheckedModelCellsWithMarkPairs model |> List.length of
                 0 ->
                     ( updateAutoSolveState NotSolving model, Cmd.none )
 
                 _ ->
-                    ( updateAutoSolveState SolvingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
+                    ( updateAutoSolveState SolvingPairs model |> updatePair |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolvePairs) )
+
 
 
 viewCellAt : Model -> Position -> Html Msg

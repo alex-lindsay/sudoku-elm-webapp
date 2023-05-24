@@ -20,11 +20,10 @@ indexToPosition index =
 
 
 newCellAt : Position -> Cell
-newCellAt ( row, col ) =
-    if validPosition ( row, col ) then
-        { row = row
-        , col = col
-        , block = positionToBlock ( row, col )
+newCellAt pos =
+    if validPosition pos then
+        { pos = pos
+        , block = positionToBlock pos
         , value = Nothing
         , isVisible = False
         , guess = Nothing
