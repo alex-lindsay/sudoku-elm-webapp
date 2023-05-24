@@ -2,8 +2,9 @@ module CellHelpers exposing (..)
 
 import Array exposing (..)
 import Constants exposing (..)
-import SudokuTypes exposing (..)
 import Helpers exposing (..)
+import Set exposing (..)
+import SudokuTypes exposing (..)
 
 
 allBlocksAreComplete : Model -> Bool
@@ -49,6 +50,20 @@ anyRowHasGuessRepeated model =
 anyRowHasValueRepeated : Model -> Bool
 anyRowHasValueRepeated model =
     List.any (\rowNumber -> rowHasNumberRepeated rowNumber .value model) digits
+
+
+autoHintsForCellAt : ( Int, Int ) -> Model -> List Int
+autoHintsForCellAt ( row, col ) model =
+    let
+        allPossibleValues =
+            Set.fromList digits
+
+        knownValues =
+            guessesAndKnownsForCellAt ( row, col ) model
+                |> Set.fromList
+    in
+    Set.diff allPossibleValues knownValues
+        |> Set.toList
 
 
 blockCells : Int -> Model -> List Cell
@@ -111,6 +126,46 @@ colHasNumberRepeated colNumber getNumber model =
 colIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
 colIsComplete colNumber getNumber model =
     cellsAreComplete (rowCells colNumber model) getNumber
+
+
+guessesAndKnownsForCells : List Cell -> List Int
+guessesAndKnownsForCells values =
+    List.map cellGuessOrKnown values
+        |> List.filterMap identity
+
+
+guessesAndKnownsForCellAt : ( Int, Int ) -> Model -> List Int
+guessesAndKnownsForCellAt ( row, col ) model =
+    let
+        block =
+            positionToBlock ( row, col )
+
+        rowValues =
+            rowCells row model
+                |> guessesAndKnownsForCells
+
+        colValues =
+            colCells col model
+                |> guessesAndKnownsForCells
+
+        blockValues =
+            blockCells block model
+                |> guessesAndKnownsForCells
+
+        values =
+            rowValues
+                ++ colValues
+                ++ blockValues
+                |> Set.fromList
+                |> Set.toList
+
+        -- _ = Debug.log "row, col, block" (row, col, block)
+        -- _ = Debug.log "rowGuessValues" rowValues
+        -- _ = Debug.log "colGuessValues" colValues
+        -- _ = Debug.log "blockGuessValues" blockValues
+        -- _ = Debug.log "guessValues" values
+    in
+    values
 
 
 rowCells : Int -> Model -> List Cell

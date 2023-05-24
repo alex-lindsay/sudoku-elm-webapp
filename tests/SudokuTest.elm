@@ -12,7 +12,6 @@ import Set exposing (..)
 import Sudoku exposing (..)
 import SudokuTypes exposing (..)
 import Test exposing (..)
-import Temp exposing (..)
 import Updaters exposing (..)
 import WinningStatus exposing (..)
 

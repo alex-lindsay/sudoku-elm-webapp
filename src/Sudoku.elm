@@ -17,7 +17,6 @@ import Process exposing (..)
 import Set exposing (..)
 import SudokuTypes exposing (..)
 import Task exposing (..)
-import Temp exposing (..)
 import Updaters exposing (..)
 
 

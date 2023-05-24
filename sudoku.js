@@ -6141,6 +6141,8 @@ var $elm$core$Set$diff = F2(
 		return $elm$core$Set$Set_elm_builtin(
 			A2($elm$core$Dict$diff, dict1, dict2));
 	});
+var $author$project$Constants$digits = _List_fromArray(
+	[1, 2, 3, 4, 5, 6, 7, 8, 9]);
 var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $elm$core$Set$insert = F2(
 	function (key, _v0) {
@@ -6194,7 +6196,7 @@ var $author$project$CellHelpers$cellGuessOrKnown = function (cell) {
 		}
 	}
 };
-var $author$project$Temp$guessesAndKnownsForCells = function (values) {
+var $author$project$CellHelpers$guessesAndKnownsForCells = function (values) {
 	return A2(
 		$elm$core$List$filterMap,
 		$elm$core$Basics$identity,
@@ -6209,17 +6211,17 @@ var $author$project$CellHelpers$rowCells = F2(
 			},
 			$elm$core$Array$toList(model.cells));
 	});
-var $author$project$Temp$guessesAndKnownsForCellAt = F2(
+var $author$project$CellHelpers$guessesAndKnownsForCellAt = F2(
 	function (_v0, model) {
 		var row = _v0.a;
 		var col = _v0.b;
-		var rowValues = $author$project$Temp$guessesAndKnownsForCells(
+		var rowValues = $author$project$CellHelpers$guessesAndKnownsForCells(
 			A2($author$project$CellHelpers$rowCells, row, model));
-		var colValues = $author$project$Temp$guessesAndKnownsForCells(
+		var colValues = $author$project$CellHelpers$guessesAndKnownsForCells(
 			A2($author$project$CellHelpers$colCells, col, model));
 		var block = $author$project$Helpers$positionToBlock(
 			_Utils_Tuple2(row, col));
-		var blockValues = $author$project$Temp$guessesAndKnownsForCells(
+		var blockValues = $author$project$CellHelpers$guessesAndKnownsForCells(
 			A2($author$project$CellHelpers$blockCells, block, model));
 		var values = $elm$core$Set$toList(
 			$elm$core$Set$fromList(
@@ -6228,18 +6230,16 @@ var $author$project$Temp$guessesAndKnownsForCellAt = F2(
 					_Utils_ap(colValues, blockValues))));
 		return values;
 	});
-var $author$project$Temp$autoHintsForCellAt = F2(
+var $author$project$CellHelpers$autoHintsForCellAt = F2(
 	function (_v0, model) {
 		var row = _v0.a;
 		var col = _v0.b;
 		var knownValues = $elm$core$Set$fromList(
 			A2(
-				$author$project$Temp$guessesAndKnownsForCellAt,
+				$author$project$CellHelpers$guessesAndKnownsForCellAt,
 				_Utils_Tuple2(row, col),
 				model));
-		var allPossibleValues = $elm$core$Set$fromList(
-			_List_fromArray(
-				[1, 2, 3, 4, 5, 6, 7, 8, 9]));
+		var allPossibleValues = $elm$core$Set$fromList($author$project$Constants$digits);
 		return $elm$core$Set$toList(
 			A2($elm$core$Set$diff, allPossibleValues, knownValues));
 	});
@@ -6299,7 +6299,7 @@ var $author$project$Updaters$generateAutoMarks = function (model) {
 			$elm$core$List$map,
 			function (cell) {
 				var autoMarks = A2(
-					$author$project$Temp$autoHintsForCellAt,
+					$author$project$CellHelpers$autoHintsForCellAt,
 					_Utils_Tuple2(cell.row, cell.col),
 					model);
 				var _v0 = _Utils_Tuple3(cell.guess, cell.value, cell.isVisible);
@@ -6495,8 +6495,6 @@ var $author$project$CellHelpers$blockHasNumberRepeated = F3(
 			A2($author$project$CellHelpers$blockCells, blockNumber, model),
 			getNumber);
 	});
-var $author$project$Constants$digits = _List_fromArray(
-	[1, 2, 3, 4, 5, 6, 7, 8, 9]);
 var $author$project$CellHelpers$anyBlockHasGuessRepeated = function (model) {
 	return A2(
 		$elm$core$List$any,
@@ -6779,7 +6777,7 @@ var $author$project$Updaters$updateCellValue = F2(
 						}
 					default:
 						var _v7 = _v0.a;
-						var autoMarks = A2($author$project$Temp$autoHintsForCellAt, pos, model);
+						var autoMarks = A2($author$project$CellHelpers$autoHintsForCellAt, pos, model);
 						return (!_Utils_eq(cell.marks, autoMarks)) ? _Utils_update(
 							cell,
 							{marks: autoMarks}) : cell;

@@ -1,9 +1,9 @@
 module Updaters exposing (..)
 
 import Array exposing (..)
+import CellHelpers exposing (..)
 import Helpers exposing (..)
 import SudokuTypes exposing (..)
-import Temp exposing (..)
 import WinningStatus exposing (..)
 
 
