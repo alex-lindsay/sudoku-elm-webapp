@@ -5275,7 +5275,7 @@ var $author$project$SudokuTypes$CharacterKeyPressed = function (a) {
 var $author$project$SudokuTypes$ControlKeyPressed = function (a) {
 	return {$: 'ControlKeyPressed', a: a};
 };
-var $author$project$Sudoku$toKey = function (keyValue) {
+var $author$project$Interactions$toKey = function (keyValue) {
 	var _v0 = $elm$core$String$uncons(keyValue);
 	if ((_v0.$ === 'Just') && (_v0.a.b === '')) {
 		var _v1 = _v0.a;
@@ -5285,9 +5285,9 @@ var $author$project$Sudoku$toKey = function (keyValue) {
 		return $author$project$SudokuTypes$ControlKeyPressed(keyValue);
 	}
 };
-var $author$project$Sudoku$keyDecoder = A2(
+var $author$project$Interactions$keyDecoder = A2(
 	$elm$json$Json$Decode$map,
-	$author$project$Sudoku$toKey,
+	$author$project$Interactions$toKey,
 	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
 var $elm$browser$Browser$Events$Document = {$: 'Document'};
 var $elm$browser$Browser$Events$MySub = F3(
@@ -5691,7 +5691,7 @@ var $elm$browser$Browser$Events$on = F3(
 	});
 var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keydown');
 var $author$project$Sudoku$subscriptions = function (_v0) {
-	return $elm$browser$Browser$Events$onKeyDown($author$project$Sudoku$keyDecoder);
+	return $elm$browser$Browser$Events$onKeyDown($author$project$Interactions$keyDecoder);
 };
 var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
 var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
@@ -5746,7 +5746,7 @@ var $elm$core$Array$filter = F2(
 				_List_Nil,
 				array));
 	});
-var $author$project$Sudoku$cellsWithSingleMark = function (cells) {
+var $author$project$Autosolvers$cellsWithSingleMark = function (cells) {
 	return A2(
 		$elm$core$Array$filter,
 		function (cell) {
@@ -6293,7 +6293,7 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$Sudoku$generateAutoMarks = function (model) {
+var $author$project$Updaters$generateAutoMarks = function (model) {
 	var newCells = $elm$core$Array$fromList(
 		A2(
 			$elm$core$List$map,
@@ -6366,16 +6366,16 @@ var $author$project$Updaters$updateSelectedCell = F2(
 				selectedCell: _Utils_Tuple2(newRow, newCol)
 			}) : model;
 	});
-var $author$project$Navigation$moveSelectedCellDown = function (model) {
+var $author$project$Interactions$moveSelectedCellDown = function (model) {
 	return A2($author$project$Updaters$updateSelectedCell, 9, model);
 };
-var $author$project$Navigation$moveSelectedCellLeft = function (model) {
+var $author$project$Interactions$moveSelectedCellLeft = function (model) {
 	return A2($author$project$Updaters$updateSelectedCell, -1, model);
 };
-var $author$project$Navigation$moveSelectedCellRight = function (model) {
+var $author$project$Interactions$moveSelectedCellRight = function (model) {
 	return A2($author$project$Updaters$updateSelectedCell, 1, model);
 };
-var $author$project$Navigation$moveSelectedCellUp = function (model) {
+var $author$project$Interactions$moveSelectedCellUp = function (model) {
 	return A2($author$project$Updaters$updateSelectedCell, -9, model);
 };
 var $elm$core$Process$sleep = _Process_sleep;
@@ -6820,11 +6820,11 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Sudoku$updateSingle = function (model) {
+var $author$project$Autosolvers$updateSingle = function (model) {
 	var firstCellWithSingleMark = A2(
 		$elm$core$Array$get,
 		0,
-		$author$project$Sudoku$cellsWithSingleMark(model.cells));
+		$author$project$Autosolvers$cellsWithSingleMark(model.cells));
 	var newCells = function () {
 		if (firstCellWithSingleMark.$ === 'Just') {
 			var cell = firstCellWithSingleMark.a;
@@ -6873,7 +6873,7 @@ var $author$project$Sudoku$update = F2(
 			case 'GenerateAutoMarks':
 				return _Utils_Tuple2(
 					$author$project$Updaters$updateWinningStatus(
-						$author$project$Sudoku$generateAutoMarks(model)),
+						$author$project$Updaters$generateAutoMarks(model)),
 					$elm$core$Platform$Cmd$none);
 			case 'ClearAutoMarks':
 				var newCells = $elm$core$Array$fromList(
@@ -6921,12 +6921,12 @@ var $author$project$Sudoku$update = F2(
 							$elm$core$Platform$Cmd$none);
 					case ' ':
 						return _Utils_Tuple2(
-							$author$project$Navigation$moveSelectedCellRight(model),
+							$author$project$Interactions$moveSelectedCellRight(model),
 							$elm$core$Platform$Cmd$none);
 					default:
 						return isNumberKey ? _Utils_Tuple2(
 							$author$project$Updaters$updateWinningStatus(
-								$author$project$Navigation$moveSelectedCellRight(
+								$author$project$Interactions$moveSelectedCellRight(
 									$author$project$Updaters$updateCurrentCellValue(
 										A2(
 											$author$project$Updaters$updateActiveNumber,
@@ -6940,19 +6940,19 @@ var $author$project$Sudoku$update = F2(
 				switch (label) {
 					case 'ArrowRight':
 						return _Utils_Tuple2(
-							$author$project$Navigation$moveSelectedCellRight(model),
+							$author$project$Interactions$moveSelectedCellRight(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowLeft':
 						return _Utils_Tuple2(
-							$author$project$Navigation$moveSelectedCellLeft(model),
+							$author$project$Interactions$moveSelectedCellLeft(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowUp':
 						return _Utils_Tuple2(
-							$author$project$Navigation$moveSelectedCellUp(model),
+							$author$project$Interactions$moveSelectedCellUp(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowDown':
 						return _Utils_Tuple2(
-							$author$project$Navigation$moveSelectedCellDown(model),
+							$author$project$Interactions$moveSelectedCellDown(model),
 							$elm$core$Platform$Cmd$none);
 					case 'Backspace':
 						return _Utils_Tuple2(
@@ -6961,7 +6961,7 @@ var $author$project$Sudoku$update = F2(
 									A2(
 										$author$project$Updaters$updateActiveNumber,
 										$elm$core$Maybe$Nothing,
-										$author$project$Navigation$moveSelectedCellLeft(model)))),
+										$author$project$Interactions$moveSelectedCellLeft(model)))),
 							$elm$core$Platform$Cmd$none);
 					default:
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6971,7 +6971,7 @@ var $author$project$Sudoku$update = F2(
 					A2(
 						$author$project$Updaters$updateSelectedCell,
 						0,
-						$author$project$Sudoku$generateAutoMarks(
+						$author$project$Updaters$generateAutoMarks(
 							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
 					A2(
 						$elm$core$Task$perform,
@@ -6985,15 +6985,15 @@ var $author$project$Sudoku$update = F2(
 					$elm$core$Platform$Cmd$none);
 			default:
 				var _v5 = $elm$core$Array$length(
-					$author$project$Sudoku$cellsWithSingleMark(model.cells));
+					$author$project$Autosolvers$cellsWithSingleMark(model.cells));
 				if (!_v5) {
 					return _Utils_Tuple2(
 						A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(
-						$author$project$Sudoku$generateAutoMarks(
-							$author$project$Sudoku$updateSingle(
+						$author$project$Updaters$generateAutoMarks(
+							$author$project$Autosolvers$updateSingle(
 								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
 						A2(
 							$elm$core$Task$perform,

@@ -2,17 +2,17 @@ module Sudoku exposing (..)
 
 -- import Random exposing (int)
 
-import Array exposing (Array, initialize)
+import Array exposing (..)
 import Array.Extra exposing (..)
+import Autosolvers exposing (..)
 import Browser exposing (..)
 import Browser.Events exposing (onKeyDown)
 import Helpers exposing (..)
 import Html exposing (Html, a, button, div, h1, text)
 import Html.Attributes exposing (class, classList, hidden, href, title)
 import Html.Events exposing (onClick)
-import Json.Decode as Decode
 import List exposing (range)
-import Navigation exposing (..)
+import Interactions exposing (..)
 import Process exposing (..)
 import Set exposing (..)
 import SudokuTypes exposing (..)
@@ -34,69 +34,6 @@ init _ =
       }
     , Cmd.none
     )
-
-
-generateAutoMarks : Model -> Model
-generateAutoMarks model =
-    let
-        -- for cells which don't have a guess, or known value, set the marks to the auto marks
-        newCells =
-            range 0 80
-                |> List.map
-                    (\i ->
-                        Array.get i model.cells
-                            |> Maybe.withDefault (newCellAt (indexToPosition i))
-                    )
-                |> List.map
-                    (\cell ->
-                        let
-                            autoMarks =
-                                autoHintsForCellAt ( cell.row, cell.col ) model
-                        in
-                        case ( cell.guess, cell.value, cell.isVisible ) of
-                            ( Nothing, Nothing, _ ) ->
-                                { cell | marks = autoMarks }
-
-                            ( Nothing, Just _, False ) ->
-                                { cell | marks = autoMarks }
-
-                            _ ->
-                                cell
-                    )
-                |> Array.fromList
-    in
-    { model | cells = newCells }
-
-
-
-cellsWithSingleMark : Array Cell -> Array Cell
-cellsWithSingleMark cells =
-    Array.filter (\cell -> List.length cell.marks == 1) cells
-
-
-updateSingle : Model -> Model
-updateSingle model =
-    let
-        firstCellWithSingleMark =
-            cellsWithSingleMark model.cells
-                |> Array.get 0
-
-        newCells =
-            case firstCellWithSingleMark of
-                Just cell ->
-                    let
-                        index =
-                            positionToIndex ( cell.row, cell.col )
-
-                        updatedCell =
-                            { cell | guess = List.head cell.marks, marks = [] }
-                    in
-                    Array.set index updatedCell model.cells
-
-                Nothing ->
-                    model.cells
-    in
-    { model | cells = newCells }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -342,21 +279,6 @@ view model =
                 ]
             ]
         ]
-
-
-keyDecoder : Decode.Decoder Msg
-keyDecoder =
-    Decode.map toKey (Decode.field "key" Decode.string)
-
-
-toKey : String -> Msg
-toKey keyValue =
-    case String.uncons keyValue of
-        Just ( char, "" ) ->
-            CharacterKeyPressed char
-
-        _ ->
-            ControlKeyPressed keyValue
 
 
 subscriptions : Model -> Sub Msg

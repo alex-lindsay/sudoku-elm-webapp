@@ -1,11 +1,43 @@
 module Updaters exposing (..)
 
+import Array exposing (..)
 import Helpers exposing (..)
 import SudokuTypes exposing (..)
 import Temp exposing (..)
 import WinningStatus exposing (..)
 
-import Array exposing (..)
+
+generateAutoMarks : Model -> Model
+generateAutoMarks model =
+    let
+        -- for cells which don't have a guess, or known value, set the marks to the auto marks
+        newCells =
+            List.range 0 80
+                |> List.map
+                    (\i ->
+                        Array.get i model.cells
+                            |> Maybe.withDefault (newCellAt (indexToPosition i))
+                    )
+                |> List.map
+                    (\cell ->
+                        let
+                            autoMarks =
+                                autoHintsForCellAt ( cell.row, cell.col ) model
+                        in
+                        case ( cell.guess, cell.value, cell.isVisible ) of
+                            ( Nothing, Nothing, _ ) ->
+                                { cell | marks = autoMarks }
+
+                            ( Nothing, Just _, False ) ->
+                                { cell | marks = autoMarks }
+
+                            _ ->
+                                cell
+                    )
+                |> Array.fromList
+    in
+    { model | cells = newCells }
+
 
 updateActiveNumber : Maybe Int -> Model -> Model
 updateActiveNumber activeNumber model =
@@ -120,6 +152,7 @@ updateSelectedCell delta model =
     else
         model
 
+
 updateWinningStatus : Model -> Model
 updateWinningStatus model =
     let
@@ -141,4 +174,3 @@ updateWinningStatus model =
                     Unknown
     in
     { model | winningStatus = newWinningStatus }
-
