@@ -226,7 +226,7 @@ view model =
                     , ( "status-error", model.winningStatus == Error )
                     ]
                 ]
-                [ h1 [] [ text "Sudoku" ]
+                [ h1 [] [ text "Sudoku (Work In Progress)" ]
                 , div [ class "game-state-buttons" ]
                     [ button
                         [ onClick (SetGameState SetKnown)
