@@ -54,8 +54,8 @@ updatePair : Model -> Model
 updatePair model =
     let
         firstCellWithPairMarks =
-            uncheckedModelCellsWithMarkPairs model
-                |> List.head
+            uncheckedModelCellsWithMarkPairs model 
+            |> List.head
 
         newCells =
             case firstCellWithPairMarks of

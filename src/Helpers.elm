@@ -5,6 +5,19 @@ import Set exposing (..)
 import SudokuTypes exposing (..)
 
 
+autoSolveStateToString : AutoSolveState -> String
+autoSolveStateToString state =
+    case state of
+        NotSolving ->
+            "Not Solving"
+
+        SolvingSingles ->
+            "Solving Singles"
+
+        SolvingPairs ->
+            "Solving Pairs"
+            
+
 hasNumberRepeated : List Int -> Bool
 hasNumberRepeated numbers =
     List.length numbers /= List.length (Set.toList (Set.fromList numbers))
