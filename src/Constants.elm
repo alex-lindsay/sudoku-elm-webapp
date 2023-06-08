@@ -6,11 +6,16 @@ import Helpers exposing (..)
 import SudokuTypes exposing (..)
 
 
-almostWinningBoard : Array Cell
-almostWinningBoard =
+almostWinningString : String
+almostWinningString =
+    "123978564456312897789645231312897456645231789978564123231789645564123978897456310"
+
+
+fillBoardValues : String -> Array Cell -> Array Cell
+fillBoardValues valueString cells =
     let
         values =
-            "123978564456312897789645231312897456645231789978564123231789645564123978897456310"
+            valueString
                 |> String.split ""
                 |> List.map (\s -> String.toInt s |> Maybe.withDefault 0)
                 |> Array.fromList
@@ -18,7 +23,7 @@ almostWinningBoard =
     Array.Extra.map2
         (\cell v ->
             { cell
-                | value =
+                | isVisible = True, value =
                     case v of
                         0 ->
                             Nothing
@@ -27,8 +32,24 @@ almostWinningBoard =
                             Just n
             }
         )
-        emptyBoard
+        cells
         values
+
+
+
+
+sampleValueStrings : Array String
+sampleValueStrings =
+    Array.fromList [ 
+        "020038190050070086087910200500700620000005018643000900009401030174800000005690801",
+        "060708030000001000004930870030000180200000009007500000070000320000000040800006000",
+        "060000104000200000000000050019000006020940000080705000203400069800320000000000700"
+    ]
+
+
+almostWinningBoard : Array Cell
+almostWinningBoard =
+    fillBoardValues almostWinningString emptyBoard
 
 
 emptyBoard : Array Cell

@@ -7,13 +7,15 @@ import Array.Extra exposing (..)
 import Autosolvers exposing (..)
 import Browser exposing (..)
 import Browser.Events exposing (onKeyDown)
+import Constants exposing (..)
 import Helpers exposing (..)
 import Html exposing (Html, a, button, div, h1, text)
-import Html.Attributes exposing (class, classList, hidden, href, title)
+import Html.Attributes exposing (class, classList, hidden, href, style, title)
 import Html.Events exposing (onClick)
 import List exposing (range)
 import Interactions exposing (..)
 import Process exposing (..)
+import Random exposing (..)
 import Set exposing (..)
 import SudokuTypes exposing (..)
 import Task exposing (..)
@@ -48,7 +50,17 @@ update msg model =
             ( updateCellValue ( row, col ) model, Cmd.none )
 
         GenerateBoard ->
-            init ()
+            ( model, Array.length Constants.sampleValueStrings
+            |> Random.int 0
+            |> Random.generate NewPuzzle )
+
+        NewPuzzle index ->
+            let
+                newBoardString = Constants.sampleValueStrings
+                    |> Array.get index
+                    |> Maybe.withDefault ""
+            in
+            ( { model | cells = fillBoardValues newBoardString emptyBoard }, Cmd.none )
 
         GenerateAutoMarks ->
             ( updateWinningStatus (generateAutoMarks model), Cmd.none )
@@ -274,6 +286,8 @@ view model =
                 , div [ class "solver-buttons" ]
                     [ button [ onClick StartSolving, title "Start solving the board.", hidden (model.autoSolveState /= NotSolving) ] [ text "Start Solving" ]
                     , button [ onClick StopSolving, title "Stop solving the board.", hidden (model.autoSolveState == NotSolving) ] [ text "Stop Solving" ]
+                    , div [ style "display" "inline-block"
+                        , style "padding" "0 0.5rem" ] [ text (autoSolveStateToString model.autoSolveState) ]
                     ]
                 , div [ class "board-container" ]
                     (range 0 80

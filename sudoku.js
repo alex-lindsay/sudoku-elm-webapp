@@ -4407,6 +4407,52 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
+
+
+
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
+	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2($elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = $elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = $elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5688,6 +5734,9 @@ var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $
 var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Interactions$keyDecoder);
 };
+var $author$project$SudokuTypes$NewPuzzle = function (a) {
+	return {$: 'NewPuzzle', a: a};
+};
 var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
 var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$SudokuTypes$SetGuess = {$: 'SetGuess'};
@@ -5715,10 +5764,13 @@ var $author$project$Autosolvers$cellsWithSingleMark = function (cells) {
 		},
 		$elm$core$Array$toList(cells));
 };
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
+var $author$project$Constants$emptyBoard = A2(
+	$elm$core$Array$initialize,
+	81,
+	function (i) {
+		return $author$project$Helpers$newCellAt(
+			$author$project$Helpers$indexToPosition(i));
+	});
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5754,6 +5806,168 @@ var $elm$core$Array$fromList = function (list) {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
+var $elm_community$array_extra$Array$Extra$map2 = F3(
+	function (combineAb, aArray, bArray) {
+		return $elm$core$Array$fromList(
+			A3(
+				$elm$core$List$map2,
+				combineAb,
+				$elm$core$Array$toList(aArray),
+				$elm$core$Array$toList(bArray)));
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Constants$fillBoardValues = F2(
+	function (valueString, cells) {
+		var values = $elm$core$Array$fromList(
+			A2(
+				$elm$core$List$map,
+				function (s) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						0,
+						$elm$core$String$toInt(s));
+				},
+				A2($elm$core$String$split, '', valueString)));
+		return A3(
+			$elm_community$array_extra$Array$Extra$map2,
+			F2(
+				function (cell, v) {
+					return _Utils_update(
+						cell,
+						{
+							isVisible: true,
+							value: function () {
+								if (!v) {
+									return $elm$core$Maybe$Nothing;
+								} else {
+									var n = v;
+									return $elm$core$Maybe$Just(n);
+								}
+							}()
+						});
+				}),
+			cells,
+			values);
+	});
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$random$Random$Generate = function (a) {
+	return {$: 'Generate', a: a};
+};
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var $elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
+var $elm$time$Time$posixToMillis = function (_v0) {
+	var millis = _v0.a;
+	return millis;
+};
+var $elm$random$Random$init = A2(
+	$elm$core$Task$andThen,
+	function (time) {
+		return $elm$core$Task$succeed(
+			$elm$random$Random$initialSeed(
+				$elm$time$Time$posixToMillis(time)));
+	},
+	$elm$time$Time$now);
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0.a;
+		return generator(seed);
+	});
+var $elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return $elm$core$Task$succeed(seed);
+		} else {
+			var generator = commands.a.a;
+			var rest = commands.b;
+			var _v1 = A2($elm$random$Random$step, generator, seed);
+			var value = _v1.a;
+			var newSeed = _v1.b;
+			return A2(
+				$elm$core$Task$andThen,
+				function (_v2) {
+					return A3($elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2($elm$core$Platform$sendToApp, router, value));
+		}
+	});
+var $elm$random$Random$onSelfMsg = F3(
+	function (_v0, _v1, seed) {
+		return $elm$core$Task$succeed(seed);
+	});
+var $elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var $elm$random$Random$map = F2(
+	function (func, _v0) {
+		var genA = _v0.a;
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v1 = genA(seed0);
+				var a = _v1.a;
+				var seed1 = _v1.b;
+				return _Utils_Tuple2(
+					func(a),
+					seed1);
+			});
+	});
+var $elm$random$Random$cmdMap = F2(
+	function (func, _v0) {
+		var generator = _v0.a;
+		return $elm$random$Random$Generate(
+			A2($elm$random$Random$map, func, generator));
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
+var $elm$random$Random$command = _Platform_leaf('Random');
+var $elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return $elm$random$Random$command(
+			$elm$random$Random$Generate(
+				A2($elm$random$Random$map, tagger, generator)));
+	});
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -6233,7 +6447,6 @@ var $author$project$CellHelpers$autoHintsForCellAt = F2(
 			A2($elm$core$Set$diff, allPossibleValues, knownValues));
 	});
 var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
 var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
 var $elm$core$Array$getHelp = F3(
@@ -6272,15 +6485,6 @@ var $elm$core$Array$get = F2(
 			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
 	});
 var $author$project$Updaters$generateAutoMarks = function (model) {
 	var newCells = $elm$core$Array$fromList(
@@ -6328,6 +6532,48 @@ var $author$project$Updaters$generateAutoMarks = function (model) {
 		model,
 		{cells: newCells});
 };
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$int = F2(
+	function (a, b) {
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+				var lo = _v0.a;
+				var hi = _v0.b;
+				var range = (hi - lo) + 1;
+				if (!((range - 1) & range)) {
+					return _Utils_Tuple2(
+						(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
+						$elm$random$Random$next(seed0));
+				} else {
+					var threshhold = (((-range) >>> 0) % range) >>> 0;
+					var accountForBias = function (seed) {
+						accountForBias:
+						while (true) {
+							var x = $elm$random$Random$peel(seed);
+							var seedN = $elm$random$Random$next(seed);
+							if (_Utils_cmp(x, threshhold) < 0) {
+								var $temp$seed = seedN;
+								seed = $temp$seed;
+								continue accountForBias;
+							} else {
+								return _Utils_Tuple2((x % range) + lo, seedN);
+							}
+						}
+					};
+					return accountForBias(seed0);
+				}
+			});
+	});
+var $elm$core$Array$length = function (_v0) {
+	var len = _v0.a;
+	return len;
+};
 var $author$project$Helpers$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
@@ -6360,6 +6606,9 @@ var $author$project$Interactions$moveSelectedCellRight = function (model) {
 var $author$project$Interactions$moveSelectedCellUp = function (model) {
 	return A2($author$project$Updaters$updateSelectedCell, -9, model);
 };
+var $author$project$Constants$sampleValueStrings = $elm$core$Array$fromList(
+	_List_fromArray(
+		['020038190050070086087910200500700620000005018643000900009401030174800000005690801', '060708030000001000004930870030000180200000009007500000070000320000000040800006000', '060000104000200000000000050019000006020940000080705000203400069800320000000000700']));
 var $elm$core$Process$sleep = _Process_sleep;
 var $author$project$Autosolvers$cellsWithPairMarks = function (cells) {
 	return A2(
@@ -6883,7 +7132,28 @@ var $author$project$Sudoku$update = F2(
 						model),
 					$elm$core$Platform$Cmd$none);
 			case 'GenerateBoard':
-				return $author$project$Sudoku$init(_Utils_Tuple0);
+				return _Utils_Tuple2(
+					model,
+					A2(
+						$elm$random$Random$generate,
+						$author$project$SudokuTypes$NewPuzzle,
+						A2(
+							$elm$random$Random$int,
+							0,
+							$elm$core$Array$length($author$project$Constants$sampleValueStrings))));
+			case 'NewPuzzle':
+				var index = msg.a;
+				var newBoardString = A2(
+					$elm$core$Maybe$withDefault,
+					'',
+					A2($elm$core$Array$get, index, $author$project$Constants$sampleValueStrings));
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							cells: A2($author$project$Constants$fillBoardValues, newBoardString, $author$project$Constants$emptyBoard)
+						}),
+					$elm$core$Platform$Cmd$none);
 			case 'GenerateAutoMarks':
 				return _Utils_Tuple2(
 					$author$project$Updaters$updateWinningStatus(
@@ -7049,6 +7319,16 @@ var $author$project$SudokuTypes$SetGameState = function (a) {
 var $author$project$SudokuTypes$StartSolving = {$: 'StartSolving'};
 var $author$project$SudokuTypes$StopSolving = {$: 'StopSolving'};
 var $elm$html$Html$a = _VirtualDom_node('a');
+var $author$project$Helpers$autoSolveStateToString = function (state) {
+	switch (state.$) {
+		case 'NotSolving':
+			return 'Not Solving';
+		case 'SolvingSingles':
+			return 'Solving Singles';
+		default:
+			return 'Solving Pairs';
+	}
+};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -7104,6 +7384,8 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
@@ -7334,7 +7616,7 @@ var $author$project$Sudoku$view = function (model) {
 								_List_Nil,
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Sudoku')
+										$elm$html$Html$text('Sudoku (Work In Progress)')
 									])),
 								A2(
 								$elm$html$Html$div,
@@ -7574,6 +7856,18 @@ var $author$project$Sudoku$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$text('Stop Solving')
+											])),
+										A2(
+										$elm$html$Html$div,
+										_List_fromArray(
+											[
+												A2($elm$html$Html$Attributes$style, 'display', 'inline-block'),
+												A2($elm$html$Html$Attributes$style, 'padding', '0 0.5rem')
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text(
+												$author$project$Helpers$autoSolveStateToString(model.autoSolveState))
 											]))
 									])),
 								A2(

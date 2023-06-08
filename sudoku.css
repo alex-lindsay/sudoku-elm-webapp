@@ -118,6 +118,10 @@ button.active {
     background-color: #eff;
 }
 
+.cell:has(> .cell__value) {
+    background-color: #eee;
+}
+
 .cell__value {
     text-align: center;
     padding-top: 0.25em;

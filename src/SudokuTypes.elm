@@ -30,9 +30,10 @@ type alias Position =
 
 type Msg
     = SetGameState GameState
-    | SetActiveNumber (Maybe Int)
+    | SetActiveNumber ( Maybe Int )
     | SetCellValue ( Int, Int )
     | GenerateBoard
+    | NewPuzzle Int
     | GenerateAutoMarks
     | ClearAutoMarks
     | CharacterKeyPressed Char
