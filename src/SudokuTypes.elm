@@ -22,6 +22,7 @@ type AutoSolveState
     = NotSolving
     | SolvingSingles
     | SolvingPairs
+    -- | SolvingTriples
 
 
 type alias Position =
@@ -42,6 +43,7 @@ type Msg
     | StopSolving
     | SolveSingles
     | SolvePairs
+    -- | SolveTriples
 
 
 type alias Cell =

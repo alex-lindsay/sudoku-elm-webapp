@@ -149,12 +149,17 @@ update msg model =
         SolveSingles ->
             case cellsWithSingleMark model.cells |> List.length of
                 0 ->
-                    ( updateAutoSolveState NotSolving model, Cmd.none )
-                    -- we'll want to set the active cell to the first cell and then start solving the pairs
+                    ( updateAutoSolveState SolvingPairs model
+                        |> updateSelectedCell 0
+                    , Process.sleep 2000 |> Task.perform (\_ -> SolvePairs)
+                    )
 
                 _ ->
                     ( updateAutoSolveState SolvingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
         SolvePairs ->
+            let
+                _ = Debug.log "uncheckedModelCellsWithMarkPairs" (uncheckedModelCellsWithMarkPairs model)
+            in
             case uncheckedModelCellsWithMarkPairs model |> List.length of
                 0 ->
                     ( updateAutoSolveState NotSolving model, Cmd.none )
