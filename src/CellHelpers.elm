@@ -84,9 +84,9 @@ autoHintsForCellAt ( row, col ) model =
         |> Set.toList
 
 
-blockCells : Int -> Model -> List Cell
+blockCells : Int -> Model -> Array Cell
 blockCells blockNumber model =
-    List.filter (\cell -> cell.block == blockNumber) (Array.toList model.cells)
+    Array.filter (\cell -> cell.block == blockNumber) model.cells
 
 
 blockHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -126,14 +126,28 @@ cellGuessOrKnown cell =
             Nothing
 
 
-cellsAreComplete : List Cell -> (Cell -> Maybe Int) -> Bool
+cellIsInColumn : Int -> Cell -> Bool
+cellIsInColumn colNumber cell =
+    (Tuple.second cell.pos) == colNumber
+
+
+cellIsInRow : Int -> Cell -> Bool
+cellIsInRow colNumber cell =
+    (Tuple.first cell.pos) == colNumber
+
+
+cellsAreComplete : Array Cell -> (Cell -> Maybe Int) -> Bool
 cellsAreComplete cells getNumber =
-    List.all (\cell -> getNumber cell /= Nothing) cells && not (cellsHaveNumberRepeated cells getNumber)
+    List.all (\cell -> getNumber cell /= Nothing) (Array.toList cells) && 
+        not (cellsHaveNumberRepeated cells getNumber)
 
 
-cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
+cellsHaveNumberRepeated : Array Cell -> (Cell -> Maybe Int) -> Bool
 cellsHaveNumberRepeated cells getNumber =
-    hasNumberRepeated (List.filterMap getNumber cells)
+    cells
+        |> Array.toList
+        |> List.filterMap getNumber
+        |> hasNumberRepeated
 
 
 cellsWhichContainMarks : List Int -> Array Cell -> Array Cell
@@ -142,11 +156,10 @@ cellsWhichContainMarks marks cells =
         |> Array.filter (cellContainsMarks marks)
 
 
-colCells : Int -> Model -> List Cell
+colCells : Int -> Model -> Array Cell
 colCells colNumber model =
     model.cells
-    |> Array.toList
-    |> List.filter (\cell -> (Tuple.second cell.pos) == colNumber)
+    |> Array.filter (\cell -> cellIsInColumn colNumber cell)
 
 
 colHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool
@@ -159,9 +172,10 @@ colIsComplete colNumber getNumber model =
     cellsAreComplete (rowCells colNumber model) getNumber
 
 
-guessesAndKnownsForCells : List Cell -> List Int
+guessesAndKnownsForCells : Array Cell -> List Int
 guessesAndKnownsForCells values =
-    List.map cellGuessOrKnown values
+    Array.map cellGuessOrKnown values
+        |> Array.toList
         |> List.filterMap identity
 
 
@@ -214,11 +228,10 @@ inSameRow cell1 cell2 =
     (Tuple.first cell1.pos) == (Tuple.first cell2.pos)
 
 
-rowCells : Int -> Model -> List Cell
+rowCells : Int -> Model -> Array Cell
 rowCells rowNumber model =
     model.cells
-    |> Array.toList
-    |> List.filter (\cell -> (Tuple.first cell.pos) == rowNumber)
+    |> Array.filter (\cell -> cellIsInRow rowNumber cell)
 
 
 rowHasNumberRepeated : Int -> (Cell -> Maybe Int) -> Model -> Bool

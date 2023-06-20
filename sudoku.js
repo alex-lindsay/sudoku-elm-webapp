@@ -6369,38 +6369,31 @@ var $elm$core$Set$insert = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $author$project$CellHelpers$blockCells = F2(
 	function (blockNumber, model) {
 		return A2(
-			$elm$core$List$filter,
+			$elm$core$Array$filter,
 			function (cell) {
 				return _Utils_eq(cell.block, blockNumber);
 			},
-			$elm$core$Array$toList(model.cells));
+			model.cells);
 	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
 };
+var $author$project$CellHelpers$cellIsInColumn = F2(
+	function (colNumber, cell) {
+		return _Utils_eq(cell.pos.b, colNumber);
+	});
 var $author$project$CellHelpers$colCells = F2(
 	function (colNumber, model) {
 		return A2(
-			$elm$core$List$filter,
+			$elm$core$Array$filter,
 			function (cell) {
-				return _Utils_eq(cell.pos.b, colNumber);
+				return A2($author$project$CellHelpers$cellIsInColumn, colNumber, cell);
 			},
-			$elm$core$Array$toList(model.cells));
+			model.cells);
 	});
 var $author$project$CellHelpers$cellGuessOrKnown = function (cell) {
 	var _v0 = _Utils_Tuple2(cell.guess, cell.isVisible);
@@ -6416,20 +6409,50 @@ var $author$project$CellHelpers$cellGuessOrKnown = function (cell) {
 		}
 	}
 };
+var $elm$core$Elm$JsArray$map = _JsArray_map;
+var $elm$core$Array$map = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = function (node) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return $elm$core$Array$SubTree(
+					A2($elm$core$Elm$JsArray$map, helper, subTree));
+			} else {
+				var values = node.a;
+				return $elm$core$Array$Leaf(
+					A2($elm$core$Elm$JsArray$map, func, values));
+			}
+		};
+		return A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A2($elm$core$Elm$JsArray$map, helper, tree),
+			A2($elm$core$Elm$JsArray$map, func, tail));
+	});
 var $author$project$CellHelpers$guessesAndKnownsForCells = function (values) {
 	return A2(
 		$elm$core$List$filterMap,
 		$elm$core$Basics$identity,
-		A2($elm$core$List$map, $author$project$CellHelpers$cellGuessOrKnown, values));
+		$elm$core$Array$toList(
+			A2($elm$core$Array$map, $author$project$CellHelpers$cellGuessOrKnown, values)));
 };
+var $author$project$CellHelpers$cellIsInRow = F2(
+	function (colNumber, cell) {
+		return _Utils_eq(cell.pos.a, colNumber);
+	});
 var $author$project$CellHelpers$rowCells = F2(
 	function (rowNumber, model) {
 		return A2(
-			$elm$core$List$filter,
+			$elm$core$Array$filter,
 			function (cell) {
-				return _Utils_eq(cell.pos.a, rowNumber);
+				return A2($author$project$CellHelpers$cellIsInRow, rowNumber, cell);
 			},
-			$elm$core$Array$toList(model.cells));
+			model.cells);
 	});
 var $author$project$CellHelpers$guessesAndKnownsForCellAt = F2(
 	function (_v0, model) {
@@ -6659,6 +6682,17 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -6746,7 +6780,10 @@ var $author$project$Helpers$hasNumberRepeated = function (numbers) {
 var $author$project$CellHelpers$cellsHaveNumberRepeated = F2(
 	function (cells, getNumber) {
 		return $author$project$Helpers$hasNumberRepeated(
-			A2($elm$core$List$filterMap, getNumber, cells));
+			A2(
+				$elm$core$List$filterMap,
+				getNumber,
+				$elm$core$Array$toList(cells)));
 	});
 var $author$project$CellHelpers$blockHasNumberRepeated = F3(
 	function (blockNumber, getNumber, model) {
@@ -6881,7 +6918,7 @@ var $author$project$CellHelpers$cellsAreComplete = F2(
 					getNumber(cell),
 					$elm$core$Maybe$Nothing);
 			},
-			cells) && (!A2($author$project$CellHelpers$cellsHaveNumberRepeated, cells, getNumber));
+			$elm$core$Array$toList(cells)) && (!A2($author$project$CellHelpers$cellsHaveNumberRepeated, cells, getNumber));
 	});
 var $author$project$CellHelpers$rowIsComplete = F3(
 	function (rowNumber, getNumber, model) {
@@ -7113,31 +7150,6 @@ var $author$project$CellHelpers$cellsWhichContainMarks = F2(
 			$elm$core$Array$filter,
 			$author$project$CellHelpers$cellContainsMarks(marks),
 			cells);
-	});
-var $elm$core$Elm$JsArray$map = _JsArray_map;
-var $elm$core$Array$map = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = function (node) {
-			if (node.$ === 'SubTree') {
-				var subTree = node.a;
-				return $elm$core$Array$SubTree(
-					A2($elm$core$Elm$JsArray$map, helper, subTree));
-			} else {
-				var values = node.a;
-				return $elm$core$Array$Leaf(
-					A2($elm$core$Elm$JsArray$map, func, values));
-			}
-		};
-		return A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A2($elm$core$Elm$JsArray$map, helper, tree),
-			A2($elm$core$Elm$JsArray$map, func, tail));
 	});
 var $author$project$Autosolvers$updatePair = function (model) {
 	var firstCellWithPairMarks = A2(

@@ -227,10 +227,11 @@ rowCellsTest =
             List.map (\i -> rowCells i model) digits
 
         actualLengths =
-            List.map (\row -> List.length row) actualResults
+            List.map (\row -> List.length (Array.toList row)) actualResults
 
         actualRows =
-            List.map (\row -> List.map (\cell -> (Tuple.first cell.pos)) row) actualResults
+            actualResults
+                |> List.map (\row -> List.map (\cell -> (Tuple.first cell.pos)) (Array.toList row))
     in
     describe "rowCells"
         [ test "lengths are as expected"
@@ -253,10 +254,11 @@ colCellsTest =
             List.map (\i -> colCells i model) digits
 
         actualLengths =
-            List.map (\col -> List.length col) actualResults
+            List.map (\col -> List.length (Array.toList col)) actualResults
 
         actualCols =
-            List.map (\col -> List.map (\cell -> (Tuple.second cell.pos)) col) actualResults
+            actualResults
+                |> List.map (\col -> List.map (\cell -> (Tuple.second cell.pos)) (Array.toList col))
     in
     describe "colCells"
         [ test "lengths are as expected"
@@ -279,10 +281,10 @@ blockCellsTest =
             List.map (\i -> blockCells i model) (List.range 1 9)
 
         actualLengths =
-            List.map (\block -> List.length block) actualResults
+            List.map (\block -> List.length (Array.toList block)) actualResults
 
         actualBlocks =
-            List.map (\block -> List.map (\cell -> cell.block) block) actualResults
+            List.map (\block -> List.map (\cell -> cell.block) (Array.toList block)) actualResults
     in
     describe "blockCells"
         [ test "lengths are as expected"
@@ -549,11 +551,11 @@ cellsAreCompleteTest =
     in
     describe "cellsAreComplete"
         [ test "cells are not complete"
-            (\_ -> Expect.equal False (cellsAreComplete (Array.toList incompleteCells) .value))
+            (\_ -> Expect.equal False (cellsAreComplete incompleteCells .value))
         , test "cells are complete"
-            (\_ -> Expect.equal True (cellsAreComplete (Array.toList completeCells) .value))
+            (\_ -> Expect.equal True (cellsAreComplete completeCells .value))
         , test "empty list edge case"
-            (\_ -> Expect.equal True (cellsAreComplete [] .value))
+            (\_ -> Expect.equal True (cellsAreComplete (Array.fromList []) .value))
         ]
 
 
@@ -958,13 +960,13 @@ guessesAndKnownsForCellsTest =
             newCellAt ( 1, 9 )
 
         cells =
-            [ cellWithGuess11, cellWithGuess12, cellWithKnown13, cellWithKnown14, cellWithValue15, cellWithValue16, cellWithNone17, cellWithNone18, cellWithNone19 ]
+            Array.fromList [ cellWithGuess11, cellWithGuess12, cellWithKnown13, cellWithKnown14, cellWithValue15, cellWithValue16, cellWithNone17, cellWithNone18, cellWithNone19 ]
     in
     describe "guessesAndKnownsForCells"
         [ test "guesses and knowns"
             (\_ -> Expect.equalLists [ 1, 2, 3, 4 ] (guessesAndKnownsForCells cells))
         , test "empty list edge case"
-            (\_ -> Expect.equal [] (guessesAndKnownsForCells []))
+            (\_ -> Expect.equal [] (guessesAndKnownsForCells (Array.fromList [])))
         ]
 
 
