@@ -20,6 +20,7 @@ type WinningStatus
 
 type AutoSolveState
     = NotSolving
+    | CanceledSolving
     | SolvingSingles
     | SolvingPairs
     -- | SolvingTriples

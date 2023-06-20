@@ -1,34 +1,34 @@
 module Autosolvers exposing (..)
 
 import Array exposing (..)
+import CellHelpers exposing (areCorelated, areRelated, cellsWhichContainMarks)
+import Debug exposing (..)
 import Helpers exposing (positionToIndex)
 import SudokuTypes exposing (Cell, Model)
-import Tuple exposing (first, second)
 
 
-cellsWithMarkCount : Int -> Array Cell -> List Cell
+cellsWithMarkCount : Int -> Array Cell -> Array Cell
 cellsWithMarkCount count cells =
     cells
-        |> Array.toList
-        |> List.filter (\cell -> List.length cell.marks == count)
+        |> Array.filter (\cell -> List.length cell.marks == count)
 
 
-cellsWithSingleMark : Array Cell -> List Cell
+cellsWithSingleMark : Array Cell -> Array Cell
 cellsWithSingleMark = cellsWithMarkCount 1
 
 
-cellsWithPairMarks : Array Cell -> List Cell
+cellsWithPairMarks : Array Cell -> Array Cell
 cellsWithPairMarks = cellsWithMarkCount 2
 
 
-cellsWithThreeMarks : Array Cell -> List Cell
+cellsWithThreeMarks : Array Cell -> Array Cell
 cellsWithThreeMarks = cellsWithMarkCount 3
 
 
-uncheckedModelCellsWithMarkPairs : Model -> List Cell
+uncheckedModelCellsWithMarkPairs : Model -> Array Cell
 uncheckedModelCellsWithMarkPairs model =
     cellsWithPairMarks model.cells
-        |> List.filter (\cell -> positionToIndex cell.pos >= positionToIndex model.selectedCell)
+        |> Array.filter (\cell -> positionToIndex cell.pos >= positionToIndex model.selectedCell)
 
 
 updateSingle : Model -> Model
@@ -36,7 +36,7 @@ updateSingle model =
     let
         firstCellWithSingleMark =
             cellsWithSingleMark model.cells
-                |> List.head
+                |> Array.get 0
 
         newCells =
             case firstCellWithSingleMark of
@@ -61,40 +61,58 @@ updatePair model =
     let
         firstCellWithPairMarks =
             uncheckedModelCellsWithMarkPairs model 
-            |> List.head
+            |> Array.get 0
 
-        otherCellsWithSamePairMarks =
-            case firstCellWithPairMarks of
-                Just cell ->
-                    cellsWithPairMarks model.cells
-                        |> List.filter (\otherCell -> otherCell /= cell)
-                        |> List.filter (\otherCell -> otherCell.marks == cell.marks)
-                        |> List.filter (\otherCell -> (first otherCell.pos == first cell.pos) || 
-                            (second otherCell.pos == second cell.pos) || 
-                            (otherCell.block == cell.block))
-
-                Nothing ->
-                    []
+        otherCellWithSamePairMarks =
+            firstCellWithPairMarks
+                |> Maybe.andThen (\cell -> model.cells
+                        |> Array.filter (\otherCell -> otherCell.marks == cell.marks)
+                        |> Array.filter (\otherCell -> areRelated cell otherCell)
+                        |> Array.get 0)
 
         -- Get cells which match the row, column or block of the otherCellsWithSamePairMarks 
         -- AND the row, column or block of the otherCellsWithSamePairMarks
         -- but which AREN't any of those cells
+        -- and subtract the marks found in the firstCellWithPairMarks from the marks of those cells
+        cellsToBeAdjusted = 
+            case (firstCellWithPairMarks, otherCellWithSamePairMarks) of
+                (Nothing, _) ->
+                    Array.fromList []
+
+                (Just _, Nothing) ->
+                    Array.fromList []
+
+                (Just cell, Just otherCell) ->
+                    model.cells
+                    |>  cellsWhichContainMarks cell.marks
+                        |> Array.filter (\thirdCell -> areCorelated cell otherCell thirdCell)
+
+
+        locsToAdjust = 
+            cellsToBeAdjusted
+                |> Array.map (\cell -> cell.pos)
+                |> Array.toList
 
         _ =
-            Debug.log "otherCellsWithSamePairMarks" otherCellsWithSamePairMarks
+            Debug.log "otherCellsWithSamePairMarks" otherCellWithSamePairMarks
+
+        _ =
+            Debug.log "cellsToBeAdjusted" cellsToBeAdjusted
+
+        _ =
+            Debug.log "locsToAdjust" locsToAdjust
 
 
         newCells =
             case firstCellWithPairMarks of
-                Just cell ->
-                    let
-                        index =
-                            positionToIndex cell.pos
-
-                        updatedCell =
-                            { cell | marks = [] }
-                    in
-                    Array.set index updatedCell model.cells
+                Just rootCell ->
+                    model.cells
+                    |> Array.map (\cell -> 
+                        if List.member cell.pos locsToAdjust then
+                            { cell | marks = List.filter (\mark -> not (List.member mark rootCell.marks)) cell.marks }
+                        else
+                            cell
+                    )
 
                 Nothing ->
                     model.cells

@@ -11,11 +11,15 @@ autoSolveStateToString state =
         NotSolving ->
             "Not Solving"
 
+        CanceledSolving ->
+            "Canceled Solving"
+
         SolvingSingles ->
             "Solving Singles"
 
         SolvingPairs ->
             "Solving Pairs"
+
             
 
 hasNumberRepeated : List Int -> Bool

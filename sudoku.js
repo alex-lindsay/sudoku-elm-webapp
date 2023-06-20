@@ -5734,6 +5734,7 @@ var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $
 var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Interactions$keyDecoder);
 };
+var $author$project$SudokuTypes$CanceledSolving = {$: 'CanceledSolving'};
 var $author$project$SudokuTypes$NewPuzzle = function (a) {
 	return {$: 'NewPuzzle', a: a};
 };
@@ -5745,36 +5746,6 @@ var $author$project$SudokuTypes$SolvePairs = {$: 'SolvePairs'};
 var $author$project$SudokuTypes$SolveSingles = {$: 'SolveSingles'};
 var $author$project$SudokuTypes$SolvingPairs = {$: 'SolvingPairs'};
 var $author$project$SudokuTypes$SolvingSingles = {$: 'SolvingSingles'};
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Autosolvers$cellsWithMarkCount = F2(
-	function (count, cells) {
-		return A2(
-			$elm$core$List$filter,
-			function (cell) {
-				return _Utils_eq(
-					$elm$core$List$length(cell.marks),
-					count);
-			},
-			$elm$core$Array$toList(cells));
-	});
-var $author$project$Autosolvers$cellsWithSingleMark = $author$project$Autosolvers$cellsWithMarkCount(1);
-var $author$project$Constants$emptyBoard = A2(
-	$elm$core$Array$initialize,
-	81,
-	function (i) {
-		return $author$project$Helpers$newCellAt(
-			$author$project$Helpers$indexToPosition(i));
-	});
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5810,6 +5781,37 @@ var $elm$core$Array$fromList = function (list) {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
+var $elm$core$Array$filter = F2(
+	function (isGood, array) {
+		return $elm$core$Array$fromList(
+			A3(
+				$elm$core$Array$foldr,
+				F2(
+					function (x, xs) {
+						return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+					}),
+				_List_Nil,
+				array));
+	});
+var $author$project$Autosolvers$cellsWithMarkCount = F2(
+	function (count, cells) {
+		return A2(
+			$elm$core$Array$filter,
+			function (cell) {
+				return _Utils_eq(
+					$elm$core$List$length(cell.marks),
+					count);
+			},
+			cells);
+	});
+var $author$project$Autosolvers$cellsWithSingleMark = $author$project$Autosolvers$cellsWithMarkCount(1);
+var $author$project$Constants$emptyBoard = A2(
+	$elm$core$Array$initialize,
+	81,
+	function (i) {
+		return $author$project$Helpers$newCellAt(
+			$author$project$Helpers$indexToPosition(i));
+	});
 var $elm_community$array_extra$Array$Extra$map2 = F3(
 	function (combineAb, aArray, bArray) {
 		return $elm$core$Array$fromList(
@@ -6367,6 +6369,17 @@ var $elm$core$Set$insert = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $author$project$CellHelpers$blockCells = F2(
 	function (blockNumber, model) {
 		return A2(
@@ -6618,7 +6631,7 @@ var $elm$core$Process$sleep = _Process_sleep;
 var $author$project$Autosolvers$cellsWithPairMarks = $author$project$Autosolvers$cellsWithMarkCount(2);
 var $author$project$Autosolvers$uncheckedModelCellsWithMarkPairs = function (model) {
 	return A2(
-		$elm$core$List$filter,
+		$elm$core$Array$filter,
 		function (cell) {
 			return _Utils_cmp(
 				$author$project$Helpers$positionToIndex(cell.pos),
@@ -7056,6 +7069,157 @@ var $author$project$Updaters$updateGameState = F2(
 				gameState: $elm$core$Maybe$Just(gameState)
 			});
 	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$CellHelpers$inSameBlock = F2(
+	function (cell1, cell2) {
+		return _Utils_eq(cell1.block, cell2.block);
+	});
+var $author$project$CellHelpers$inSameCol = F2(
+	function (cell1, cell2) {
+		return _Utils_eq(cell1.pos.b, cell2.pos.b);
+	});
+var $author$project$CellHelpers$inSameRow = F2(
+	function (cell1, cell2) {
+		return _Utils_eq(cell1.pos.a, cell2.pos.a);
+	});
+var $author$project$CellHelpers$areCorelated = F3(
+	function (cell1, cell2, cell3) {
+		return (!_Utils_eq(cell1, cell2)) && ((!_Utils_eq(cell1, cell3)) && ((A2($author$project$CellHelpers$inSameRow, cell1, cell2) && A2($author$project$CellHelpers$inSameRow, cell1, cell3)) || ((A2($author$project$CellHelpers$inSameCol, cell1, cell2) && A2($author$project$CellHelpers$inSameCol, cell1, cell3)) || (A2($author$project$CellHelpers$inSameBlock, cell1, cell2) && A2($author$project$CellHelpers$inSameBlock, cell1, cell3)))));
+	});
+var $author$project$CellHelpers$areRelated = F2(
+	function (cell1, cell2) {
+		return (!_Utils_eq(cell1, cell2)) && (A2($author$project$CellHelpers$inSameRow, cell1, cell2) || (A2($author$project$CellHelpers$inSameCol, cell1, cell2) || A2($author$project$CellHelpers$inSameBlock, cell1, cell2)));
+	});
+var $author$project$CellHelpers$cellContainsMarks = F2(
+	function (marks, cell) {
+		return A2(
+			$elm$core$List$all,
+			function (mark) {
+				return A2($elm$core$List$member, mark, cell.marks);
+			},
+			marks);
+	});
+var $author$project$CellHelpers$cellsWhichContainMarks = F2(
+	function (marks, cells) {
+		return A2(
+			$elm$core$Array$filter,
+			$author$project$CellHelpers$cellContainsMarks(marks),
+			cells);
+	});
+var $elm$core$Elm$JsArray$map = _JsArray_map;
+var $elm$core$Array$map = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = function (node) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return $elm$core$Array$SubTree(
+					A2($elm$core$Elm$JsArray$map, helper, subTree));
+			} else {
+				var values = node.a;
+				return $elm$core$Array$Leaf(
+					A2($elm$core$Elm$JsArray$map, func, values));
+			}
+		};
+		return A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A2($elm$core$Elm$JsArray$map, helper, tree),
+			A2($elm$core$Elm$JsArray$map, func, tail));
+	});
+var $author$project$Autosolvers$updatePair = function (model) {
+	var firstCellWithPairMarks = A2(
+		$elm$core$Array$get,
+		0,
+		$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
+	var otherCellWithSamePairMarks = A2(
+		$elm$core$Maybe$andThen,
+		function (cell) {
+			return A2(
+				$elm$core$Array$get,
+				0,
+				A2(
+					$elm$core$Array$filter,
+					function (otherCell) {
+						return A2($author$project$CellHelpers$areRelated, cell, otherCell);
+					},
+					A2(
+						$elm$core$Array$filter,
+						function (otherCell) {
+							return _Utils_eq(otherCell.marks, cell.marks);
+						},
+						model.cells)));
+		},
+		firstCellWithPairMarks);
+	var cellsToBeAdjusted = function () {
+		var _v4 = _Utils_Tuple2(firstCellWithPairMarks, otherCellWithSamePairMarks);
+		if (_v4.a.$ === 'Nothing') {
+			var _v5 = _v4.a;
+			return $elm$core$Array$fromList(_List_Nil);
+		} else {
+			if (_v4.b.$ === 'Nothing') {
+				var _v6 = _v4.b;
+				return $elm$core$Array$fromList(_List_Nil);
+			} else {
+				var cell = _v4.a.a;
+				var otherCell = _v4.b.a;
+				return A2(
+					$elm$core$Array$filter,
+					function (thirdCell) {
+						return A3($author$project$CellHelpers$areCorelated, cell, otherCell, thirdCell);
+					},
+					A2($author$project$CellHelpers$cellsWhichContainMarks, cell.marks, model.cells));
+			}
+		}
+	}();
+	var locsToAdjust = $elm$core$Array$toList(
+		A2(
+			$elm$core$Array$map,
+			function (cell) {
+				return cell.pos;
+			},
+			cellsToBeAdjusted));
+	var newCells = function () {
+		if (firstCellWithPairMarks.$ === 'Just') {
+			var rootCell = firstCellWithPairMarks.a;
+			return A2(
+				$elm$core$Array$map,
+				function (cell) {
+					return A2($elm$core$List$member, cell.pos, locsToAdjust) ? _Utils_update(
+						cell,
+						{
+							marks: A2(
+								$elm$core$List$filter,
+								function (mark) {
+									return !A2($elm$core$List$member, mark, rootCell.marks);
+								},
+								cell.marks)
+						}) : cell;
+				},
+				model.cells);
+		} else {
+			return model.cells;
+		}
+	}();
+	var _v0 = A2($elm$core$Debug$log, 'otherCellsWithSamePairMarks', otherCellWithSamePairMarks);
+	var _v1 = A2($elm$core$Debug$log, 'cellsToBeAdjusted', cellsToBeAdjusted);
+	var _v2 = A2($elm$core$Debug$log, 'locsToAdjust', locsToAdjust);
+	return _Utils_update(
+		model,
+		{cells: newCells});
+};
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -7065,51 +7229,10 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Autosolvers$updatePair = function (model) {
-	var firstCellWithPairMarks = $elm$core$List$head(
-		$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
-	var newCells = function () {
-		if (firstCellWithPairMarks.$ === 'Just') {
-			var cell = firstCellWithPairMarks.a;
-			var updatedCell = _Utils_update(
-				cell,
-				{marks: _List_Nil});
-			var index = $author$project$Helpers$positionToIndex(cell.pos);
-			return A3($elm$core$Array$set, index, updatedCell, model.cells);
-		} else {
-			return model.cells;
-		}
-	}();
-	var otherCellsWithSamePairMarks = function () {
-		if (firstCellWithPairMarks.$ === 'Just') {
-			var cell = firstCellWithPairMarks.a;
-			return A2(
-				$elm$core$List$filter,
-				function (otherCell) {
-					return _Utils_eq(otherCell.pos.a, cell.pos.a) || (_Utils_eq(otherCell.pos.b, cell.pos.b) || _Utils_eq(otherCell.block, cell.block));
-				},
-				A2(
-					$elm$core$List$filter,
-					function (otherCell) {
-						return _Utils_eq(otherCell.marks, cell.marks);
-					},
-					A2(
-						$elm$core$List$filter,
-						function (otherCell) {
-							return !_Utils_eq(otherCell, cell);
-						},
-						$author$project$Autosolvers$cellsWithPairMarks(model.cells))));
-		} else {
-			return _List_Nil;
-		}
-	}();
-	var _v0 = A2($elm$core$Debug$log, 'otherCellsWithSamePairMarks', otherCellsWithSamePairMarks);
-	return _Utils_update(
-		model,
-		{cells: newCells});
-};
 var $author$project$Autosolvers$updateSingle = function (model) {
-	var firstCellWithSingleMark = $elm$core$List$head(
+	var firstCellWithSingleMark = A2(
+		$elm$core$Array$get,
+		0,
 		$author$project$Autosolvers$cellsWithSingleMark(model.cells));
 	var newCells = function () {
 		if (firstCellWithSingleMark.$ === 'Just') {
@@ -7287,57 +7410,81 @@ var $author$project$Sudoku$update = F2(
 						$elm$core$Process$sleep(2000)));
 			case 'StopSolving':
 				return _Utils_Tuple2(
-					A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
+					A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CanceledSolving, model),
 					$elm$core$Platform$Cmd$none);
 			case 'SolveSingles':
-				var _v5 = $elm$core$List$length(
-					$author$project$Autosolvers$cellsWithSingleMark(model.cells));
-				if (!_v5) {
-					return _Utils_Tuple2(
-						A2(
-							$author$project$Updaters$updateSelectedCell,
-							0,
-							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model)),
-						A2(
-							$elm$core$Task$perform,
-							function (_v6) {
-								return $author$project$SudokuTypes$SolvePairs;
-							},
-							$elm$core$Process$sleep(2000)));
-				} else {
-					return _Utils_Tuple2(
-						$author$project$Updaters$generateAutoMarks(
-							$author$project$Autosolvers$updateSingle(
-								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
-						A2(
-							$elm$core$Task$perform,
-							function (_v7) {
-								return $author$project$SudokuTypes$SolveSingles;
-							},
-							$elm$core$Process$sleep(2000)));
-				}
-			default:
-				var _v8 = A2(
-					$elm$core$Debug$log,
-					'uncheckedModelCellsWithMarkPairs',
-					$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
-				var _v9 = $elm$core$List$length(
-					$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
-				if (!_v9) {
+				var _v5 = _Utils_Tuple2(
+					model.autoSolveState,
+					A2(
+						$elm$core$Array$get,
+						0,
+						$author$project$Autosolvers$cellsWithSingleMark(model.cells)));
+				if (_v5.a.$ === 'CanceledSolving') {
+					var _v6 = _v5.a;
 					return _Utils_Tuple2(
 						A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
 						$elm$core$Platform$Cmd$none);
 				} else {
+					if (_v5.b.$ === 'Nothing') {
+						var _v7 = _v5.b;
+						return _Utils_Tuple2(
+							A2(
+								$author$project$Updaters$updateSelectedCell,
+								0,
+								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model)),
+							A2(
+								$elm$core$Task$perform,
+								function (_v8) {
+									return $author$project$SudokuTypes$SolvePairs;
+								},
+								$elm$core$Process$sleep(2000)));
+					} else {
+						return _Utils_Tuple2(
+							$author$project$Updaters$generateAutoMarks(
+								$author$project$Autosolvers$updateSingle(
+									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
+							A2(
+								$elm$core$Task$perform,
+								function (_v9) {
+									return $author$project$SudokuTypes$SolveSingles;
+								},
+								$elm$core$Process$sleep(2000)));
+					}
+				}
+			default:
+				var _v10 = A2(
+					$elm$core$Debug$log,
+					'uncheckedModelCellsWithMarkPairs',
+					$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
+				var _v11 = _Utils_Tuple2(
+					model.autoSolveState,
+					A2(
+						$elm$core$Array$get,
+						0,
+						$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model)));
+				if (_v11.a.$ === 'CanceledSolving') {
+					var _v12 = _v11.a;
 					return _Utils_Tuple2(
-						$author$project$Updaters$generateAutoMarks(
-							$author$project$Autosolvers$updatePair(
-								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model))),
-						A2(
-							$elm$core$Task$perform,
-							function (_v10) {
-								return $author$project$SudokuTypes$SolvePairs;
-							},
-							$elm$core$Process$sleep(2000)));
+						A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					if (_v11.b.$ === 'Nothing') {
+						var _v13 = _v11.b;
+						return _Utils_Tuple2(
+							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						return _Utils_Tuple2(
+							$author$project$Updaters$generateAutoMarks(
+								$author$project$Autosolvers$updatePair(
+									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model))),
+							A2(
+								$elm$core$Task$perform,
+								function (_v14) {
+									return $author$project$SudokuTypes$SolvePairs;
+								},
+								$elm$core$Process$sleep(2000)));
+					}
 				}
 		}
 	});
@@ -7357,6 +7504,8 @@ var $author$project$Helpers$autoSolveStateToString = function (state) {
 	switch (state.$) {
 		case 'NotSolving':
 			return 'Not Solving';
+		case 'CanceledSolving':
+			return 'Canceled Solving';
 		case 'SolvingSingles':
 			return 'Solving Singles';
 		default:

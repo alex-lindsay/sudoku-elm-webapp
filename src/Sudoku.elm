@@ -50,7 +50,7 @@ update msg model =
             ( updateCellValue ( row, col ) model, Cmd.none )
 
         GenerateBoard ->
-            ( model, Array.length Constants.sampleValueStrings
+            ( model, Array.length sampleValueStrings
             |> Random.int 0
             |> Random.generate NewPuzzle )
 
@@ -144,11 +144,14 @@ update msg model =
             )
 
         StopSolving ->
-            ( updateAutoSolveState NotSolving model, Cmd.none )
+            ( updateAutoSolveState CanceledSolving model, Cmd.none )
 
         SolveSingles ->
-            case cellsWithSingleMark model.cells |> List.length of
-                0 ->
+            case (model.autoSolveState, cellsWithSingleMark model.cells |> Array.get 0) of
+                ( CanceledSolving, _ ) ->
+                    ( updateAutoSolveState NotSolving model, Cmd.none )
+
+                ( _, Nothing ) ->
                     ( updateAutoSolveState SolvingPairs model
                         |> updateSelectedCell 0
                     , Process.sleep 2000 |> Task.perform (\_ -> SolvePairs)
@@ -160,8 +163,11 @@ update msg model =
             let
                 _ = Debug.log "uncheckedModelCellsWithMarkPairs" (uncheckedModelCellsWithMarkPairs model)
             in
-            case uncheckedModelCellsWithMarkPairs model |> List.length of
-                0 ->
+            case (model.autoSolveState, uncheckedModelCellsWithMarkPairs model |> Array.get 0) of
+                ( CanceledSolving, _ ) ->
+                    ( updateAutoSolveState NotSolving model, Cmd.none )
+
+                ( _, Nothing ) ->
                     ( updateAutoSolveState NotSolving model, Cmd.none )
 
                 _ ->

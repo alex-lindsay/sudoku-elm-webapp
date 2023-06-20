@@ -52,6 +52,24 @@ anyRowHasValueRepeated model =
     List.any (\rowNumber -> rowHasNumberRepeated rowNumber .value model) digits
 
 
+areCorelated : Cell -> Cell -> Cell -> Bool
+areCorelated cell1 cell2 cell3 =
+    cell1 /= cell2
+        && cell1 /= cell3
+        && ((inSameRow cell1 cell2 && inSameRow cell1 cell3)
+            || (inSameCol cell1 cell2 && inSameCol cell1 cell3)
+            || (inSameBlock cell1 cell2 && inSameBlock cell1 cell3))
+
+
+areRelated : Cell -> Cell -> Bool
+areRelated cell1 cell2 =
+    cell1 /= cell2
+        && (inSameRow cell1 cell2
+            || inSameCol cell1 cell2
+            || inSameBlock cell1 cell2)
+
+
+
 autoHintsForCellAt : ( Int, Int ) -> Model -> List Int
 autoHintsForCellAt ( row, col ) model =
     let
@@ -79,6 +97,11 @@ blockHasNumberRepeated blockNumber getNumber model =
 blockIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
 blockIsComplete blockNumber getNumber model =
     cellsAreComplete (blockCells blockNumber model) getNumber
+
+
+cellContainsMarks : List Int -> Cell -> Bool
+cellContainsMarks marks cell =
+    List.all (\mark -> List.member mark cell.marks) marks
 
 
 cellGuessOrValue : Cell -> Maybe Int
@@ -111,6 +134,12 @@ cellsAreComplete cells getNumber =
 cellsHaveNumberRepeated : List Cell -> (Cell -> Maybe Int) -> Bool
 cellsHaveNumberRepeated cells getNumber =
     hasNumberRepeated (List.filterMap getNumber cells)
+
+
+cellsWhichContainMarks : List Int -> Array Cell -> Array Cell
+cellsWhichContainMarks marks cells =
+    cells
+        |> Array.filter (cellContainsMarks marks)
 
 
 colCells : Int -> Model -> List Cell
@@ -168,6 +197,21 @@ guessesAndKnownsForCellAt ( row, col ) model =
         -- _ = Debug.log "guessValues" values
     in
     values
+
+
+inSameBlock : Cell -> Cell -> Bool
+inSameBlock cell1 cell2 =
+    cell1.block == cell2.block
+
+
+inSameCol : Cell -> Cell -> Bool
+inSameCol cell1 cell2 =
+    (Tuple.second cell1.pos) == (Tuple.second cell2.pos)
+
+
+inSameRow : Cell -> Cell -> Bool
+inSameRow cell1 cell2 =
+    (Tuple.first cell1.pos) == (Tuple.first cell2.pos)
 
 
 rowCells : Int -> Model -> List Cell
