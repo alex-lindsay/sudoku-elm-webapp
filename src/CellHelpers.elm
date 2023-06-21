@@ -99,6 +99,11 @@ blockIsComplete blockNumber getNumber model =
     cellsAreComplete (blockCells blockNumber model) getNumber
 
 
+cellCol  : Cell -> Int
+cellCol cell =
+    Tuple.second cell.pos
+
+
 cellContainsMarks : List Int -> Cell -> Bool
 cellContainsMarks marks cell =
     List.all (\mark -> List.member mark cell.marks) marks
@@ -128,7 +133,7 @@ cellGuessOrKnown cell =
 
 cellIsInColumn : Int -> Cell -> Bool
 cellIsInColumn colNumber cell =
-    (Tuple.second cell.pos) == colNumber
+    (cellCol cell) == colNumber
 
 
 cellIsInRow : Int -> Cell -> Bool
@@ -136,9 +141,23 @@ cellIsInRow colNumber cell =
     (Tuple.first cell.pos) == colNumber
 
 
+cellIsOnlyOpenCellInCells : Cell -> Array Cell -> Bool
+cellIsOnlyOpenCellInCells cell cells =
+    cells
+        |> Array.filter (\otherCell -> otherCell /= cell)
+        |> Array.toList
+        |> List.all (\otherCell -> not (cellIsOpen otherCell)) 
+
+
 cellIsOpen : Cell -> Bool
 cellIsOpen cell =
     cell.value == Nothing && cell.guess == Nothing
+
+
+cellRow  : Cell -> Int
+cellRow cell =
+    Tuple.first cell.pos
+
 
 cellsAreComplete : Array Cell -> (Cell -> Maybe Int) -> Bool
 cellsAreComplete cells getNumber =
@@ -246,3 +265,86 @@ rowHasNumberRepeated rowNumber getNumber model =
 rowIsComplete : Int -> (Cell -> Maybe Int) -> Model -> Bool
 rowIsComplete rowNumber getNumber model =
     cellsAreComplete (rowCells rowNumber model) getNumber
+
+
+selectedCell : Model -> Maybe Cell
+selectedCell model =
+    model.cells
+        |> Array.filter (\cell -> cell.pos == model.selectedPos)
+        |> Array.get 0
+
+
+selectedCellIsOpen : Model -> Bool
+selectedCellIsOpen model =
+    case selectedCell model of
+        Just cell ->
+            cellIsOpen cell
+
+        Nothing ->
+            False
+
+
+selectedCellIsOnlyOpenCellInBlock : Model -> Bool
+selectedCellIsOnlyOpenCellInBlock model =
+    case selectedCell model of
+        Just cell ->
+            cellIsOnlyOpenCellInCells cell (rowCells (.block cell) model)
+
+        Nothing ->
+            False
+            
+            
+selectedCellIsOnlyOpenCellInCol : Model -> Bool
+selectedCellIsOnlyOpenCellInCol model =
+    case selectedCell model of
+        Just cell ->
+            cellIsOnlyOpenCellInCells cell (rowCells (cellCol cell) model)
+
+        Nothing ->
+            False
+
+
+selectedCellIsOnlyOpenCellInRow : Model -> Bool
+selectedCellIsOnlyOpenCellInRow model =
+    case selectedCell model of
+        Just cell ->
+            cellIsOnlyOpenCellInCells cell (rowCells (cellRow cell) model)
+
+        Nothing ->
+            False
+
+
+selectedBlock : Model -> Array Cell
+selectedBlock model =
+    blockCells (positionToBlock model.selectedPos) model
+
+
+selectedCol : Model -> Array Cell
+selectedCol model =
+    colCells (Tuple.second model.selectedPos) model
+
+
+selectedBlockValues : Model -> List Int
+selectedBlockValues model =
+    selectedBlock model
+        |> Array.toList
+        |> List.filterMap cellGuessOrKnown
+        
+
+selectedColValues : Model -> List Int
+selectedColValues model =
+    selectedCol model
+        |> Array.toList
+        |> List.filterMap cellGuessOrKnown
+        
+
+selectedRow : Model -> Array Cell
+selectedRow model =
+    rowCells (Tuple.first model.selectedPos) model
+
+
+selectedRowValues : Model -> List Int
+selectedRowValues model =
+    selectedRow model
+        |> Array.toList
+        |> List.filterMap cellGuessOrKnown

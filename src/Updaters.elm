@@ -123,6 +123,15 @@ updateCurrentCellValue model =
     updateCellValue model.selectedPos model
 
 
+updateFullHouse : Model -> Model
+updateFullHouse model =
+    let
+        -- rowValues = selectedRowValues model
+        newCells = model.cells
+    in
+    { model | cells = newCells }
+
+
 updateGameState : GameState -> Model -> Model
 updateGameState gameState model =
     if model.gameState == Just gameState then
@@ -132,8 +141,8 @@ updateGameState gameState model =
         { model | gameState = Just gameState }
 
 
-updateselectedPos : Int -> Model -> Model
-updateselectedPos delta model =
+updateSelectedPos : Int -> Model -> Model
+updateSelectedPos delta model =
     let
         index =
             positionToIndex model.selectedPos

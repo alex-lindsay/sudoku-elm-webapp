@@ -61,3 +61,13 @@ emptyBoard =
 
 digits : List Int
 digits = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+
+
+defaultModel : Model
+defaultModel = { gameState = Just SetKnown
+      , activeNumber = Just 1
+      , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
+      , selectedPos = ( 1, 1 )
+      , winningStatus = Unknown
+      , autoSolveState = NotSolving
+      }

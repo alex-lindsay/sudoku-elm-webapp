@@ -231,7 +231,7 @@ rowCellsTest =
 
         actualRows =
             actualResults
-                |> List.map (\row -> List.map (\cell -> (Tuple.first cell.pos)) (Array.toList row))
+                |> List.map (\row -> List.map (\cell -> (cellRow cell)) (Array.toList row))
     in
     describe "rowCells"
         [ test "lengths are as expected"
@@ -258,7 +258,7 @@ colCellsTest =
 
         actualCols =
             actualResults
-                |> List.map (\col -> List.map (\cell -> (Tuple.second cell.pos)) (Array.toList col))
+                |> List.map (\col -> List.map (\cell -> (cellCol cell)) (Array.toList col))
     in
     describe "colCells"
         [ test "lengths are as expected"

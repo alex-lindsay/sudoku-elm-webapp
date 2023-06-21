@@ -2,7 +2,7 @@ module Interactions exposing (..)
 
 import Json.Decode as Decode
 import SudokuTypes exposing (..)
-import Updaters exposing (updateselectedPos)
+import Updaters exposing (updateSelectedPos)
 
 
 keyDecoder : Decode.Decoder Msg
@@ -10,24 +10,24 @@ keyDecoder =
     Decode.map toKey (Decode.field "key" Decode.string)
 
 
-moveselectedPosDown : Model -> Model
-moveselectedPosDown model =
-    updateselectedPos 9 model
+moveSelectedPosDown : Model -> Model
+moveSelectedPosDown model =
+    updateSelectedPos 9 model
 
 
-moveselectedPosLeft : Model -> Model
-moveselectedPosLeft model =
-    updateselectedPos -1 model
+moveSelectedPosLeft : Model -> Model
+moveSelectedPosLeft model =
+    updateSelectedPos -1 model
 
 
-moveselectedPosRight : Model -> Model
-moveselectedPosRight model =
-    updateselectedPos 1 model
+moveSelectedPosRight : Model -> Model
+moveSelectedPosRight model =
+    updateSelectedPos 1 model
 
 
-moveselectedPosUp : Model -> Model
-moveselectedPosUp model =
-    updateselectedPos -9 model
+moveSelectedPosUp : Model -> Model
+moveSelectedPosUp model =
+    updateSelectedPos -9 model
 
 
 toKey : String -> Msg

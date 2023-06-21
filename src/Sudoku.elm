@@ -24,15 +24,7 @@ import Updaters exposing (..)
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { gameState = Just SetKnown
-      , activeNumber = Just 1
-      , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
-
-      --   , cells = winningBoard
-      , selectedPos = ( 1, 1 )
-      , winningStatus = Unknown
-      , autoSolveState = NotSolving
-      }
+    ( defaultModel
     , Cmd.none
     )
 
@@ -97,13 +89,13 @@ update msg model =
                     ( updateGameState SetAutoMarks model, Cmd.none )
 
                 ' ' ->
-                    ( moveselectedPosRight model, Cmd.none )
+                    ( moveSelectedPosRight model, Cmd.none )
 
                 _ ->
                     if isNumberKey then
                         ( updateActiveNumber (String.toInt (String.fromChar key)) model
                             |> updateCurrentCellValue
-                            |> moveselectedPosRight
+                            |> moveSelectedPosRight
                             |> updateWinningStatus
                         , Cmd.none
                         )
@@ -114,19 +106,19 @@ update msg model =
         ControlKeyPressed label ->
             case label of
                 "ArrowRight" ->
-                    ( moveselectedPosRight model, Cmd.none )
+                    ( moveSelectedPosRight model, Cmd.none )
 
                 "ArrowLeft" ->
-                    ( moveselectedPosLeft model, Cmd.none )
+                    ( moveSelectedPosLeft model, Cmd.none )
 
                 "ArrowUp" ->
-                    ( moveselectedPosUp model, Cmd.none )
+                    ( moveSelectedPosUp model, Cmd.none )
 
                 "ArrowDown" ->
-                    ( moveselectedPosDown model, Cmd.none )
+                    ( moveSelectedPosDown model, Cmd.none )
 
                 "Backspace" ->
-                    ( moveselectedPosLeft model
+                    ( moveSelectedPosLeft model
                         |> updateActiveNumber Nothing
                         |> updateCurrentCellValue
                         |> updateWinningStatus
@@ -137,18 +129,31 @@ update msg model =
                     ( model, Cmd.none )
 
         StartSolving ->
-            ( model, Cmd.none )
-            -- ( updateAutoSolveState CheckingSingles model
-            --     |> generateAutoMarks
-            --     |> updateselectedPos 0
-            -- , Process.sleep 2000 |> Task.perform (\_ -> CheckSingles)
-            -- )
+            ( updateAutoSolveState CheckingFullHouse model
+                |> generateAutoMarks
+                |> updateSelectedPos 0
+            , Process.sleep 2000 |> Task.perform (\_ -> CheckFullHouse)
+            )
 
         StopSolving ->
             ( updateAutoSolveState CanceledSolving model, Cmd.none )
 
         CheckFullHouse ->
-            ( model, Cmd.none )
+            case model.autoSolveState of
+                CanceledSolving ->
+                    ( updateAutoSolveState NotSolving model, Cmd.none )
+
+                _ ->                            
+                    if selectedCellIsFullHouse model then
+                        ( updateAutoSolveState CheckingFullHouse model
+                            |> updateFullHouse
+                            |> updateSelectedPos ((positionToIndex model.selectedPos) + 1)
+                        , Process.sleep 2000 |> Task.perform (\_ -> CheckFullHouse)
+                        )
+
+                    else
+                        ( updateAutoSolveState CheckingFullHouse model |> updateFullHouse |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckFullHouse) )
+                    -- ( model, Cmd.none )
 
         CheckLastDigit ->
             ( model, Cmd.none )
@@ -177,7 +182,7 @@ update msg model =
 
         --         ( _, Nothing ) ->
         --             ( updateAutoSolveState CheckingPairs model
-        --                 |> updateselectedPos 0
+        --                 |> updateSelectedPos 0
         --             , Process.sleep 2000 |> Task.perform (\_ -> CheckPairs)
         --             )
 
