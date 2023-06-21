@@ -16,7 +16,7 @@ generateAutoMarks model =
                 |> List.map
                     (\i ->
                         Array.get i model.cells
-                            |> Maybe.withDefault (newCellAt (indexToPosition i))
+                            |> Maybe.withDefault (newCellAt ((indexToPosition i) |> Maybe.withDefault (1,1)))
                     )
                 |> List.map
                     (\cell ->
@@ -154,6 +154,7 @@ updateSelectedPos delta model =
 
         ( newRow, newCol ) =
             indexToPosition newIndex
+                |> Maybe.withDefault (1,1)
     in
     if validPosition ( newRow, newCol ) then
         { model | selectedPos = ( newRow, newCol ) }

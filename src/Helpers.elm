@@ -36,20 +36,18 @@ autoSolveStateToString state =
             "Checking Sole Candidate"
 
 
-            
-
 hasNumberRepeated : List Int -> Bool
 hasNumberRepeated numbers =
     List.length numbers /= List.length (Set.toList (Set.fromList numbers))
 
 
-indexToPosition : Int -> Position
+indexToPosition : Int -> Maybe Position
 indexToPosition index =
     if validIndex index then
-        ( (index // 9) + 1, modBy 9 index + 1 )
+        Just ( (index // 9) + 1, modBy 9 index + 1 )
 
     else
-        ( 0, 0 )
+        Nothing
 
 
 newCellAt : Position -> Cell

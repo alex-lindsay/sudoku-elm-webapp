@@ -5251,9 +5251,10 @@ var $author$project$Helpers$validIndex = function (index) {
 	return (index >= 0) && (index < 81);
 };
 var $author$project$Helpers$indexToPosition = function (index) {
-	return $author$project$Helpers$validIndex(index) ? _Utils_Tuple2(
-		((index / 9) | 0) + 1,
-		A2($elm$core$Basics$modBy, 9, index) + 1) : _Utils_Tuple2(0, 0);
+	return $author$project$Helpers$validIndex(index) ? $elm$core$Maybe$Just(
+		_Utils_Tuple2(
+			((index / 9) | 0) + 1,
+			A2($elm$core$Basics$modBy, 9, index) + 1)) : $elm$core$Maybe$Nothing;
 };
 var $elm$core$Basics$negate = function (n) {
 	return -n;
@@ -5288,16 +5289,29 @@ var $author$project$Helpers$newCellAt = function (pos) {
 		}
 	}
 };
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Constants$emptyBoard = A2(
+	$elm$core$Array$initialize,
+	81,
+	function (i) {
+		return $author$project$Helpers$newCellAt(
+			A2(
+				$elm$core$Maybe$withDefault,
+				_Utils_Tuple2(1, 1),
+				$author$project$Helpers$indexToPosition(i)));
+	});
 var $author$project$Constants$defaultModel = {
 	activeNumber: $elm$core$Maybe$Just(1),
 	autoSolveState: $author$project$SudokuTypes$NotSolving,
-	cells: A2(
-		$elm$core$Array$initialize,
-		81,
-		function (i) {
-			return $author$project$Helpers$newCellAt(
-				$author$project$Helpers$indexToPosition(i));
-		}),
+	cells: $author$project$Constants$emptyBoard,
 	gameState: $elm$core$Maybe$Just($author$project$SudokuTypes$SetKnown),
 	selectedPos: _Utils_Tuple2(1, 1),
 	winningStatus: $author$project$SudokuTypes$Unknown
@@ -5743,13 +5757,6 @@ var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
 var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$SudokuTypes$SetGuess = {$: 'SetGuess'};
 var $author$project$SudokuTypes$SetMarks = {$: 'SetMarks'};
-var $author$project$Constants$emptyBoard = A2(
-	$elm$core$Array$initialize,
-	81,
-	function (i) {
-		return $author$project$Helpers$newCellAt(
-			$author$project$Helpers$indexToPosition(i));
-	});
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5793,15 +5800,6 @@ var $elm_community$array_extra$Array$Extra$map2 = F3(
 				combineAb,
 				$elm$core$Array$toList(aArray),
 				$elm$core$Array$toList(bArray)));
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
 	});
 var $author$project$Constants$fillBoardValues = F2(
 	function (valueString, cells) {
@@ -6554,7 +6552,10 @@ var $author$project$Updaters$generateAutoMarks = function (model) {
 					return A2(
 						$elm$core$Maybe$withDefault,
 						$author$project$Helpers$newCellAt(
-							$author$project$Helpers$indexToPosition(i)),
+							A2(
+								$elm$core$Maybe$withDefault,
+								_Utils_Tuple2(1, 1),
+								$author$project$Helpers$indexToPosition(i))),
 						A2($elm$core$Array$get, i, model.cells));
 				},
 				A2($elm$core$List$range, 0, 80))));
@@ -6614,7 +6615,10 @@ var $author$project$Updaters$updateSelectedPos = F2(
 	function (delta, model) {
 		var index = $author$project$Helpers$positionToIndex(model.selectedPos);
 		var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
-		var _v0 = $author$project$Helpers$indexToPosition(newIndex);
+		var _v0 = A2(
+			$elm$core$Maybe$withDefault,
+			_Utils_Tuple2(1, 1),
+			$author$project$Helpers$indexToPosition(newIndex));
 		var newRow = _v0.a;
 		var newCol = _v0.b;
 		return $author$project$Helpers$validPosition(
@@ -7969,8 +7973,16 @@ var $author$project$Sudoku$view = function (model) {
 									$author$project$Sudoku$viewCellAt(model),
 									A2(
 										$elm$core$List$map,
-										$author$project$Helpers$indexToPosition,
-										A2($elm$core$List$range, 0, 80)))),
+										function (pos) {
+											return A2(
+												$elm$core$Maybe$withDefault,
+												_Utils_Tuple2(1, 1),
+												pos);
+										},
+										A2(
+											$elm$core$List$map,
+											$author$project$Helpers$indexToPosition,
+											A2($elm$core$List$range, 0, 80))))),
 								A2(
 								$elm$html$Html$div,
 								_List_fromArray(

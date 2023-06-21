@@ -56,7 +56,7 @@ almostWinningBoard =
 
 emptyBoard : Array Cell
 emptyBoard =
-    Array.initialize 81 (\i -> newCellAt (indexToPosition i))
+    Array.initialize 81 (\i -> newCellAt (Maybe.withDefault (1,1) (indexToPosition i)))
 
 
 digits : List Int
@@ -66,7 +66,7 @@ digits = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 defaultModel : Model
 defaultModel = { gameState = Just SetKnown
       , activeNumber = Just 1
-      , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
+      , cells = emptyBoard
       , selectedPos = ( 1, 1 )
       , winningStatus = Unknown
       , autoSolveState = NotSolving

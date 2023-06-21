@@ -332,6 +332,7 @@ view model =
                 , div [ class "board-container" ]
                     (range 0 80
                         |> List.map indexToPosition
+                        |> List.map (\pos -> Maybe.withDefault (1, 1) pos)
                         |> List.map (viewCellAt model)
                     )
                 , div [ class "footnote" ]
