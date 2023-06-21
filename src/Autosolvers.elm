@@ -28,7 +28,7 @@ cellsWithThreeMarks = cellsWithMarkCount 3
 uncheckedModelCellsWithMarkPairs : Model -> Array Cell
 uncheckedModelCellsWithMarkPairs model =
     cellsWithPairMarks model.cells
-        |> Array.filter (\cell -> positionToIndex cell.pos >= positionToIndex model.selectedCell)
+        |> Array.filter (\cell -> positionToIndex cell.pos >= positionToIndex model.selectedPos)
 
 
 updateSingle : Model -> Model

@@ -115,12 +115,12 @@ updateCellValue pos model =
                 Nothing ->
                     cell
     in
-    updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedCell = pos }
+    updateWinningStatus { model | cells = Array.set index updatedCell model.cells, selectedPos = pos }
 
 
 updateCurrentCellValue : Model -> Model
 updateCurrentCellValue model =
-    updateCellValue model.selectedCell model
+    updateCellValue model.selectedPos model
 
 
 updateGameState : GameState -> Model -> Model
@@ -132,11 +132,11 @@ updateGameState gameState model =
         { model | gameState = Just gameState }
 
 
-updateSelectedCell : Int -> Model -> Model
-updateSelectedCell delta model =
+updateselectedPos : Int -> Model -> Model
+updateselectedPos delta model =
     let
         index =
-            positionToIndex model.selectedCell
+            positionToIndex model.selectedPos
 
         newIndex =
             index
@@ -147,7 +147,7 @@ updateSelectedCell delta model =
             indexToPosition newIndex
     in
     if validPosition ( newRow, newCol ) then
-        { model | selectedCell = ( newRow, newCol ) }
+        { model | selectedPos = ( newRow, newCol ) }
 
     else
         model

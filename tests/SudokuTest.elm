@@ -142,7 +142,7 @@ initTest =
                       , cells = Array.initialize 81 (\i -> newCellAt (indexToPosition i))
 
                       -- , cells = almostWinningBoard
-                      , selectedCell = ( 1, 1 )
+                      , selectedPos = ( 1, 1 )
                       , winningStatus = Unknown
                       , autoSolveState = NotSolving
                       }

@@ -29,7 +29,7 @@ init _ =
       , cells = initialize 81 (\i -> newCellAt (indexToPosition i))
 
       --   , cells = winningBoard
-      , selectedCell = ( 1, 1 )
+      , selectedPos = ( 1, 1 )
       , winningStatus = Unknown
       , autoSolveState = NotSolving
       }
@@ -97,13 +97,13 @@ update msg model =
                     ( updateGameState SetAutoMarks model, Cmd.none )
 
                 ' ' ->
-                    ( moveSelectedCellRight model, Cmd.none )
+                    ( moveselectedPosRight model, Cmd.none )
 
                 _ ->
                     if isNumberKey then
                         ( updateActiveNumber (String.toInt (String.fromChar key)) model
                             |> updateCurrentCellValue
-                            |> moveSelectedCellRight
+                            |> moveselectedPosRight
                             |> updateWinningStatus
                         , Cmd.none
                         )
@@ -114,19 +114,19 @@ update msg model =
         ControlKeyPressed label ->
             case label of
                 "ArrowRight" ->
-                    ( moveSelectedCellRight model, Cmd.none )
+                    ( moveselectedPosRight model, Cmd.none )
 
                 "ArrowLeft" ->
-                    ( moveSelectedCellLeft model, Cmd.none )
+                    ( moveselectedPosLeft model, Cmd.none )
 
                 "ArrowUp" ->
-                    ( moveSelectedCellUp model, Cmd.none )
+                    ( moveselectedPosUp model, Cmd.none )
 
                 "ArrowDown" ->
-                    ( moveSelectedCellDown model, Cmd.none )
+                    ( moveselectedPosDown model, Cmd.none )
 
                 "Backspace" ->
-                    ( moveSelectedCellLeft model
+                    ( moveselectedPosLeft model
                         |> updateActiveNumber Nothing
                         |> updateCurrentCellValue
                         |> updateWinningStatus
@@ -137,41 +137,65 @@ update msg model =
                     ( model, Cmd.none )
 
         StartSolving ->
-            ( updateAutoSolveState CheckingSingles model
-                |> generateAutoMarks
-                |> updateSelectedCell 0
-            , Process.sleep 2000 |> Task.perform (\_ -> CheckSingles)
-            )
+            ( model, Cmd.none )
+            -- ( updateAutoSolveState CheckingSingles model
+            --     |> generateAutoMarks
+            --     |> updateselectedPos 0
+            -- , Process.sleep 2000 |> Task.perform (\_ -> CheckSingles)
+            -- )
 
         StopSolving ->
             ( updateAutoSolveState CanceledSolving model, Cmd.none )
 
-        CheckSingles ->
-            case (model.autoSolveState, cellsWithSingleMark model.cells |> Array.get 0) of
-                ( CanceledSolving, _ ) ->
-                    ( updateAutoSolveState NotSolving model, Cmd.none )
+        CheckFullHouse ->
+            ( model, Cmd.none )
 
-                ( _, Nothing ) ->
-                    ( updateAutoSolveState CheckingPairs model
-                        |> updateSelectedCell 0
-                    , Process.sleep 2000 |> Task.perform (\_ -> CheckPairs)
-                    )
+        CheckLastDigit ->
+            ( model, Cmd.none )
 
-                _ ->
-                    ( updateAutoSolveState CheckingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckSingles) )
-        CheckPairs ->
-            let
-                _ = Debug.log "uncheckedModelCellsWithMarkPairs" (uncheckedModelCellsWithMarkPairs model)
-            in
-            case (model.autoSolveState, uncheckedModelCellsWithMarkPairs model |> Array.get 0) of
-                ( CanceledSolving, _ ) ->
-                    ( updateAutoSolveState NotSolving model, Cmd.none )
+        CheckHiddenSingle ->
+            ( model, Cmd.none )
 
-                ( _, Nothing ) ->
-                    ( updateAutoSolveState NotSolving model, Cmd.none )
+        CheckPinnedDigit ->
+            ( model, Cmd.none )
 
-                _ ->
-                    ( updateAutoSolveState CheckingPairs model |> updatePair |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckPairs) )
+        CheckNakedSingle ->
+            ( model, Cmd.none )
+
+        CheckForcedDigit ->
+            ( model, Cmd.none )
+
+        CheckSoleCandidate ->
+            ( model, Cmd.none )
+
+
+
+        -- CheckSingles ->
+        --     case (model.autoSolveState, cellsWithSingleMark model.cells |> Array.get 0) of
+        --         ( CanceledSolving, _ ) ->
+        --             ( updateAutoSolveState NotSolving model, Cmd.none )
+
+        --         ( _, Nothing ) ->
+        --             ( updateAutoSolveState CheckingPairs model
+        --                 |> updateselectedPos 0
+        --             , Process.sleep 2000 |> Task.perform (\_ -> CheckPairs)
+        --             )
+
+        --         _ ->
+        --             ( updateAutoSolveState CheckingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckSingles) )
+        -- CheckPairs ->
+        --     let
+        --         _ = Debug.log "uncheckedModelCellsWithMarkPairs" (uncheckedModelCellsWithMarkPairs model)
+        --     in
+        --     case (model.autoSolveState, uncheckedModelCellsWithMarkPairs model |> Array.get 0) of
+        --         ( CanceledSolving, _ ) ->
+        --             ( updateAutoSolveState NotSolving model, Cmd.none )
+
+        --         ( _, Nothing ) ->
+        --             ( updateAutoSolveState NotSolving model, Cmd.none )
+
+        --         _ ->
+        --             ( updateAutoSolveState CheckingPairs model |> updatePair |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckPairs) )
 
 
 
@@ -187,7 +211,7 @@ viewCellAt model ( row, col ) =
                 |> Maybe.withDefault (newCellAt ( row, col ))
     in
     div
-        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedCell == ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ), ( "block" ++ String.fromInt cell.block, True ) ]
+        [ classList [ ( "cell", True ), ( "cell--selected", model.selectedPos == ( row, col ) ), ( "row" ++ String.fromInt row, True ), ( "col" ++ String.fromInt col, True ), ( "block" ++ String.fromInt cell.block, True ) ]
         , onClick (SetCellValue ( row, col ))
         ]
         [ case ( cell.value, cell.isVisible ) of

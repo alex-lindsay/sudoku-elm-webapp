@@ -21,9 +21,13 @@ type WinningStatus
 type AutoSolveState
     = NotSolving
     | CanceledSolving
-    | CheckingSingles
-    | CheckingPairs
-    -- | CheckingTriples
+    | CheckingFullHouse
+    | CheckingLastDigit
+    | CheckingHiddenSingle
+    | CheckingPinnedDigit
+    | CheckingNakedSingle
+    | CheckingForcedDigit
+    | CheckingSoleCandidate
 
 
 type alias Position =
@@ -42,9 +46,13 @@ type Msg
     | ControlKeyPressed String
     | StartSolving
     | StopSolving
-    | CheckSingles
-    | CheckPairs
-    -- | SolveTriples
+    | CheckFullHouse
+    | CheckLastDigit
+    | CheckHiddenSingle
+    | CheckPinnedDigit
+    | CheckNakedSingle
+    | CheckForcedDigit
+    | CheckSoleCandidate
 
 
 type alias Cell =
@@ -61,7 +69,7 @@ type alias Model =
     { gameState : Maybe GameState
     , activeNumber : Maybe Int
     , cells : Array Cell
-    , selectedCell : Position
+    , selectedPos : Position
     , winningStatus : WinningStatus
     , autoSolveState : AutoSolveState
     }

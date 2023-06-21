@@ -5303,7 +5303,7 @@ var $author$project$Sudoku$init = function (_v0) {
 						$author$project$Helpers$indexToPosition(i));
 				}),
 			gameState: $elm$core$Maybe$Just($author$project$SudokuTypes$SetKnown),
-			selectedCell: _Utils_Tuple2(1, 1),
+			selectedPos: _Utils_Tuple2(1, 1),
 			winningStatus: $author$project$SudokuTypes$Unknown
 		},
 		$elm$core$Platform$Cmd$none);
@@ -5735,10 +5735,6 @@ var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Interactions$keyDecoder);
 };
 var $author$project$SudokuTypes$CanceledSolving = {$: 'CanceledSolving'};
-var $author$project$SudokuTypes$CheckPairs = {$: 'CheckPairs'};
-var $author$project$SudokuTypes$CheckSingles = {$: 'CheckSingles'};
-var $author$project$SudokuTypes$CheckingPairs = {$: 'CheckingPairs'};
-var $author$project$SudokuTypes$CheckingSingles = {$: 'CheckingSingles'};
 var $author$project$SudokuTypes$NewPuzzle = function (a) {
 	return {$: 'NewPuzzle', a: a};
 };
@@ -5746,6 +5742,13 @@ var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
 var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$SudokuTypes$SetGuess = {$: 'SetGuess'};
 var $author$project$SudokuTypes$SetMarks = {$: 'SetMarks'};
+var $author$project$Constants$emptyBoard = A2(
+	$elm$core$Array$initialize,
+	81,
+	function (i) {
+		return $author$project$Helpers$newCellAt(
+			$author$project$Helpers$indexToPosition(i));
+	});
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5781,37 +5784,6 @@ var $elm$core$Array$fromList = function (list) {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
-var $elm$core$Array$filter = F2(
-	function (isGood, array) {
-		return $elm$core$Array$fromList(
-			A3(
-				$elm$core$Array$foldr,
-				F2(
-					function (x, xs) {
-						return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-					}),
-				_List_Nil,
-				array));
-	});
-var $author$project$Autosolvers$cellsWithMarkCount = F2(
-	function (count, cells) {
-		return A2(
-			$elm$core$Array$filter,
-			function (cell) {
-				return _Utils_eq(
-					$elm$core$List$length(cell.marks),
-					count);
-			},
-			cells);
-	});
-var $author$project$Autosolvers$cellsWithSingleMark = $author$project$Autosolvers$cellsWithMarkCount(1);
-var $author$project$Constants$emptyBoard = A2(
-	$elm$core$Array$initialize,
-	81,
-	function (i) {
-		return $author$project$Helpers$newCellAt(
-			$author$project$Helpers$indexToPosition(i));
-	});
 var $elm_community$array_extra$Array$Extra$map2 = F3(
 	function (combineAb, aArray, bArray) {
 		return $elm$core$Array$fromList(
@@ -6369,6 +6341,18 @@ var $elm$core$Set$insert = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
+var $elm$core$Array$filter = F2(
+	function (isGood, array) {
+		return $elm$core$Array$fromList(
+			A3(
+				$elm$core$Array$foldr,
+				F2(
+					function (x, xs) {
+						return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+					}),
+				_List_Nil,
+				array));
+	});
 var $author$project$CellHelpers$blockCells = F2(
 	function (blockNumber, model) {
 		return A2(
@@ -6614,16 +6598,15 @@ var $elm$core$Array$length = function (_v0) {
 	var len = _v0.a;
 	return len;
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Helpers$positionToIndex = function (_v0) {
 	var row = _v0.a;
 	var col = _v0.b;
 	return $author$project$Helpers$validPosition(
 		_Utils_Tuple2(row, col)) ? (((row - 1) * 9) + (col - 1)) : (-1);
 };
-var $author$project$Updaters$updateSelectedCell = F2(
+var $author$project$Updaters$updateselectedPos = F2(
 	function (delta, model) {
-		var index = $author$project$Helpers$positionToIndex(model.selectedCell);
+		var index = $author$project$Helpers$positionToIndex(model.selectedPos);
 		var newIndex = A2($elm$core$Basics$modBy, 81, index + delta);
 		var _v0 = $author$project$Helpers$indexToPosition(newIndex);
 		var newRow = _v0.a;
@@ -6632,36 +6615,24 @@ var $author$project$Updaters$updateSelectedCell = F2(
 			_Utils_Tuple2(newRow, newCol)) ? _Utils_update(
 			model,
 			{
-				selectedCell: _Utils_Tuple2(newRow, newCol)
+				selectedPos: _Utils_Tuple2(newRow, newCol)
 			}) : model;
 	});
-var $author$project$Interactions$moveSelectedCellDown = function (model) {
-	return A2($author$project$Updaters$updateSelectedCell, 9, model);
+var $author$project$Interactions$moveselectedPosDown = function (model) {
+	return A2($author$project$Updaters$updateselectedPos, 9, model);
 };
-var $author$project$Interactions$moveSelectedCellLeft = function (model) {
-	return A2($author$project$Updaters$updateSelectedCell, -1, model);
+var $author$project$Interactions$moveselectedPosLeft = function (model) {
+	return A2($author$project$Updaters$updateselectedPos, -1, model);
 };
-var $author$project$Interactions$moveSelectedCellRight = function (model) {
-	return A2($author$project$Updaters$updateSelectedCell, 1, model);
+var $author$project$Interactions$moveselectedPosRight = function (model) {
+	return A2($author$project$Updaters$updateselectedPos, 1, model);
 };
-var $author$project$Interactions$moveSelectedCellUp = function (model) {
-	return A2($author$project$Updaters$updateSelectedCell, -9, model);
+var $author$project$Interactions$moveselectedPosUp = function (model) {
+	return A2($author$project$Updaters$updateselectedPos, -9, model);
 };
 var $author$project$Constants$sampleValueStrings = $elm$core$Array$fromList(
 	_List_fromArray(
 		['000000000000000000000000000000000000000000000000000000000000000000000000000000000', '020100000006000000503000000030000000010020600000600000800000000000000000900000000', '020038190050070086087910200500700620000005018643000900009401030174800000005690801', '060708030000001000004930870030000180200000009007500000070000320000000040800006000', '060000104000200000000000050019000006020940000080705000203400069800320000000000700']));
-var $elm$core$Process$sleep = _Process_sleep;
-var $author$project$Autosolvers$cellsWithPairMarks = $author$project$Autosolvers$cellsWithMarkCount(2);
-var $author$project$Autosolvers$uncheckedModelCellsWithMarkPairs = function (model) {
-	return A2(
-		$elm$core$Array$filter,
-		function (cell) {
-			return _Utils_cmp(
-				$author$project$Helpers$positionToIndex(cell.pos),
-				$author$project$Helpers$positionToIndex(model.selectedCell)) > -1;
-		},
-		$author$project$Autosolvers$cellsWithPairMarks(model.cells));
-};
 var $author$project$Updaters$updateActiveNumber = F2(
 	function (activeNumber, model) {
 		return _Utils_update(
@@ -7088,11 +7059,11 @@ var $author$project$Updaters$updateCellValue = F2(
 				model,
 				{
 					cells: A3($elm$core$Array$set, index, updatedCell, model.cells),
-					selectedCell: pos
+					selectedPos: pos
 				}));
 	});
 var $author$project$Updaters$updateCurrentCellValue = function (model) {
-	return A2($author$project$Updaters$updateCellValue, model.selectedCell, model);
+	return A2($author$project$Updaters$updateCellValue, model.selectedPos, model);
 };
 var $author$project$Updaters$updateGameState = F2(
 	function (gameState, model) {
@@ -7106,165 +7077,6 @@ var $author$project$Updaters$updateGameState = F2(
 				gameState: $elm$core$Maybe$Just(gameState)
 			});
 	});
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$CellHelpers$inSameBlock = F2(
-	function (cell1, cell2) {
-		return _Utils_eq(cell1.block, cell2.block);
-	});
-var $author$project$CellHelpers$inSameCol = F2(
-	function (cell1, cell2) {
-		return _Utils_eq(cell1.pos.b, cell2.pos.b);
-	});
-var $author$project$CellHelpers$inSameRow = F2(
-	function (cell1, cell2) {
-		return _Utils_eq(cell1.pos.a, cell2.pos.a);
-	});
-var $author$project$CellHelpers$areCorelated = F3(
-	function (cell1, cell2, cell3) {
-		return (!_Utils_eq(cell1, cell2)) && ((!_Utils_eq(cell1, cell3)) && ((A2($author$project$CellHelpers$inSameRow, cell1, cell2) && A2($author$project$CellHelpers$inSameRow, cell1, cell3)) || ((A2($author$project$CellHelpers$inSameCol, cell1, cell2) && A2($author$project$CellHelpers$inSameCol, cell1, cell3)) || (A2($author$project$CellHelpers$inSameBlock, cell1, cell2) && A2($author$project$CellHelpers$inSameBlock, cell1, cell3)))));
-	});
-var $author$project$CellHelpers$areRelated = F2(
-	function (cell1, cell2) {
-		return (!_Utils_eq(cell1, cell2)) && (A2($author$project$CellHelpers$inSameRow, cell1, cell2) || (A2($author$project$CellHelpers$inSameCol, cell1, cell2) || A2($author$project$CellHelpers$inSameBlock, cell1, cell2)));
-	});
-var $author$project$CellHelpers$cellContainsMarks = F2(
-	function (marks, cell) {
-		return A2(
-			$elm$core$List$all,
-			function (mark) {
-				return A2($elm$core$List$member, mark, cell.marks);
-			},
-			marks);
-	});
-var $author$project$CellHelpers$cellsWhichContainMarks = F2(
-	function (marks, cells) {
-		return A2(
-			$elm$core$Array$filter,
-			$author$project$CellHelpers$cellContainsMarks(marks),
-			cells);
-	});
-var $author$project$Autosolvers$updatePair = function (model) {
-	var firstCellWithPairMarks = A2(
-		$elm$core$Array$get,
-		0,
-		$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
-	var otherCellWithSamePairMarks = A2(
-		$elm$core$Maybe$andThen,
-		function (cell) {
-			return A2(
-				$elm$core$Array$get,
-				0,
-				A2(
-					$elm$core$Array$filter,
-					function (otherCell) {
-						return A2($author$project$CellHelpers$areRelated, cell, otherCell);
-					},
-					A2(
-						$elm$core$Array$filter,
-						function (otherCell) {
-							return _Utils_eq(otherCell.marks, cell.marks);
-						},
-						model.cells)));
-		},
-		firstCellWithPairMarks);
-	var cellsToBeAdjusted = function () {
-		var _v4 = _Utils_Tuple2(firstCellWithPairMarks, otherCellWithSamePairMarks);
-		if (_v4.a.$ === 'Nothing') {
-			var _v5 = _v4.a;
-			return $elm$core$Array$fromList(_List_Nil);
-		} else {
-			if (_v4.b.$ === 'Nothing') {
-				var _v6 = _v4.b;
-				return $elm$core$Array$fromList(_List_Nil);
-			} else {
-				var cell = _v4.a.a;
-				var otherCell = _v4.b.a;
-				return A2(
-					$elm$core$Array$filter,
-					function (thirdCell) {
-						return A3($author$project$CellHelpers$areCorelated, cell, otherCell, thirdCell);
-					},
-					A2($author$project$CellHelpers$cellsWhichContainMarks, cell.marks, model.cells));
-			}
-		}
-	}();
-	var locsToAdjust = $elm$core$Array$toList(
-		A2(
-			$elm$core$Array$map,
-			function (cell) {
-				return cell.pos;
-			},
-			cellsToBeAdjusted));
-	var newCells = function () {
-		if (firstCellWithPairMarks.$ === 'Just') {
-			var rootCell = firstCellWithPairMarks.a;
-			return A2(
-				$elm$core$Array$map,
-				function (cell) {
-					return A2($elm$core$List$member, cell.pos, locsToAdjust) ? _Utils_update(
-						cell,
-						{
-							marks: A2(
-								$elm$core$List$filter,
-								function (mark) {
-									return !A2($elm$core$List$member, mark, rootCell.marks);
-								},
-								cell.marks)
-						}) : cell;
-				},
-				model.cells);
-		} else {
-			return model.cells;
-		}
-	}();
-	var _v0 = A2($elm$core$Debug$log, 'otherCellsWithSamePairMarks', otherCellWithSamePairMarks);
-	var _v1 = A2($elm$core$Debug$log, 'cellsToBeAdjusted', cellsToBeAdjusted);
-	var _v2 = A2($elm$core$Debug$log, 'locsToAdjust', locsToAdjust);
-	return _Utils_update(
-		model,
-		{cells: newCells});
-};
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Autosolvers$updateSingle = function (model) {
-	var firstCellWithSingleMark = A2(
-		$elm$core$Array$get,
-		0,
-		$author$project$Autosolvers$cellsWithSingleMark(model.cells));
-	var newCells = function () {
-		if (firstCellWithSingleMark.$ === 'Just') {
-			var cell = firstCellWithSingleMark.a;
-			var updatedCell = _Utils_update(
-				cell,
-				{
-					guess: $elm$core$List$head(cell.marks),
-					marks: _List_Nil
-				});
-			var index = $author$project$Helpers$positionToIndex(cell.pos);
-			return A3($elm$core$Array$set, index, updatedCell, model.cells);
-		} else {
-			return model.cells;
-		}
-	}();
-	return _Utils_update(
-		model,
-		{cells: newCells});
-};
 var $author$project$Sudoku$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -7362,12 +7174,12 @@ var $author$project$Sudoku$update = F2(
 							$elm$core$Platform$Cmd$none);
 					case ' ':
 						return _Utils_Tuple2(
-							$author$project$Interactions$moveSelectedCellRight(model),
+							$author$project$Interactions$moveselectedPosRight(model),
 							$elm$core$Platform$Cmd$none);
 					default:
 						return isNumberKey ? _Utils_Tuple2(
 							$author$project$Updaters$updateWinningStatus(
-								$author$project$Interactions$moveSelectedCellRight(
+								$author$project$Interactions$moveselectedPosRight(
 									$author$project$Updaters$updateCurrentCellValue(
 										A2(
 											$author$project$Updaters$updateActiveNumber,
@@ -7381,19 +7193,19 @@ var $author$project$Sudoku$update = F2(
 				switch (label) {
 					case 'ArrowRight':
 						return _Utils_Tuple2(
-							$author$project$Interactions$moveSelectedCellRight(model),
+							$author$project$Interactions$moveselectedPosRight(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowLeft':
 						return _Utils_Tuple2(
-							$author$project$Interactions$moveSelectedCellLeft(model),
+							$author$project$Interactions$moveselectedPosLeft(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowUp':
 						return _Utils_Tuple2(
-							$author$project$Interactions$moveSelectedCellUp(model),
+							$author$project$Interactions$moveselectedPosUp(model),
 							$elm$core$Platform$Cmd$none);
 					case 'ArrowDown':
 						return _Utils_Tuple2(
-							$author$project$Interactions$moveSelectedCellDown(model),
+							$author$project$Interactions$moveselectedPosDown(model),
 							$elm$core$Platform$Cmd$none);
 					case 'Backspace':
 						return _Utils_Tuple2(
@@ -7402,102 +7214,31 @@ var $author$project$Sudoku$update = F2(
 									A2(
 										$author$project$Updaters$updateActiveNumber,
 										$elm$core$Maybe$Nothing,
-										$author$project$Interactions$moveSelectedCellLeft(model)))),
+										$author$project$Interactions$moveselectedPosLeft(model)))),
 							$elm$core$Platform$Cmd$none);
 					default:
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
 			case 'StartSolving':
-				return _Utils_Tuple2(
-					A2(
-						$author$project$Updaters$updateSelectedCell,
-						0,
-						$author$project$Updaters$generateAutoMarks(
-							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingSingles, model))),
-					A2(
-						$elm$core$Task$perform,
-						function (_v4) {
-							return $author$project$SudokuTypes$CheckSingles;
-						},
-						$elm$core$Process$sleep(2000)));
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'StopSolving':
 				return _Utils_Tuple2(
 					A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CanceledSolving, model),
 					$elm$core$Platform$Cmd$none);
-			case 'CheckSingles':
-				var _v5 = _Utils_Tuple2(
-					model.autoSolveState,
-					A2(
-						$elm$core$Array$get,
-						0,
-						$author$project$Autosolvers$cellsWithSingleMark(model.cells)));
-				if (_v5.a.$ === 'CanceledSolving') {
-					var _v6 = _v5.a;
-					return _Utils_Tuple2(
-						A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					if (_v5.b.$ === 'Nothing') {
-						var _v7 = _v5.b;
-						return _Utils_Tuple2(
-							A2(
-								$author$project$Updaters$updateSelectedCell,
-								0,
-								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingPairs, model)),
-							A2(
-								$elm$core$Task$perform,
-								function (_v8) {
-									return $author$project$SudokuTypes$CheckPairs;
-								},
-								$elm$core$Process$sleep(2000)));
-					} else {
-						return _Utils_Tuple2(
-							$author$project$Updaters$generateAutoMarks(
-								$author$project$Autosolvers$updateSingle(
-									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingSingles, model))),
-							A2(
-								$elm$core$Task$perform,
-								function (_v9) {
-									return $author$project$SudokuTypes$CheckSingles;
-								},
-								$elm$core$Process$sleep(2000)));
-					}
-				}
+			case 'CheckFullHouse':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CheckLastDigit':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CheckHiddenSingle':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CheckPinnedDigit':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CheckNakedSingle':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CheckForcedDigit':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			default:
-				var _v10 = A2(
-					$elm$core$Debug$log,
-					'uncheckedModelCellsWithMarkPairs',
-					$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model));
-				var _v11 = _Utils_Tuple2(
-					model.autoSolveState,
-					A2(
-						$elm$core$Array$get,
-						0,
-						$author$project$Autosolvers$uncheckedModelCellsWithMarkPairs(model)));
-				if (_v11.a.$ === 'CanceledSolving') {
-					var _v12 = _v11.a;
-					return _Utils_Tuple2(
-						A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					if (_v11.b.$ === 'Nothing') {
-						var _v13 = _v11.b;
-						return _Utils_Tuple2(
-							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$NotSolving, model),
-							$elm$core$Platform$Cmd$none);
-					} else {
-						return _Utils_Tuple2(
-							$author$project$Updaters$generateAutoMarks(
-								$author$project$Autosolvers$updatePair(
-									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingPairs, model))),
-							A2(
-								$elm$core$Task$perform,
-								function (_v14) {
-									return $author$project$SudokuTypes$CheckPairs;
-								},
-								$elm$core$Process$sleep(2000)));
-					}
-				}
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$SudokuTypes$ClearAutoMarks = {$: 'ClearAutoMarks'};
@@ -7518,10 +7259,20 @@ var $author$project$Helpers$autoSolveStateToString = function (state) {
 			return 'Not Solving';
 		case 'CanceledSolving':
 			return 'Canceled Solving';
-		case 'CheckingSingles':
-			return 'Solving Singles';
+		case 'CheckingFullHouse':
+			return 'Checking Full House';
+		case 'CheckingLastDigit':
+			return 'Checking Last Digit';
+		case 'CheckingHiddenSingle':
+			return 'Checking Hidden Single';
+		case 'CheckingPinnedDigit':
+			return 'Checking Pinned Digit';
+		case 'CheckingNakedSingle':
+			return 'Checking Naked Single';
+		case 'CheckingForcedDigit':
+			return 'Checking Forced Digit';
 		default:
-			return 'Solving Pairs';
+			return 'Checking Sole Candidate';
 	}
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
@@ -7561,6 +7312,7 @@ var $elm$html$Html$Attributes$href = function (url) {
 		'href',
 		_VirtualDom_noJavaScriptUri(url));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7608,7 +7360,7 @@ var $author$project$Sudoku$viewCellAt = F2(
 							_Utils_Tuple2(
 							'cell--selected',
 							_Utils_eq(
-								model.selectedCell,
+								model.selectedPos,
 								_Utils_Tuple2(row, col))),
 							_Utils_Tuple2(
 							'row' + $elm$core$String$fromInt(row),

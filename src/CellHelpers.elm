@@ -136,6 +136,10 @@ cellIsInRow colNumber cell =
     (Tuple.first cell.pos) == colNumber
 
 
+cellIsOpen : Cell -> Bool
+cellIsOpen cell =
+    cell.value == Nothing && cell.guess == Nothing
+
 cellsAreComplete : Array Cell -> (Cell -> Maybe Int) -> Bool
 cellsAreComplete cells getNumber =
     List.all (\cell -> getNumber cell /= Nothing) (Array.toList cells) && 

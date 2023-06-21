@@ -14,11 +14,27 @@ autoSolveStateToString state =
         CanceledSolving ->
             "Canceled Solving"
 
-        CheckingSingles ->
-            "Solving Singles"
+        CheckingFullHouse ->
+            "Checking Full House"
 
-        CheckingPairs ->
-            "Solving Pairs"
+        CheckingLastDigit ->
+            "Checking Last Digit"
+
+        CheckingHiddenSingle ->
+            "Checking Hidden Single"
+
+        CheckingPinnedDigit ->
+            "Checking Pinned Digit"
+
+        CheckingNakedSingle ->
+            "Checking Naked Single"
+
+        CheckingForcedDigit ->
+            "Checking Forced Digit"
+
+        CheckingSoleCandidate ->
+            "Checking Sole Candidate"
+
 
             
 
