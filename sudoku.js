@@ -5735,6 +5735,10 @@ var $author$project$Sudoku$subscriptions = function (_v0) {
 	return $elm$browser$Browser$Events$onKeyDown($author$project$Interactions$keyDecoder);
 };
 var $author$project$SudokuTypes$CanceledSolving = {$: 'CanceledSolving'};
+var $author$project$SudokuTypes$CheckPairs = {$: 'CheckPairs'};
+var $author$project$SudokuTypes$CheckSingles = {$: 'CheckSingles'};
+var $author$project$SudokuTypes$CheckingPairs = {$: 'CheckingPairs'};
+var $author$project$SudokuTypes$CheckingSingles = {$: 'CheckingSingles'};
 var $author$project$SudokuTypes$NewPuzzle = function (a) {
 	return {$: 'NewPuzzle', a: a};
 };
@@ -5742,10 +5746,6 @@ var $author$project$SudokuTypes$SetAnswer = {$: 'SetAnswer'};
 var $author$project$SudokuTypes$SetAutoMarks = {$: 'SetAutoMarks'};
 var $author$project$SudokuTypes$SetGuess = {$: 'SetGuess'};
 var $author$project$SudokuTypes$SetMarks = {$: 'SetMarks'};
-var $author$project$SudokuTypes$SolvePairs = {$: 'SolvePairs'};
-var $author$project$SudokuTypes$SolveSingles = {$: 'SolveSingles'};
-var $author$project$SudokuTypes$SolvingPairs = {$: 'SolvingPairs'};
-var $author$project$SudokuTypes$SolvingSingles = {$: 'SolvingSingles'};
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -7413,18 +7413,18 @@ var $author$project$Sudoku$update = F2(
 						$author$project$Updaters$updateSelectedCell,
 						0,
 						$author$project$Updaters$generateAutoMarks(
-							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
+							A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingSingles, model))),
 					A2(
 						$elm$core$Task$perform,
 						function (_v4) {
-							return $author$project$SudokuTypes$SolveSingles;
+							return $author$project$SudokuTypes$CheckSingles;
 						},
 						$elm$core$Process$sleep(2000)));
 			case 'StopSolving':
 				return _Utils_Tuple2(
 					A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CanceledSolving, model),
 					$elm$core$Platform$Cmd$none);
-			case 'SolveSingles':
+			case 'CheckSingles':
 				var _v5 = _Utils_Tuple2(
 					model.autoSolveState,
 					A2(
@@ -7443,22 +7443,22 @@ var $author$project$Sudoku$update = F2(
 							A2(
 								$author$project$Updaters$updateSelectedCell,
 								0,
-								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model)),
+								A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingPairs, model)),
 							A2(
 								$elm$core$Task$perform,
 								function (_v8) {
-									return $author$project$SudokuTypes$SolvePairs;
+									return $author$project$SudokuTypes$CheckPairs;
 								},
 								$elm$core$Process$sleep(2000)));
 					} else {
 						return _Utils_Tuple2(
 							$author$project$Updaters$generateAutoMarks(
 								$author$project$Autosolvers$updateSingle(
-									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingSingles, model))),
+									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingSingles, model))),
 							A2(
 								$elm$core$Task$perform,
 								function (_v9) {
-									return $author$project$SudokuTypes$SolveSingles;
+									return $author$project$SudokuTypes$CheckSingles;
 								},
 								$elm$core$Process$sleep(2000)));
 					}
@@ -7489,11 +7489,11 @@ var $author$project$Sudoku$update = F2(
 						return _Utils_Tuple2(
 							$author$project$Updaters$generateAutoMarks(
 								$author$project$Autosolvers$updatePair(
-									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$SolvingPairs, model))),
+									A2($author$project$Updaters$updateAutoSolveState, $author$project$SudokuTypes$CheckingPairs, model))),
 							A2(
 								$elm$core$Task$perform,
 								function (_v14) {
-									return $author$project$SudokuTypes$SolvePairs;
+									return $author$project$SudokuTypes$CheckPairs;
 								},
 								$elm$core$Process$sleep(2000)));
 					}
@@ -7518,7 +7518,7 @@ var $author$project$Helpers$autoSolveStateToString = function (state) {
 			return 'Not Solving';
 		case 'CanceledSolving':
 			return 'Canceled Solving';
-		case 'SolvingSingles':
+		case 'CheckingSingles':
 			return 'Solving Singles';
 		default:
 			return 'Solving Pairs';

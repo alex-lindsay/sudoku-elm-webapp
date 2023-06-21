@@ -14,10 +14,10 @@ autoSolveStateToString state =
         CanceledSolving ->
             "Canceled Solving"
 
-        SolvingSingles ->
+        CheckingSingles ->
             "Solving Singles"
 
-        SolvingPairs ->
+        CheckingPairs ->
             "Solving Pairs"
 
             

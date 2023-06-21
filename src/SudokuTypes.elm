@@ -21,9 +21,9 @@ type WinningStatus
 type AutoSolveState
     = NotSolving
     | CanceledSolving
-    | SolvingSingles
-    | SolvingPairs
-    -- | SolvingTriples
+    | CheckingSingles
+    | CheckingPairs
+    -- | CheckingTriples
 
 
 type alias Position =
@@ -42,8 +42,8 @@ type Msg
     | ControlKeyPressed String
     | StartSolving
     | StopSolving
-    | SolveSingles
-    | SolvePairs
+    | CheckSingles
+    | CheckPairs
     -- | SolveTriples
 
 

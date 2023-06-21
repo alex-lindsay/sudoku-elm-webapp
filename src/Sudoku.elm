@@ -137,29 +137,29 @@ update msg model =
                     ( model, Cmd.none )
 
         StartSolving ->
-            ( updateAutoSolveState SolvingSingles model
+            ( updateAutoSolveState CheckingSingles model
                 |> generateAutoMarks
                 |> updateSelectedCell 0
-            , Process.sleep 2000 |> Task.perform (\_ -> SolveSingles)
+            , Process.sleep 2000 |> Task.perform (\_ -> CheckSingles)
             )
 
         StopSolving ->
             ( updateAutoSolveState CanceledSolving model, Cmd.none )
 
-        SolveSingles ->
+        CheckSingles ->
             case (model.autoSolveState, cellsWithSingleMark model.cells |> Array.get 0) of
                 ( CanceledSolving, _ ) ->
                     ( updateAutoSolveState NotSolving model, Cmd.none )
 
                 ( _, Nothing ) ->
-                    ( updateAutoSolveState SolvingPairs model
+                    ( updateAutoSolveState CheckingPairs model
                         |> updateSelectedCell 0
-                    , Process.sleep 2000 |> Task.perform (\_ -> SolvePairs)
+                    , Process.sleep 2000 |> Task.perform (\_ -> CheckPairs)
                     )
 
                 _ ->
-                    ( updateAutoSolveState SolvingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolveSingles) )
-        SolvePairs ->
+                    ( updateAutoSolveState CheckingSingles model |> updateSingle |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckSingles) )
+        CheckPairs ->
             let
                 _ = Debug.log "uncheckedModelCellsWithMarkPairs" (uncheckedModelCellsWithMarkPairs model)
             in
@@ -171,7 +171,7 @@ update msg model =
                     ( updateAutoSolveState NotSolving model, Cmd.none )
 
                 _ ->
-                    ( updateAutoSolveState SolvingPairs model |> updatePair |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> SolvePairs) )
+                    ( updateAutoSolveState CheckingPairs model |> updatePair |> generateAutoMarks, Process.sleep 2000 |> Task.perform (\_ -> CheckPairs) )
 
 
 
